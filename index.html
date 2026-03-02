@@ -1164,15 +1164,18 @@
 		}
 
 		async function renderMySpots(filterId = null) {
+		    const spots = JSON.parse(localStorage.getItem('mySpots')) || [];
+			const container = document.getElementById('app-content');
+
 			if (!userSettings.isPremium) {
-			    const remaining = 5 - savedSpots.length;
+			    const remaining = 5 - spots.length;
 			    const progressColor = remaining <= 1 ? 'text-orange-500' : 'text-emerald-600';
 			    
 			    const statusHtml = `
 			        <div class="mt-6 p-4 bg-stone-100 rounded-2xl text-center">
 			            <p class="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-1">Status</p>
 			            <p class="text-sm font-sans">
-			                Du har ${5 - savedSpots.length} gratis spots tilbage. Opgrader til Premium for at gemme alle dine hemmelige steder for evigt.
+			                Du har ${5 - spots.length} gratis spots tilbage. Opgrader til Premium for at gemme alle dine hemmelige steder for evigt.
 			            </p>
 			        </div>
 			    `;
@@ -1180,43 +1183,13 @@
 			else {
 				const statusHtml = '';
 			}
-			
-		    const container = document.getElementById('app-content');
-		    container.innerHTML = `<div class="p-20 text-center animate-pulse text-stone-400">${ui.spot_calculating_distances}</div>`;
 
-		    let userPos = null;
-		    try {
-		        userPos = await getPreciseLocation();
-		    } catch (e) {
-		        console.log(ui.spot_gps_not_available);
-		    }
-		
-		    const spots = JSON.parse(localStorage.getItem('mySpots')) || [];
-		    
-		    // 1. Filtrer og beregn afstande
-		    let processedSpots = spots.map((spot, index) => {
-		        const info = database[spot.resId]; 
-		        
-		        const lat = spot.lat || (spot.location ? spot.location.lat : null);
-		        const lng = spot.lng || (spot.location ? spot.location.lng : null);
-		
-		        let dist = null;
-		        if (userPos && lat && lng) {
-		            dist = getDistance(userPos.lat, userPos.lng, lat, lng);
-		        }
-		        return { ...spot, info, dist, originalIndex: index, lat, lng };
-		    }).filter(s => {
-		        const matchesSeason = (activeSeason === 'all' || s.info.months.includes(activeSeason));
-		        // Hvis der er et filterId, skal resId matche. Ellers bare sæson-tjek.
-		        return s.info && matchesSeason && (!filterId || s.resId === filterId);
+			const potentialSpots = spots.filter(s => {
+		        const info = database[s.resId];
+		        const matchesSeason = (activeSeason === 'all' || (info && info.months.includes(activeSeason)));
+		        return info && matchesSeason && (!filterId || s.resId === filterId);
 		    });
-		
-		    // 2. Sorter efter afstand
-		    if (userPos) {
-		        processedSpots.sort((a, b) => a.dist - b.dist);
-		    }
-
-		    if (processedSpots.length === 0) {
+			if (potentialSpots.length === 0) {
 		        const hasAnySpots = (JSON.parse(localStorage.getItem('mySpots')) || []).length > 0;
 		        container.innerHTML = `
 		            <div class="flex flex-col items-center justify-center min-h-[60vh] px-8 text-center fade-in">
@@ -1234,7 +1207,33 @@
 		                </button>
 		            </div>
 		        `;
-		        return; 
+				return;
+			}
+
+		    container.innerHTML = `<div class="p-20 text-center animate-pulse text-stone-400">${ui.spot_calculating_distances}</div>`;
+
+		    let userPos = null;
+		    try {
+		        userPos = await getPreciseLocation();
+		    } catch (e) {
+		        console.log(ui.spot_gps_not_available);
+		    }
+			
+			let processedSpots = potentialSpots.map((spot) => {
+		        const info = database[spot.resId];
+		        const lat = spot.lat || (spot.location ? spot.location.lat : null);
+		        const lng = spot.lng || (spot.location ? spot.location.lng : null);
+		        
+		        let dist = null;
+		        if (userPos && lat && lng) {
+		            dist = getDistance(userPos.lat, userPos.lng, lat, lng);
+		        }
+		        return { ...spot, info, dist, originalIndex: index, lat, lng };
+		    });
+		
+		    // 2. Sorter efter afstand
+		    if (userPos) {
+		        processedSpots.sort((a, b) => a.dist - b.dist);
 		    }
 
 			const title = filterId && processedSpots.length > 0 
@@ -1279,13 +1278,13 @@
 		                    </div>
 		                `).join('')}
 		            </div>
+					${statusHtml}
 					</div> <div class="px-4 pt-8 pb-12 text-center">
 			            <button onclick="clearAllSpots()" class="text-[10px] font-bold text-stone-400 uppercase tracking-widest border border-stone-200 px-6 py-3 rounded-full hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all">
 			                ${ui.spot_delete_all}
 			            </button>
 			        </div>
 				</div>
-				${statusHtml}
 		    `;
 		
 		    initOverviewMap(processedSpots);
@@ -2059,6 +2058,7 @@
     </script>
 </body>
 </html>
+
 
 
 
