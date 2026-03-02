@@ -8,10 +8,13 @@ const PRECACHE_ASSETS = [
     './geo_data.json',
     './data/translations.json',
     './data/universal.json',
-    './data/lang/da.json',
-    './data/regions/DK.json',
-    './data/regions/DK_wizardMushroomData.json',
     './icons/wildly_icon.svg'
+    // './dist/style.css', Aktiver denne når tailwind er bygget
+    './lib/leaflet/leaflet.css',
+    './lib/leaflet/leaflet.js',
+    './lib/leaflet/images/marker-icon.png',
+    './lib/leaflet/images/marker-shadow.png',
+    './lib/leaflet/images/marker-icon-2x.png'    
 ];
 
 // INSTALL EVENT: Kører første gang Service Workeren registreres
@@ -75,4 +78,18 @@ self.addEventListener('fetch', (event) => {
             return cachedResponse || fetchPromise;
         })
     );
+});
+
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'CACHE_NEW_REGION') {
+        const urlsToCache = event.data.payload;
+        
+        console.log('[Service Worker] Modtog besked om at cache nye filer:', urlsToCache);
+        
+        event.waitUntil(
+            caches.open(CACHE_NAME).then((cache) => {
+                return cache.addAll(urlsToCache);
+            })
+        );
+    }
 });
