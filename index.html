@@ -336,6 +336,22 @@
 		    });
 		}
 
+		function updateOfflineResources(lang, countryCode) {
+		    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+		        const filesToCache = [
+		            `./data/lang/${lang}.json`,
+		            `./data/regions/${countryCode}.json`,
+		            `./data/regions/${countryCode}_wizardMushroomData.json`
+		        ];
+		
+		        // Send besked til Service Worker
+		        navigator.serviceWorker.controller.postMessage({
+		            type: 'CACHE_NEW_REGION',
+		            payload: filesToCache
+		        });
+		    }
+		}
+
 		async function handleLangChange(langCode, shouldRender = true) {
 		    userSettings.lang = langCode;
 		    const langData = appConfig.languages[langCode];
@@ -414,8 +430,9 @@
 			
 		    // 4. Gem de nye indstillinger permanent
 		    saveSettings();
+			updateOfflineResources(userSettings.lang, userSettings.country);
 		
-		    // 5. Hent den nye lande-database (f.eks. data_dk.json)
+		    // 5. Hent den nye lande-database
 		    await loadDatabase();
 		
 		    // 6. Hvis vi skal opdatere skærmen med det samme (f.eks. når man skifter i menuen)
@@ -1984,6 +2001,7 @@
     </script>
 </body>
 </html>
+
 
 
 
