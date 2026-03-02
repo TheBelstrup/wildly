@@ -1163,26 +1163,29 @@
 		    }
 		}
 
-		async function renderMySpots(filterId = null) {
+		function renderPremiumSpotUpgrade() {
 		    const spots = JSON.parse(localStorage.getItem('mySpots')) || [];
-			const container = document.getElementById('app-content');
 
 			if (!userSettings.isPremium) {
 			    const remaining = 5 - spots.length;
-			    const progressColor = remaining <= 1 ? 'text-orange-500' : 'text-emerald-600';
 			    
-			    const statusHtml = `
+			    return = `
 			        <div class="mt-6 p-4 bg-stone-100 rounded-2xl text-center">
 			            <p class="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-1">Status</p>
 			            <p class="text-sm font-sans">
-			                Du har ${5 - spots.length} gratis spots tilbage. Opgrader til Premium for at gemme alle dine hemmelige steder for evigt.
+			                Du har ${remaining} gratis spots tilbage. Opgrader til Premium for at gemme alle dine hemmelige steder for evigt.
 			            </p>
 			        </div>
 			    `;
 			}
-			else {
-				const statusHtml = '';
-			}
+
+			return '';
+		}
+
+		async function renderMySpots(filterId = null) {
+		    const spots = JSON.parse(localStorage.getItem('mySpots')) || [];
+			const container = document.getElementById('app-content');
+			const statusHtml =  renderPremiumSpotUpgrade();
 
 			const potentialSpots = spots.filter(s => {
 		        const info = database[s.resId];
@@ -2058,6 +2061,7 @@
     </script>
 </body>
 </html>
+
 
 
 
