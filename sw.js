@@ -8,7 +8,7 @@ const PRECACHE_ASSETS = [
     './geo_data.json',
     './data/translations.json',
     './data/universal.json',
-    './icons/wildly_icon.svg'
+    './icons/wildly_icon.svg',
     // './dist/style.css', Aktiver denne når tailwind er bygget
     './lib/leaflet/leaflet.css',
     './lib/leaflet/leaflet.js',
