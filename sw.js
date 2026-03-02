@@ -17,11 +17,11 @@ const PRECACHE_ASSETS = [
     './lib/leaflet/images/marker-icon-2x.png'    
 ];
 
-// INSTALL EVENT: Kører første gang Service Workeren registreres
 self.addEventListener('install', (event) => {
-    self.skipWaiting(); // Tvinger den nye SW til at tage over med det samme
+    self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
+            console.log('[Service Worker] Pre-caching assets');
             return cache.addAll(PRECACHE_ASSETS);
         })
     );
@@ -33,7 +33,6 @@ self.addEventListener('activate', (event) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
                     if (cacheName !== CACHE_NAME) {
-                        console.log('[Service Worker] Sletter gammel cache:', cacheName);
                         return caches.delete(cacheName);
                     }
                 })
@@ -45,23 +44,26 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     const requestUrl = new URL(event.request.url);
 
-    // 1. IGNORÉR KORT-FLISER (OpenStreetMap)
-    // Vi vil ikke cache tusindvis af kortbilleder, da det dræber telefonens hukommelse.
-    if (requestUrl.hostname.includes('tile.openstreetmap.org')) {
-        return; // Falder tilbage til standard browser-adfærd (kræver internet)
-    }
-
-    // 2. IGNORÉR API KALD (som IP-gætteriet)
-    if (requestUrl.hostname.includes('ipapi.co')) {
+    // Ignorer eksterne API'er og kortfliser
+    if (requestUrl.hostname.includes('tile.openstreetmap.org') || requestUrl.hostname.includes('ipapi.co')) {
         return;
     }
 
-    // 3. STALE-WHILE-REVALIDATE STRATEGI (For alt andet: HTML, JSON, CSS, JS, billeder)
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
-            // Start netværksanmodningen i baggrunden for at opdatere cachen
-            const fetchPromise = fetch(event.request).then((networkResponse) => {
-                // Tjek om vi fik et gyldigt svar fra nettet
+            if (cachedResponse) {
+                // Returner fra cache, men opdater i baggrunden (Stale-while-revalidate)
+                fetch(event.request).then((networkResponse) => {
+                    if (networkResponse && networkResponse.status === 200) {
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, networkResponse);
+                        });
+                    }
+                }).catch(() => {});
+                return cachedResponse;
+            }
+
+            return fetch(event.request).then((networkResponse) => {
                 if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
                     const responseToCache = networkResponse.clone();
                     caches.open(CACHE_NAME).then((cache) => {
@@ -69,26 +71,16 @@ self.addEventListener('fetch', (event) => {
                     });
                 }
                 return networkResponse;
-            }).catch(() => {
-                // Fetch fejlede (brugeren er offline) - gør ingenting, vi bruger cachen
-                console.log('[Service Worker] Offline: Kunne ikke opdatere', event.request.url);
             });
-
-            // Returnér cachen ØJEBLIKKELIGT hvis vi har den, ellers vent på netværket
-            return cachedResponse || fetchPromise;
         })
     );
 });
 
 self.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'CACHE_NEW_REGION') {
-        const urlsToCache = event.data.payload;
-        
-        console.log('[Service Worker] Modtog besked om at cache nye filer:', urlsToCache);
-        
         event.waitUntil(
             caches.open(CACHE_NAME).then((cache) => {
-                return cache.addAll(urlsToCache);
+                return cache.addAll(event.data.payload);
             })
         );
     }
