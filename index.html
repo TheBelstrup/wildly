@@ -1223,7 +1223,7 @@
 		        console.log(ui.spot_gps_not_available);
 		    }
 			
-			let processedSpots = potentialSpots.map((spot) => {
+			let processedSpots = potentialSpots.map((spot, index) => {
 		        const info = database[spot.resId];
 		        const lat = spot.lat || (spot.location ? spot.location.lat : null);
 		        const lng = spot.lng || (spot.location ? spot.location.lng : null);
@@ -2062,6 +2062,7 @@
     </script>
 </body>
 </html>
+
 
 
 
