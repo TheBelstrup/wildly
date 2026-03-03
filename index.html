@@ -1166,17 +1166,38 @@
 
 		function renderPremiumSpotUpgrade() {
 		    const spots = JSON.parse(localStorage.getItem('mySpots')) || [];
-
+			const used = spots.length;
+			const total = 5;
+			const remaining = total - used;
+			const isCritical = remaining <= 1;
+			const dotsHtml = Array.from({ length: total }, (_, i) => {
+			    const isFilled = i < used;
+			    return `
+			        <div class="h-1.5 flex-1 rounded-full transition-all duration-500 ${
+			            isFilled 
+			                ? (isCritical ? 'bg-orange-500' : 'bg-emerald-600') 
+			                : 'bg-stone-200'
+			        }"></div>
+			    `;
+			}).join('');
+			
 			if (!userSettings.isPremium) {
 			    const remaining = 5 - spots.length;
 			    
 			    return `
-			        <div class="mt-6 p-4 bg-stone-100 rounded-2xl text-center">
-			            <p class="text-[10px] uppercase tracking-widest font-bold text-stone-400 mb-1">Status</p>
-			            <p class="text-sm font-sans">
-			                Du har ${remaining} gratis spots tilbage. Opgrader til Premium for at gemme alle dine hemmelige steder for evigt.
-			            </p>
-			        </div>
+			        <div class="mt-2 p-4 bg-stone-100 rounded-2xl text-center">
+						<div class="flex justify-between items-end mb-3">
+							<div class="flex gap-1.5 mb-3">
+					            ${dotsHtml}
+					        </div>
+				            <p class="text-sm font-sans">
+				                Du har ${remaining} gratis spots tilbage. Opgrader til Premium for at gemme alle dine hemmelige steder for evigt.
+				            </p>
+							<button onclick="showPaywall()" class="text-[10px] font-black text-emerald-600 uppercase tracking-wider bg-emerald-50 px-3 py-1.5 rounded-lg active:scale-95 transition-all">
+				                Opgrader
+				            </button>
+						</div>
+					</div>
 			    `;
 			}
 
@@ -1204,7 +1225,7 @@
 		                <p class="text-stone-500 text-sm italic leading-relaxed mb-8">
 		                    ${hasAnySpots 
 		                        ? `${ui.spot_change_month}` 
-		                        : `${ui.spot_map_empty}`}
+		                        : `${ui.spot_map_empty}${statusHtml}`}
 		                </p>
 		                <button onclick="navigate('start')" class="px-8 py-4 bg-green-800 text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg">
 		                    ${ui.go_to_home}
@@ -1323,6 +1344,7 @@
 
 		async function renderSpot(spotUid) {
 		    const allSpots = JSON.parse(localStorage.getItem('mySpots')) || [];
+			const statusHtml =  renderPremiumSpotUpgrade();
 		    const spot = allSpots.find(s => s.uid === spotUid);
 		    if (!spot) return navigate('start');
 		
@@ -1381,6 +1403,7 @@
 		                    ${ui.spot_delete}
 		                </button>
 		            </div>
+					${statusHtml}
 		        </div>
 		    `;
 		
@@ -2062,6 +2085,7 @@
     </script>
 </body>
 </html>
+
 
 
 
