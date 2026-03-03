@@ -144,7 +144,11 @@
     "wizard_stop_description": "Dette er kendetegn for dødelige Fluesvampe.",
     "wizard_please_choose": "Vælg venligst",
     "wizard_error": "Der skete en fejl",
-    "wizard_restart": "Genstart"
+    "wizard_restart": "Genstart",
+    "paywall_title": "Bliv Premium Medlem",
+    "paywall_msg": "Du har fundet mange gode steder! Gratis-versionen er begrænset til 5 spots. Opgrader for at gemme ubegrænsede hemmelige steder og få cloud-backup.",
+    "paywall_btn_upgrade": "Opgrader Nu",
+    "paywall_btn_maybe_later": "Måske senere"
   },
   "en": {
     "abort": "Cancel",
@@ -289,6 +293,10 @@
     "wizard_stop_description": "These are characteristics of deadly fly agaric mushrooms.",
     "wizard_please_choose": "Please choose",
     "wizard_error": "An error occurred",
-    "wizard_restart": "Restart"
+    "wizard_restart": "Restart",
+    "paywall_title": "Become Premium Member",
+    "paywall_msg": "You've found many good spots! The free version is limited to 5 spots. Upgrade to save an unlimited number of secret spots and get cloud-backup.",
+    "paywall_btn_upgrade": "Upgrade Now",
+    "paywall_btn_maybe_later": "Maybe later"
   }
 }
