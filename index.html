@@ -895,7 +895,7 @@
 		    }
 		}
 
-	function initOverviewMap(spots) {
+		function initOverviewMap(spots) {
 		    setTimeout(() => {
 				const container = document.getElementById('overview-map');
 		        if (!container) return;
@@ -996,16 +996,16 @@
 			overlay.innerHTML = `
 				<div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl transform animate-pop-in">
 					<div class="text-5xl mb-4">🍄</div>
-					<h2 class="text-2xl font-bold text-emerald-900 mb-2">${ui.paywall_title || 'Bliv Premium Medlem'}</h2>
+					<h2 class="text-2xl font-bold text-emerald-900 mb-2">${ui.paywall_title}</h2>
 					<p class="text-stone-600 mb-6 text-sm leading-relaxed">
-						${ui.paywall_msg || 'Du har fundet mange gode steder! Gratis-versionen er begrænset til 5 spots. Opgrader for at gemme ubegrænsede hemmelige steder og få cloud-backup.'}
+						${ui.paywall_msg}
 					</p>
 					<div class="flex flex-col gap-3">
 						<button onclick="handleUpgrade()" class="bg-emerald-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-emerald-200 active:scale-95 transition-transform">
-							${ui.paywall_btn_upgrade || 'Opgrader Nu'}
+							${ui.paywall_btn_upgrade}
 						</button>
 						<button onclick="document.getElementById('paywall-overlay').remove()" class="text-stone-400 text-xs font-bold uppercase tracking-widest py-2">
-							${ui.paywall_btn_maybe_later || 'Måske senere'}
+							${ui.paywall_btn_maybe_later}
 						</button>
 					</div>
 				</div>
@@ -1025,8 +1025,8 @@
 			const savedSpots = JSON.parse(localStorage.getItem('mySpots')) || []
 
 			if (!isPremium && savedSpots.length >= freeLimit) {
-		        showSpotsPaywall(); // Vis opgraderings-besked
-		        return; // Stop funktionen her
+		        showSpotsPaywall(); 
+		        return;
 		    }
 			
 		    const modalHtml = `
@@ -1185,12 +1185,12 @@
 				        </div>
 				        
 				        <p class="text-sm font-sans text-stone-900 leading-snug mb-3">
-				            ${used} af ${total} <span class="text-stone-400 font-medium italic">spots brugt</span>. 
-				            <span class="block text-[11px] text-stone-500 italic mt-1">Opgrader for at gemme alle dine hemmelige steder.</span>
+				            ${used} ${ui.of} ${total} <span class="text-stone-400 font-medium italic">${ui.spots_used}</span>. 
+				            <span class="block text-[11px] text-stone-500 italic mt-1">${ui.spots_upgrade_premium}</span>
 				        </p>
 				        
 				        <button onclick="showSpotsPaywall()" class="w-full py-3 bg-emerald-50 text-emerald-700 text-[11px] font-black uppercase tracking-widest rounded-xl active:scale-[0.97] transition-all">
-				            Lås op for Premium 🍄
+				            ${ui.spots_unlock_premium} 🍄
 				        </button>
 				    </div>
 			    `;
@@ -2080,6 +2080,7 @@
     </script>
 </body>
 </html>
+
 
 
 
