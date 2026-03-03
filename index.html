@@ -1185,11 +1185,11 @@
 				        </div>
 				        
 				        <p class="text-sm font-sans text-stone-900 leading-snug mb-3">
-				            Du har <span class="font-bold">${remaining}</span> gratis spots tilbage. 
+				            ${used} af ${total} <span class="text-stone-400 font-medium italic">spots brugt</span>. 
 				            <span class="block text-[11px] text-stone-500 italic mt-1">Opgrader for at gemme alle dine hemmelige steder.</span>
 				        </p>
 				        
-				        <button onclick="showPaywall()" class="w-full py-3 bg-emerald-50 text-emerald-700 text-[11px] font-black uppercase tracking-widest rounded-xl active:scale-[0.97] transition-all">
+				        <button onclick="showSpotsPaywall()" class="w-full py-3 bg-emerald-50 text-emerald-700 text-[11px] font-black uppercase tracking-widest rounded-xl active:scale-[0.97] transition-all">
 				            Lås op for Premium 🍄
 				        </button>
 				    </div>
@@ -2080,6 +2080,7 @@
     </script>
 </body>
 </html>
+
 
 
 
