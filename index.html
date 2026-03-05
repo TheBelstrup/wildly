@@ -1611,21 +1611,21 @@
 		    `;
 		
 		    // Initialisér kort (håndterer både nye flade coords og gamle nested coords)
-		    setTimeout(() => {
-		        const lat = spot.lat || (spot.location ? spot.location.lat : 0);
-		        const lng = spot.lng || (spot.location ? spot.location.lng : 0);
-		        
-		        if (lat && lng) {
-		            const smap = L.map('spot-map', { zoomControl: false, attributionControl: false }).setView([lat, lng], 15);
-		            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(smap);
-		            const m = L.marker([lat, lng]).addTo(smap);
-		            // Deaktiver interaktion så det bare er et "billede"
-		            smap.dragging.disable();
-		            smap.touchZoom.disable();
-		            smap.doubleClickZoom.disable();
-		            smap.scrollWheelZoom.disable();
-		        }
-		    }, 100);
+			setTimeout(() => {
+				const mapElem = document.getElementById('spot-map');
+				if (!mapElem) return; // Stop hvis elementet ikke findes endnu
+		
+				try {
+					const spotMap = L.map('spot-map', { zoomControl: false, attributionControl: false }).setView([spot.lat, spot.lng], 16);
+					L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(spotMap);
+					L.marker([spot.lat, spot.lng]).addTo(spotMap);
+					
+					// Fix Leaflet resize bug
+					setTimeout(() => spotMap.invalidateSize(), 200);
+				} catch (err) {
+					console.error("Leaflet init fejl:", err);
+				}
+			}, 100);
 		
 		    // Hent billeder
 			const photos = await photoStorage.getAll(spotUid);
@@ -2306,6 +2306,7 @@
     </script>
 </body>
 </html>
+
 
 
 
