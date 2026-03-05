@@ -1470,7 +1470,7 @@
 								
 								<div class="flex-1 min-w-0 pr-2">
 									<div class="flex items-center gap-2 mb-1">
-										<span class="id-label !mb-0 text-[8px] opacity-40">
+										<span class="id-label !mb-0 text-[11px] font-medium text-stone-600">
 											${new Date(spot.timestamp).toLocaleDateString('da-DK')}
 										</span>
 										${spot.dist !== null ? `
@@ -1488,7 +1488,7 @@
 								</div>
 						
 								<div class="flex items-center gap-2 ml-4 flex-shrink-0">
-									<button onclick="event.stopPropagation(); navigate('view_spot', { spotId: '${spot.uid}' })" 
+									<button oncliw-10 h-10 rounded-xl bg-emerald-100 text-emerald-950 border-2 border-emerald-600/30 flex items-center justify-center active:scale-90 transition-transformck="event.stopPropagation(); navigate('view_spot', { spotId: '${spot.uid}' })" 
 										class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center active:scale-90 transition-transform">
 										<span class="text-sm font-normal">❯</span>
 									</button>
@@ -2304,6 +2304,7 @@
     </script>
 </body>
 </html>
+
 
 
 
