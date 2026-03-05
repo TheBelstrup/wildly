@@ -1052,6 +1052,7 @@
 		        return;
 		    }
 
+			window.history.pushState({ pageId: 'location_editor' }, "Set Location", "");
 			currentEditorAccuracy = loc.acc; // Gem start-præcision
 
 			const modalHtml = `
@@ -1202,15 +1203,22 @@
 		    }
 		}
 		
-		function closeLocationEditor() {
+		function closeLocationEditor(shouldGoBack = true) {
+		    // Sluk GPS trackeren så den ikke dræner batteri
+			if (locationEditorWatchId !== null) {
+		        navigator.geolocation.clearWatch(locationEditorWatchId);
+		        locationEditorWatchId = null;
+		    }
 			if(map) map.remove(); 
 		    const editor = document.getElementById('location-editor');
 		    if(editor) editor.remove();
-		    
-		    // Sluk GPS trackeren så den ikke dræner batteri
-		    if (locationEditorWatchId) {
-		        navigator.geolocation.clearWatch(locationEditorWatchId);
-		        locationEditorWatchId = null;
+
+			window.editingSpotUid = null;
+		
+		    // 5. Hvis vi lukkede via krydset (og ikke via tilbage-knappen), 
+		    // så skal vi fjerne det ekstra punkt i historikken
+		    if (shouldGoBack && window.history.state?.pageId === 'location_editor') {
+		        window.history.back();
 		    }
 		}
 		
@@ -2176,7 +2184,13 @@
 		}
 		
 		window.onpopstate = function(event) {
-		    if (event.state) {
+			const editor = document.getElementById('location-editor');
+		    if (editor) {
+		        closeLocationEditor(false);
+		        return;
+		    }
+			
+			if (event.state) {
 		        render(event.state.pageId, event.state.data);
 		    } else {
 		        // Fallback hvis historikken er tom
@@ -2202,6 +2216,7 @@
     </script>
 </body>
 </html>
+
 
 
 
