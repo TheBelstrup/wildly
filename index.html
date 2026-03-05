@@ -279,7 +279,7 @@
     <script>
 		//GLOBALS
 		let ui = {};
-		let map;
+		let map = null;
 		let activeMarkers = {};
 		let currentPageId = 'start';
 		let currentWizardNode = {};
@@ -1283,11 +1283,21 @@
 		        navigator.geolocation.clearWatch(locationEditorWatchId);
 		        locationEditorWatchId = null;
 		    }
-			if(map) map.remove(); 
+			
+			if (map) {
+		        try {
+		            map.remove();
+		        } catch (e) {
+		            console.warn("Kortet kunne ikke fjernes (måske aldrig oprettet)");
+		        }
+		        map = null;
+		    }
+			
 		    const editor = document.getElementById('location-editor');
 		    if(editor) editor.remove();
 
 			window.editingSpotUid = null;
+			window.lastKnownLocation = null;
 		
 		    // 5. Hvis vi lukkede via krydset (og ikke via tilbage-knappen), 
 		    // så skal vi fjerne det ekstra punkt i historikken
@@ -2296,6 +2306,7 @@
     </script>
 </body>
 </html>
+
 
 
 
