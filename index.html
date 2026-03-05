@@ -1077,6 +1077,12 @@
 								<span class="text-4xl drop-shadow-2xl">📍</span>
 							</div>
 						</div>
+						${navigator.onLine ? `
+			                <button onclick="centerMapOnStep()" 
+			                    class="absolute right-4 bottom-4 w-12 h-12 bg-white rounded-full shadow-xl flex items-center justify-center z-[1002] active:scale-90 transition-transform border border-stone-100">
+			                    <span class="text-xl">🎯</span>
+			                </button>
+			            ` : ''}
 					</div>
 		
 					<div class="p-6 bg-white shadow-[0_-10px_30px_rgba(0,0,0,0.05)] z-[1001] flex flex-col gap-4">
@@ -1129,15 +1135,46 @@
 			}, 100);
 		}
 
-		function startLiveGpsTracking() {
-		    if (!navigator.geolocation) return;
+		function centerMapOnStep() {
+		    // Vi henter den seneste position fra vores globale editor-variabel
+		    // (Vi bruger en variabel der opdateres i startLiveGpsTracking)
+		    if (window.lastKnownLocation && map) {
+		        map.setView([window.lastKnownLocation.lat, window.lastKnownLocation.lng], 18);
+		    }
+		}
 		
+		function startLiveGpsTracking() {
+			// Tjek om browseren overhovedet understøtter Geolocation
+		    if (!navigator.geolocation) {
+		        console.error("Geolocation is not supported by this browser.");
+		        return;
+		    }
+		
+		    // Vi bruger watchPosition i stedet for getCurrentPosition, 
+		    // så vi får løbende opdateringer mens brugeren bevæger sig.
 		    locationEditorWatchId = navigator.geolocation.watchPosition((pos) => {
+		        // 1. Gem den aktuelle position i en global variabel.
+		        // Denne bruges af "Centrér" knappen og til offline-gemning.
+		        window.lastKnownLocation = {
+		            lat: pos.coords.latitude,
+		            lng: pos.coords.longitude
+		        };
+		        // 2. Opdater den globale præcision (Accuracy)
 		        currentEditorAccuracy = pos.coords.accuracy;
+		        // 3. Opdater det visuelle udtryk i GPS-boblen (Farve, størrelse og tekst)
 		        updateGpsBobble(currentEditorAccuracy);
 		    }, (err) => {
-		        console.warn("Mistet GPS signal", err);
-		    }, { enableHighAccuracy: true, maximumAge: 0 });
+		        // Håndtering af fejl (f.eks. hvis brugeren afviser adgang eller mister signal)
+		        const message = document.getElementById('gps-message');
+		        if (message) {
+		            message.innerText = ui.gps_searching;
+		            message.classList.replace('text-emerald-700', 'text-red-700');
+		        }
+		    }, { 
+		        enableHighAccuracy: true, // Tvinger telefonen til at bruge GPS-chippen (ikke bare Wifi)
+		        maximumAge: 0,            // Vi vil ikke have gamle (cachede) positioner
+		        timeout: 10000            // Giv op efter 10 sekunder hvis intet signal findes
+		    });
 		}
 		
 		function updateGpsBobble(accuracy) {
@@ -1183,7 +1220,24 @@
 		}
 		
 		function saveFinalLocation(resId) {
-			const center = map.getCenter();
+			if (!navigator.onLine) {
+		        // OFFLINE: Brug den rå GPS position (sidste kendte fra boblen)
+		        if (window.lastKnownLocation) {
+		            finalLat = window.lastKnownLocation.lat;
+		            finalLng = window.lastKnownLocation.lng;
+		        } else {
+		            // Fallback hvis GPS slet ikke har fået fix endnu
+		            alert(ui.gps_searching);
+		            return;
+		        }
+		    } else {
+		        // ONLINE: Brug kortets center (tillader at brugeren har rykket markøren)
+		        const center = map.getCenter();
+		        finalLat = center.lat;
+		        finalLng = center.lng;
+		        console.log("Online: Gemmer kortets center-koordinat");
+		    }
+
 			let spots = JSON.parse(localStorage.getItem('mySpots')) || [];
 			const spotUid = 'spot_' + Date.now();
 		    
@@ -1191,9 +1245,8 @@
 		        // Vi retter et eksisterende spot
 		        const index = spots.findIndex(s => s.uid === window.editingSpotUid);
 		        if (index !== -1) {
-		            spots[index].lat = center.lat;
-		            spots[index].lng = center.lng;
-		            // Vi beholder det oprindelige timestamp
+					spots[index].lat = finalLat;
+		            spots[index].lng = finalLng;
 		        }
 		        const updatedUid = window.editingSpotUid;
 		        window.editingSpotUid = null; // Nulstil
@@ -1207,8 +1260,8 @@
 		        const newDiscovery = { 
 		            uid: spotUid,           
 		            resId: resId,           
-		            lat: center.lat, 
-		            lng: center.lng, 
+		            lat: finalLat, 
+		            lng: finalLng, 
 		            acc: currentEditorAccuracy,
 		            timestamp: new Date().toISOString(),
 		            photos: []              
@@ -2233,6 +2286,7 @@
     </script>
 </body>
 </html>
+
 
 
 
