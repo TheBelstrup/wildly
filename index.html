@@ -1488,11 +1488,10 @@
 								</div>
 						
 								<div class="flex items-center gap-2 ml-4 flex-shrink-0">
-									<button oncliw-10 h-10 rounded-xl bg-emerald-100 text-emerald-950 border-2 border-emerald-600/30 flex items-center justify-center active:scale-90 transition-transformck="event.stopPropagation(); navigate('view_spot', { spotId: '${spot.uid}' })" 
-										class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center active:scale-90 transition-transform">
-										<span class="text-sm font-normal">❯</span>
+									<button onclick="event.stopPropagation(); navigate('view_spot', { spotId: '${spot.uid}' })" 
+										class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-950 border-2 border-emerald-600/30 flex items-center justify-center active:scale-90 transition-transform">
+									    <span class="text-sm font-bold">❯</span>
 									</button>
-
 									<button onclick="event.stopPropagation(); deleteFullSpot('${spot.uid}')" 
 										class="w-10 h-10 rounded-xl bg-red-50 text-red-700 border-2 border-red-200 flex items-center justify-center text-xs active:bg-red-100 transition-colors">
 									    ✕
@@ -2304,6 +2303,7 @@
     </script>
 </body>
 </html>
+
 
 
 
