@@ -140,6 +140,9 @@
 		}
 		.animate-radar-pulse { animation: pulse-emerald 2s infinite; }
 		
+		.gps-ok-signal { background-color: #fff7ed !important; border-color: #ffedd5 !important;}
+		.gps-ok-signal .gps-text { color: #9a3412 !important; } /* orange-900 */
+		.gps-ok-signal .gps-ping { background-color: rgba(249, 115, 22, 0.3) !important; }
 		.gps-poor-signal { background-color: #fee2e2 !important; border-color: #fecaca !important; }
 		.gps-poor-signal .gps-text { color: #991b1b !important; }
 		.gps-poor-signal .gps-ping { background-color: rgba(239, 68, 68, 0.4) !important; }
@@ -1147,21 +1150,35 @@
 		
 		    accuracyLabel.innerText = `${Math.round(accuracy)}m`;
 		
-		    // Skaler mellem 0.9 og 1.1 baseret på præcision
+		    // Skalering af boblen
 		    const baseScale = 1 + (1 - (accuracy / 50)); 
-		    const finalScale = Math.min(Math.max(baseScale, 0.9), 1.1); 
+		    const finalScale = Math.min(Math.max(baseScale, 0.9), 1.2); 
 		    bobble.style.transform = `scale(${finalScale})`;
 		
-		    if (accuracy > 30) { // Over 30 meter er "dårligt" i skoven
+		    // Fjern alle farve-klasser først for at nulstille
+		    bobble.classList.remove('gps-poor-signal', 'gps-ok-signal');
+		    message.classList.remove('text-red-700', 'text-orange-600', 'text-emerald-700');
+		
+		    if (accuracy > 30) {
+		        // NIVEAU 1: DÅRLIGT (> 30m)
 		        bobble.classList.add('gps-poor-signal');
-		        ping.classList.remove('opacity-100');
-		        message.innerText = "Dårligt signal";
-		        message.classList.replace('text-emerald-700', 'text-red-700');
-		    } else {
-		        bobble.classList.remove('gps-poor-signal');
-		        ping.classList.add('opacity-100');
-		        message.innerText = "Perfekt signal";
-		        message.classList.replace('text-red-700', 'text-emerald-700');
+		        ping.style.opacity = "0";
+		        message.innerText = ui.gps_poor || "Dårligt signal";
+		        message.classList.add('text-red-700');
+		    } 
+		    else if (accuracy > 15) {
+		        // NIVEAU 2: OK / SØGER BEDRE (15m - 30m)
+		        bobble.classList.add('gps-ok-signal');
+		        ping.style.opacity = "0.5";
+		        message.innerText = ui.gps_ok || "Søger bedre signal...";
+		        message.classList.add('text-orange-600');
+		    } 
+		    else {
+		        // NIVEAU 3: PERFEKT (< 15m)
+		        // Ingen ekstra klasser (standard er grøn)
+		        ping.style.opacity = "1";
+		        message.innerText = ui.gps_perfect || "Perfekt signal";
+		        message.classList.add('text-emerald-700');
 		    }
 		}
 		
@@ -1504,7 +1521,7 @@
 		                </button>
 					    <button onclick="editExistingSpotLocation('${spot.uid}')" 
 					            class="mt-2 text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-4 py-2 rounded-full active:scale-95 transition-all">
-					        ${ui.edit_location} 📍
+					        ${ui.spot_edit_location} 📍
 					    </button>
 		                <button onclick="deleteFullSpot('${spotUid}')" class="w-full text-red-400 py-3 text-xs font-bold uppercase tracking-widest hover:text-red-600">
 		                    ${ui.spot_delete}
@@ -2216,6 +2233,7 @@
     </script>
 </body>
 </html>
+
 
 
 
