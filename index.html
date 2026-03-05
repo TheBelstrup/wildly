@@ -140,10 +140,10 @@
 		}
 		.animate-radar-pulse { animation: pulse-emerald 2s infinite; }
 		
-		.gps-ok-signal { background-color: #fff7ed !important; border-color: #ffedd5 !important;}
+		.gps-ok-signal { background-color: #fff7ed !important; border: 1px solid #fdba74 !important;}
 		.gps-ok-signal .gps-text { color: #9a3412 !important; } /* orange-900 */
 		.gps-ok-signal .gps-ping { background-color: rgba(249, 115, 22, 0.3) !important; }
-		.gps-poor-signal { background-color: #fee2e2 !important; border-color: #fecaca !important; }
+		.gps-poor-signal { background-color: #fee2e2 !important; border: 1px solid #fca5a5 !important; }
 		.gps-poor-signal .gps-text { color: #991b1b !important; }
 		.gps-poor-signal .gps-ping { background-color: rgba(239, 68, 68, 0.4) !important; }
 
@@ -241,19 +241,19 @@
 		<div class="space-y-6 flex-1 overflow-y-auto">
 			<section class="bg-stone-100 rounded-2xl overflow-hidden divide-y divide-stone-200">
 			    <div class="flex items-center px-4 py-2 justify-between">
-			        <span data-i18n="menu_language" class="text-[10px] font-bold uppercase tracking-widest text-stone-500">Sprog</span>
+			        <span data-i18n="menu_language" class="text-[10px] font-bold uppercase tracking-widest text-stone-600">Sprog</span>
 			        <select id="lang-select" onchange="handleLangChange(this.value)" class="bg-transparent text-sm font-bold text-emerald-900 border-none focus:ring-0 py-1 text-right">
 			        </select>
 			    </div>
 			
 			    <div class="flex items-center px-4 py-2 justify-between">
-			        <span data-i18n="menu_country" class="text-[10px] font-bold uppercase tracking-widest text-stone-500">Land</span>
+			        <span data-i18n="menu_country" class="text-[10px] font-bold uppercase tracking-widest text-stone-600">Land</span>
 			        <select id="country-select" onchange="handleCountryChange(this.value)" class="bg-transparent text-sm font-bold text-emerald-900 border-none focus:ring-0 py-1 text-right">
 			        </select>
 			    </div>
 			
 			    <div class="flex items-center px-4 py-2 justify-between">
-			        <span data-i18n="menu_region" class="text-[10px] font-bold uppercase tracking-widest text-stone-500">Region</span>
+			        <span data-i18n="menu_region" class="text-[10px] font-bold uppercase tracking-widest text-stone-600">Region</span>
 			        <select id="region-select" onchange="handleRegionChange()" class="bg-transparent text-sm font-bold text-emerald-900 border-none focus:ring-0 py-1 text-right">
 			        </select>
 			    </div>
@@ -574,7 +574,7 @@
 		    if (!container) return;
 		
 		    const count = getSpotCount();
-		    const countBadge = `<span class="ml-auto bg-emerald-100 text-emerald-950 border-2 border-emerald-600/20 border-2 border-emerald-600/20 text-[10px] font-black px-2 py-0.5 rounded-full">${count}</span>`;
+		    const countBadge = `<span class="ml-auto bg-emerald-100 text-emerald-950 border-2 border-emerald-600/20 text-[10px] font-black px-2 py-0.5 rounded-full">${count}</span>`;
 		
 		    if (!isLoggedIn) {
 		        container.innerHTML = `
@@ -603,7 +603,7 @@
 		                ${countBadge}
 		            </button>
 		            <div class="flex items-center gap-3 p-3 bg-white rounded-2xl shadow-sm mb-1">
-		                <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-950 border-2 border-emerald-600/20 border-2 border-emerald-600/20 font-bold italic">
+		                <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-950 border-2 border-emerald-600/20 font-bold italic">
 		                    ${userSettings.name ? userSettings.name[0] : 'U'}
 		                </div>
 		                <div class="flex flex-col">
@@ -929,13 +929,13 @@
 		        // 1. Tjek om vi er offline
 		        if (!navigator.onLine) {
 		            container.innerHTML = `
-		                <div class="h-full w-full flex flex-col items-center justify-center bg-stone-100 text-stone-500 p-8 text-center border-2 border-dashed border-stone-200 rounded-2xl">
+		                <div class="h-full w-full flex flex-col items-center justify-center bg-stone-100 text-stone-600 p-8 text-center border-2 border-dashed border-stone-200 rounded-2xl">
 		                    <div class="text-4xl mb-3 opacity-50">📡</div>
 		                    <h3 class="font-bold text-lg mb-1">${ui.offline_map_title}</h3>
 		                    <p class="text-xs font-sans leading-relaxed">
 		                        ${ui.offline_map_msg}
 		                    </p>
-		                    <button onclick="render('start')" class="mt-4 text-xs font-bold uppercase tracking-widest text-emerald-950 border-2 border-emerald-600/20 border-2 border-emerald-600/20 border-b border-emerald-700 pb-1">
+		                    <button onclick="render('start')" class="mt-4 text-xs font-bold uppercase tracking-widest text-emerald-950 border-2 border-emerald-600/20 border-b border-emerald-700 pb-1">
 		                        ${ui.offline_map_button}
 		                    </button>
 		                </div>`;
@@ -1093,11 +1093,11 @@
 								<div class="absolute inset-0 flex items-center justify-center font-mono font-bold text-[10px] text-emerald-900 gps-text" id="gps-accuracy">${Math.round(loc.acc)}m</div>
 							</div>
 							<div>
-								<p class="text-[10px] font-black uppercase tracking-widest text-emerald-950 border-2 border-emerald-600/20 border-2 border-emerald-600/20 transition-colors" id="gps-message">${ui.spot_map_searching}Søger...</p>
+								<p class="text-[10px] font-black uppercase tracking-widest text-emerald-950 border-2 border-emerald-600/20 transition-colors" id="gps-message">${ui.spot_map_searching}Søger...</p>
 								${navigator.onLine ? `
-									<p class="text-[11px] text-stone-500 italic mt-0.5">${ui.spot_map_pull_to_adjust}</p>
+									<p class="text-[11px] text-stone-600 italic mt-0.5">${ui.spot_map_pull_to_adjust}</p>
 					            ` : `
-									<p class="text-[11px] text-stone-500 italic mt-0.5">${ui.spot_map_press_save_when_signal_is_good}</p>
+									<p class="text-[11px] text-stone-600 italic mt-0.5">${ui.spot_map_press_save_when_signal_is_good}</p>
 					            `}
 							</div>
 						</div>
@@ -1172,7 +1172,7 @@
 		        const message = document.getElementById('gps-message');
 		        if (message) {
 		            message.innerText = ui.gps_searching;
-		            message.classList.replace('text-emerald-950 border-2 border-emerald-600/20 border-2 border-emerald-600/20', 'text-red-700');
+		            message.classList.replace('text-emerald-950 border-2 border-emerald-600/20', 'text-red-700');
 		        }
 		    }, { 
 		        enableHighAccuracy: true, // Tvinger telefonen til at bruge GPS-chippen (ikke bare Wifi)
@@ -1198,7 +1198,7 @@
 		
 		    // Fjern alle farve-klasser først for at nulstille
 		    bobble.classList.remove('gps-poor-signal', 'gps-ok-signal');
-		    message.classList.remove('text-red-700', 'text-orange-600', 'text-emerald-950 border-2 border-emerald-600/20 border-2 border-emerald-600/20');
+		    message.classList.remove('text-red-700', 'text-orange-600', 'text-emerald-950 border-2 border-emerald-600/20');
 		
 		    if (accuracy > 24) {
 		        // NIVEAU 1: DÅRLIGT (> 30m)
@@ -1219,7 +1219,7 @@
 		        // Ingen ekstra klasser (standard er grøn)
 		        ping.style.opacity = "1";
 		        message.innerText = ui.gps_perfect || "Perfekt signal";
-		        message.classList.add('text-emerald-950 border-2 border-emerald-600/20 border-2 border-emerald-600/20');
+		        message.classList.add('text-emerald-950 border-2 border-emerald-600/20');
 		    }
 		}
 		
@@ -1378,10 +1378,10 @@
 				        
 				        <p class="text-sm font-sans text-stone-900 leading-snug mb-3">
 				            ${used} ${ui.of} ${total} <span class="text-stone-400 font-medium italic">${ui.spots_used}</span>. 
-				            <span class="block text-[11px] text-stone-500 italic mt-1">${ui.spots_upgrade_premium}</span>
+				            <span class="block text-[11px] text-stone-600 italic mt-1">${ui.spots_upgrade_premium}</span>
 				        </p>
 				        
-				        <button onclick="showSpotsPaywall()" class="w-full py-3 bg-emerald-100 text-emerald-950 border-2 border-emerald-600/20 border-2 border-emerald-600/20 text-[11px] font-black uppercase tracking-widest rounded-xl active:scale-[0.97] transition-all">
+				        <button onclick="showSpotsPaywall()" class="w-full py-3 bg-emerald-100 text-emerald-950 border-2 border-emerald-600/20 text-[11px] font-black uppercase tracking-widest rounded-xl active:scale-[0.97] transition-all">
 				            ${ui.spots_unlock_premium} 🍄
 				        </button>
 				    </div>
@@ -1409,7 +1409,7 @@
 		                <h3 class="text-xl font-black uppercase italic tracking-tighter text-stone-900 mb-2">
 		                    ${hasAnySpots ? `${ui.no_species_in_season}` : `${ui.spot_no_saved}`}
 		                </h3>
-		                <p class="text-stone-500 text-sm italic leading-relaxed mb-8">
+		                <p class="text-stone-600 text-sm italic leading-relaxed mb-8">
 		                    ${hasAnySpots 
 		                        ? `${ui.spot_change_month}` 
 		                        : `${ui.spot_map_empty}${statusHtml}`}
@@ -1601,10 +1601,10 @@
 
 		            <div>
 		                <div class="flex justify-between items-end mb-3">
-		                    <h2 class="text-sm font-bold text-stone-500 uppercase tracking-wider">${ui.spot_images}</h2>
+		                    <h2 class="text-sm font-bold text-stone-600 uppercase tracking-wider">${ui.spot_images}</h2>
 		                    
 		                    <div class="flex gap-3">
-		                        <label class="flex items-center justify-center w-10 h-10 bg-emerald-100 text-emerald-950 border-2 border-emerald-600/20 border-2 border-emerald-600/20 rounded-full cursor-pointer active:scale-90 transition-transform shadow-sm">
+		                        <label class="flex items-center justify-center w-10 h-10 bg-emerald-100 text-emerald-950 border-2 border-emerald-600/20 rounded-full cursor-pointer active:scale-90 transition-transform shadow-sm">
 		                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
 		                            <input type="file" accept="image/*" capture="environment" class="hidden" onchange="addPhotoToSpot('${spotUid}', this)">
 		                        </label>
@@ -1835,7 +1835,7 @@
 							<div>
 								<h3 class="text-3xl font-black uppercase italic tracking-tighter text-stone-900 leading-none">${ui.detail_preservation}</h3>
 							</div>
-							<button onclick="closePreservationGuide()" class="h-12 w-12 rounded-full bg-stone-100 flex items-center justify-center font-bold text-stone-500 hover:bg-stone-200 transition-all active:scale-90">✕</button>
+							<button onclick="closePreservationGuide()" class="h-12 w-12 rounded-full bg-stone-100 flex items-center justify-center font-bold text-stone-600 hover:bg-stone-200 transition-all active:scale-90">✕</button>
 						</div>
 
 						<div class="flex-1 overflow-y-auto p-8 pt-4 space-y-12">
@@ -2020,7 +2020,7 @@
 								            <span class="text-lg">🍯</span>
 								            <div class="text-left">
 								                <div class="text-[10px] font-black uppercase text-green-800 leading-none">${ui.detail_learn_techniques}</div>
-								                <div class="text-xs text-stone-500 italic">${ui.detail_learn_techniques_guide}</div>
+								                <div class="text-xs text-stone-600 italic">${ui.detail_learn_techniques_guide}</div>
 								            </div>
 								        </div>
 								        <span class="text-green-800 text-xs">→</span>
@@ -2304,6 +2304,7 @@
     </script>
 </body>
 </html>
+
 
 
 
