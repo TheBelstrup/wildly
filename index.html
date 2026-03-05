@@ -1552,6 +1552,28 @@
 		    const lat = spot.lat || (spot.location ? spot.location.lat : null);
 			const lng = spot.lng || (spot.location ? spot.location.lng : null);
 			const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+			const photos = await photoStorage.getAll(spotUid);
+
+			let photoGridHtml = '';
+		    
+		    if (photos.length === 0) {
+		        photoGridHtml = `
+		            <div class="col-span-3 bg-stone-50 rounded-xl border border-dashed border-stone-300 p-8 flex flex-col items-center justify-center text-stone-400 gap-2">
+		                <svg class="w-8 h-8 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
+		                <span class="text-xs font-medium">${ui.spot_no_images}</span>
+		            </div>`;
+		    } else {
+		        window.currentSpotPhotos = photos.map(p => p.data);
+		        photoGridHtml = photos.map((photo, index) => `
+		            <div class="relative aspect-square">
+		                <img src="${photo.data}" 
+		                     onclick='openFullImage(window.currentSpotPhotos, ${index})'
+		                     class="w-full h-full object-cover rounded-xl shadow-sm border border-stone-100">
+		                <button onclick="event.stopPropagation(); deleteSinglePhoto('${spotUid}', ${photo.id})" 
+		                        class="absolute -top-2 -right-2 bg-white text-red-500 rounded-full w-6 h-6 shadow-md flex items-center justify-center font-bold z-10">×</button>
+		            </div>
+		        `).join('');
+		    }
 
 			app.innerHTML = `
 		        <div class="p-4 space-y-6 pb-20 fade-in">
@@ -1588,19 +1610,19 @@
 		                    </div>
 		                </div>
 		
-		                <div class="grid grid-cols-3 gap-2" id="photo-grid">
-		                    <div class="col-span-3 text-center py-8 text-stone-300 animate-pulse">${ui.spot_fetching_images}</div>
+						<div class="grid grid-cols-3 gap-2" id="photo-grid">
+		                    ${photoGridHtml}
 		                </div>
-		            </div>
+					    <button onclick="editExistingSpotLocation('${spot.uid}')" 
+					            class="w-full mt-2 text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-4 py-2 rounded-full active:scale-95 transition-all">
+					        ${ui.spot_edit_location} 📍
+					    </button>
+					</div>
 		
 		            <div class="pt-6 space-y-3">
 		                <button onclick="navigate('${spot.resId}')" class="w-full bg-emerald-800 text-white py-4 rounded-xl font-bold shadow-lg active:scale-[0.98] transition-transform">
 		                    ${ui.spot_species_details} ${plantInfo.name}
 		                </button>
-					    <button onclick="editExistingSpotLocation('${spot.uid}')" 
-					            class="w-full mt-2 text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-4 py-2 rounded-full active:scale-95 transition-all">
-					        ${ui.spot_edit_location} 📍
-					    </button>
 		                <button onclick="deleteFullSpot('${spotUid}')" class="w-full text-red-400 py-3 text-xs font-bold uppercase tracking-widest hover:text-red-600">
 		                    ${ui.spot_delete}
 		                </button>
@@ -1629,32 +1651,6 @@
 		
 		    // Hent billeder
 			const grid = document.getElementById('photo-grid');
-			const photos = await photoStorage.getAll(spotUid);
-			
-			if (photos.length === 0) {
-				grid.innerHTML = `
-					<div class="col-span-3 bg-stone-50 rounded-xl border border-dashed border-stone-300 p-8 flex flex-col items-center justify-center text-stone-400 gap-2">
-						<svg class="w-8 h-8 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
-						<span class="text-xs font-medium">${ui.spot_no_images}</span>
-					</div>`;
-			} else {
-				// Vi gemmer billederne i en global variabel eller på window-objektet 
-				// for at undgå at sende gigantiske strenge direkte i HTML-attributten
-				window.currentSpotPhotos = photos.map(p => p.data);
-				
-				grid.innerHTML = photos.map((photo, index) => `
-					<div class="relative aspect-square group">
-						<img src="${photo.data}" 
-							 onclick='openFullImage(window.currentSpotPhotos, ${index})'
-							 class="w-full h-full object-cover rounded-xl shadow-sm border border-stone-100 cursor-zoom-in active:opacity-80 transition-opacity">
-						
-						<button onclick="event.stopPropagation(); deleteSinglePhoto('${spotUid}', ${photo.id})" 
-								class="absolute -top-2 -right-2 bg-white text-red-500 rounded-full w-6 h-6 shadow-md flex items-center justify-center font-bold z-10 border border-stone-100">
-								×
-						</button>
-					</div>
-				`).join('');
-			}
 		}
 
 		function editExistingSpotLocation(spotUid) {
@@ -2306,6 +2302,7 @@
     </script>
 </body>
 </html>
+
 
 
 
