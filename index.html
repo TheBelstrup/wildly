@@ -1468,7 +1468,7 @@
 							<div class="card p-5 border-stone-100 flex justify-between items-center active:scale-[0.98] transition-all" 
 								 onclick="focusSpotOnMap('${spot.originalIndex}')">
 								
-								<div class="flex-1">
+								<div class="flex-1 min-w-0 pr-2">
 									<div class="flex items-center gap-2 mb-1">
 										<span class="id-label !mb-0 text-[8px] opacity-40">
 											${new Date(spot.timestamp).toLocaleDateString('da-DK')}
@@ -1479,7 +1479,7 @@
 											</span>
 										` : ''}
 									</div>
-									<h4 class="text-xl font-black uppercase italic tracking-tighter text-stone-900">${spot.info.name}</h4>
+									<h4 class="text-xl font-black uppercase italic tracking-tighter text-stone-900 truncate">${spot.info.name}</h4>
 									<div class="flex gap-1 mt-1">
 										${spot.info.months.map(m => `
 											<span class="text-[7px] font-bold uppercase px-1 rounded ${m === activeSeason ? 'bg-green-800 text-white' : 'bg-stone-100 text-stone-400'}">${m}</span>
@@ -1487,14 +1487,14 @@
 									</div>
 								</div>
 						
-								<div class="flex items-center gap-2 ml-4">
+								<div class="flex items-center gap-2 ml-4 flex-shrink-0">
 									<button onclick="event.stopPropagation(); navigate('view_spot', { spotId: '${spot.uid}' })" 
-											class="w-10 h-10 px-4 rounded-xl bg-emerald-50 text-emerald-600 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest active:scale-90 transition-transform">
+										class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center active:scale-90 transition-transform">
 										<span class="text-sm font-normal">❯</span>
 									</button>
 									
 									<button onclick="event.stopPropagation(); deleteFullSpot('${spot.uid}')" 
-											class="w-10 h-10 rounded-xl bg-red-50 text-red-300 flex items-center justify-center text-xs active:bg-red-100 transition-colors">
+										class="w-10 h-10 rounded-xl bg-red-50 text-red-300 flex items-center justify-center text-xs active:bg-red-100 transition-colors">
 										✕
 									</button>
 								</div>
@@ -1628,8 +1628,8 @@
 			}, 100);
 		
 		    // Hent billeder
-			const photos = await photoStorage.getAll(spotUid);
 			const grid = document.getElementById('photo-grid');
+			const photos = await photoStorage.getAll(spotUid);
 			
 			if (photos.length === 0) {
 				grid.innerHTML = `
@@ -2306,6 +2306,7 @@
     </script>
 </body>
 </html>
+
 
 
 
