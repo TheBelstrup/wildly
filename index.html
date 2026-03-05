@@ -1050,7 +1050,7 @@
 			const isPremium = userSettings.isPremium || false;
 			const savedSpots = JSON.parse(localStorage.getItem('mySpots')) || [];
 			
-			if (!isPremium && savedSpots.length >= freeLimit) {
+			if (!window.editingSpotUid && !isPremium && savedSpots.length >= freeLimit) {
 		        showSpotsPaywall(); 
 		        return;
 		    }
@@ -2304,6 +2304,7 @@
     </script>
 </body>
 </html>
+
 
 
 
