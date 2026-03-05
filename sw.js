@@ -49,6 +49,19 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    if (requestUrl.pathname.endsWith('.json')) {
+        event.respondWith(
+            fetch(event.request)
+                .then((networkResponse) => {
+                    const responseClone = networkResponse.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+                    return networkResponse;
+                })
+                .catch(() => caches.match(event.request)) // Fallback til cache hvis offline
+        );
+        return;
+    }
+    
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) {
