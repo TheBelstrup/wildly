@@ -1196,14 +1196,14 @@
 		    bobble.classList.remove('gps-poor-signal', 'gps-ok-signal');
 		    message.classList.remove('text-red-700', 'text-orange-600', 'text-emerald-700');
 		
-		    if (accuracy > 30) {
+		    if (accuracy > 24) {
 		        // NIVEAU 1: DÅRLIGT (> 30m)
 		        bobble.classList.add('gps-poor-signal');
 		        ping.style.opacity = "0";
 		        message.innerText = ui.gps_poor || "Dårligt signal";
 		        message.classList.add('text-red-700');
 		    } 
-		    else if (accuracy > 15) {
+		    else if (accuracy > 8) {
 		        // NIVEAU 2: OK / SØGER BEDRE (15m - 30m)
 		        bobble.classList.add('gps-ok-signal');
 		        ping.style.opacity = "0.5";
@@ -2298,6 +2298,7 @@
     </script>
 </body>
 </html>
+
 
 
 
