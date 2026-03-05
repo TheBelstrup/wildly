@@ -574,7 +574,7 @@
 		    if (!container) return;
 		
 		    const count = getSpotCount();
-		    const countBadge = `<span class="ml-auto bg-emerald-100 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded-full">${count}</span>`;
+		    const countBadge = `<span class="ml-auto bg-emerald-100 text-emerald-950 text-[10px] font-black px-2 py-0.5 rounded-full">${count}</span>`;
 		
 		    if (!isLoggedIn) {
 		        container.innerHTML = `
@@ -603,7 +603,7 @@
 		                ${countBadge}
 		            </button>
 		            <div class="flex items-center gap-3 p-3 bg-white rounded-2xl shadow-sm mb-1">
-		                <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-700 font-bold italic">
+		                <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-950 font-bold italic">
 		                    ${userSettings.name ? userSettings.name[0] : 'U'}
 		                </div>
 		                <div class="flex flex-col">
@@ -935,7 +935,7 @@
 		                    <p class="text-xs font-sans leading-relaxed">
 		                        ${ui.offline_map_msg}
 		                    </p>
-		                    <button onclick="render('start')" class="mt-4 text-xs font-bold uppercase tracking-widest text-emerald-700 border-b border-emerald-700 pb-1">
+		                    <button onclick="render('start')" class="mt-4 text-xs font-bold uppercase tracking-widest text-emerald-950 border-b border-emerald-700 pb-1">
 		                        ${ui.offline_map_button}
 		                    </button>
 		                </div>`;
@@ -1088,12 +1088,12 @@
 					<div class="p-6 bg-white shadow-[0_-10px_30px_rgba(0,0,0,0.05)] z-[1001] flex flex-col gap-4">
 						
 						<div class="flex items-center gap-4 bg-stone-50 p-3 rounded-2xl border border-stone-100">
-							<div id="gps-bobble" class="relative w-12 h-12 rounded-full border-[4px] border-emerald-50 bg-emerald-100 transition-all duration-500 ease-out flex-shrink-0">
-								<div class="absolute -inset-2 bg-emerald-500/30 rounded-full animate-radar-pulse opacity-100 transition-opacity" id="gps-ping"></div>
+							<div id="gps-bobble" class="relative w-12 h-12 rounded-full border-[4px] border-emerald-100 bg-emerald-100 transition-all duration-500 ease-out flex-shrink-0">
+								<div class="absolute -inset-2 bg-emerald-1000/30 rounded-full animate-radar-pulse opacity-100 transition-opacity" id="gps-ping"></div>
 								<div class="absolute inset-0 flex items-center justify-center font-mono font-bold text-[10px] text-emerald-900 gps-text" id="gps-accuracy">${Math.round(loc.acc)}m</div>
 							</div>
 							<div>
-								<p class="text-[10px] font-black uppercase tracking-widest text-emerald-700 transition-colors" id="gps-message">${ui.spot_map_searching}Søger...</p>
+								<p class="text-[10px] font-black uppercase tracking-widest text-emerald-950 transition-colors" id="gps-message">${ui.spot_map_searching}Søger...</p>
 								${navigator.onLine ? `
 									<p class="text-[11px] text-stone-500 italic mt-0.5">${ui.spot_map_pull_to_adjust}</p>
 					            ` : `
@@ -1172,7 +1172,7 @@
 		        const message = document.getElementById('gps-message');
 		        if (message) {
 		            message.innerText = ui.gps_searching;
-		            message.classList.replace('text-emerald-700', 'text-red-700');
+		            message.classList.replace('text-emerald-950', 'text-red-700');
 		        }
 		    }, { 
 		        enableHighAccuracy: true, // Tvinger telefonen til at bruge GPS-chippen (ikke bare Wifi)
@@ -1198,7 +1198,7 @@
 		
 		    // Fjern alle farve-klasser først for at nulstille
 		    bobble.classList.remove('gps-poor-signal', 'gps-ok-signal');
-		    message.classList.remove('text-red-700', 'text-orange-600', 'text-emerald-700');
+		    message.classList.remove('text-red-700', 'text-orange-600', 'text-emerald-950');
 		
 		    if (accuracy > 24) {
 		        // NIVEAU 1: DÅRLIGT (> 30m)
@@ -1219,7 +1219,7 @@
 		        // Ingen ekstra klasser (standard er grøn)
 		        ping.style.opacity = "1";
 		        message.innerText = ui.gps_perfect || "Perfekt signal";
-		        message.classList.add('text-emerald-700');
+		        message.classList.add('text-emerald-950');
 		    }
 		}
 		
@@ -1381,7 +1381,7 @@
 				            <span class="block text-[11px] text-stone-500 italic mt-1">${ui.spots_upgrade_premium}</span>
 				        </p>
 				        
-				        <button onclick="showSpotsPaywall()" class="w-full py-3 bg-emerald-50 text-emerald-700 text-[11px] font-black uppercase tracking-widest rounded-xl active:scale-[0.97] transition-all">
+				        <button onclick="showSpotsPaywall()" class="w-full py-3 bg-emerald-100 text-emerald-950 text-[11px] font-black uppercase tracking-widest rounded-xl active:scale-[0.97] transition-all">
 				            ${ui.spots_unlock_premium} 🍄
 				        </button>
 				    </div>
@@ -1489,7 +1489,7 @@
 						
 								<div class="flex items-center gap-2 ml-4 flex-shrink-0">
 									<button onclick="event.stopPropagation(); navigate('view_spot', { spotId: '${spot.uid}' })" 
-										class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center active:scale-90 transition-transform">
+										class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center active:scale-90 transition-transform">
 										<span class="text-sm font-normal">❯</span>
 									</button>
 									
@@ -1594,7 +1594,7 @@
 					` : ''}
 					${navigator.onLine ? `
 						<button onclick="editExistingSpotLocation('${spot.uid}')" 
-								class="w-full mt-2 text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-4 py-2 rounded-full active:scale-95 transition-all">
+								class="w-full mt-2 text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-100 px-4 py-2 rounded-full active:scale-95 transition-all">
 							${ui.spot_edit_location} 📍
 						</button>
 					` : ''}
@@ -1604,7 +1604,7 @@
 		                    <h2 class="text-sm font-bold text-stone-500 uppercase tracking-wider">${ui.spot_images}</h2>
 		                    
 		                    <div class="flex gap-3">
-		                        <label class="flex items-center justify-center w-10 h-10 bg-emerald-100 text-emerald-700 rounded-full cursor-pointer active:scale-90 transition-transform shadow-sm">
+		                        <label class="flex items-center justify-center w-10 h-10 bg-emerald-100 text-emerald-950 rounded-full cursor-pointer active:scale-90 transition-transform shadow-sm">
 		                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
 		                            <input type="file" accept="image/*" capture="environment" class="hidden" onchange="addPhotoToSpot('${spotUid}', this)">
 		                        </label>
@@ -2304,6 +2304,7 @@
     </script>
 </body>
 </html>
+
 
 
 
