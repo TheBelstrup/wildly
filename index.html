@@ -1592,6 +1592,12 @@
 					    ${ui.spot_get_directions}
 					</button>
 					` : ''}
+					${navigator.onLine ? `
+						<button onclick="editExistingSpotLocation('${spot.uid}')" 
+								class="w-full mt-2 text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-4 py-2 rounded-full active:scale-95 transition-all">
+							${ui.spot_edit_location} 📍
+						</button>
+					` : ''}
 
 		            <div>
 		                <div class="flex justify-between items-end mb-3">
@@ -1613,10 +1619,6 @@
 						<div class="grid grid-cols-3 gap-2" id="photo-grid">
 		                    ${photoGridHtml}
 		                </div>
-					    <button onclick="editExistingSpotLocation('${spot.uid}')" 
-					            class="w-full mt-2 text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-4 py-2 rounded-full active:scale-95 transition-all">
-					        ${ui.spot_edit_location} 📍
-					    </button>
 					</div>
 		
 		            <div class="pt-6 space-y-3">
@@ -2302,6 +2304,7 @@
     </script>
 </body>
 </html>
+
 
 
 
