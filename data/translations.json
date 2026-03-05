@@ -75,6 +75,8 @@
     "spot_map_searching": "Søger...",
     "spot_map_pull_to_adjust": "Træk i kortet for at finjustere",
     "spot_map_press_save_when_signal_is_good": "Tryk gem når signalet er godt",
+    "spot_map_needs_internet": "Internet adgang kræves for at vise kortet",
+    "spot_map_needs_internet_has_GPS": "Din GPS er stadig aktiv. Tryk på gem knappen når du har et godt signal for at gemme denne lokation.",
     "spot_calculating_distances": "Finder GPS position...",
     "spot_gps_not_available": "GPS ikke tilgængelig for sortering",
     "spot_no_saved": "Ingen gemte steder",
