@@ -1451,29 +1451,41 @@
 		
 		            <div class="space-y-3 px-4">
 		                ${processedSpots.map((spot) => `
-		                    <div class="card p-5 border-stone-100 flex justify-between items-center active:scale-[0.98] transition-all" 
-		                         onclick="focusSpotOnMap('${spot.originalIndex}')">
-		                        <div class="flex-1">
-		                            <div class="flex items-center gap-2 mb-1">
-		                                <span class="id-label !mb-0 text-[8px] opacity-40">
-		                                    ${new Date(spot.timestamp).toLocaleDateString('da-DK')}
-		                                </span>
-		                                ${spot.dist !== null ? `
-		                                    <span class="bg-amber-100 text-amber-800 text-[8px] font-black px-2 py-0.5 rounded-full uppercase">
-		                                        ${spot.dist < 1 ? Math.round(spot.dist * 1000) + ' m' : spot.dist.toFixed(1) + ' km'}
-		                                    </span>
-		                                ` : ''}
-		                            </div>
-		                            <h4 class="text-xl font-black uppercase italic tracking-tighter text-stone-900">${spot.info.name}</h4>
-		                            <div class="flex gap-1 mt-1">
-		                                ${spot.info.months.map(m => `
-		                                    <span class="text-[7px] font-bold uppercase px-1 rounded ${m === activeSeason ? 'bg-green-800 text-white' : 'bg-stone-100 text-stone-400'}">${m}</span>
-		                                `).join('')}
-		                            </div>
-		                        </div>
-		                        <button onclick="event.stopPropagation(); deleteFullSpot('${spot.uid}')" 
-		                                class="ml-4 w-8 h-8 rounded-full bg-red-50 text-red-300 flex items-center justify-center text-xs">✕</button>
-		                    </div>
+							<div class="card p-5 border-stone-100 flex justify-between items-center active:scale-[0.98] transition-all" 
+								 onclick="focusSpotOnMap('${spot.originalIndex}')">
+								
+								<div class="flex-1">
+									<div class="flex items-center gap-2 mb-1">
+										<span class="id-label !mb-0 text-[8px] opacity-40">
+											${new Date(spot.timestamp).toLocaleDateString('da-DK')}
+										</span>
+										${spot.dist !== null ? `
+											<span class="bg-amber-100 text-amber-800 text-[8px] font-black px-2 py-0.5 rounded-full uppercase">
+												${spot.dist < 1 ? Math.round(spot.dist * 1000) + ' m' : spot.dist.toFixed(1) + ' km'}
+											</span>
+										` : ''}
+									</div>
+									<h4 class="text-xl font-black uppercase italic tracking-tighter text-stone-900">${spot.info.name}</h4>
+									<div class="flex gap-1 mt-1">
+										${spot.info.months.map(m => `
+											<span class="text-[7px] font-bold uppercase px-1 rounded ${m === activeSeason ? 'bg-green-800 text-white' : 'bg-stone-100 text-stone-400'}">${m}</span>
+										`).join('')}
+									</div>
+								</div>
+						
+								<div class="flex items-center gap-2 ml-4">
+									<button onclick="event.stopPropagation(); navigate('view_spot', { spotId: '${spot.uid}' })" 
+											class="h-10 px-4 rounded-xl bg-emerald-50 text-emerald-600 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest active:scale-90 transition-transform">
+										${ui.map_show_spot}
+										<span class="text-sm font-normal">❯</span>
+									</button>
+									
+									<button onclick="event.stopPropagation(); deleteFullSpot('${spot.uid}')" 
+											class="w-10 h-10 rounded-xl bg-red-50 text-red-300 flex items-center justify-center text-xs active:bg-red-100 transition-colors">
+										✕
+									</button>
+								</div>
+							</div>
 		                `).join('')}
 		            </div>
 					${statusHtml}
@@ -2286,6 +2298,7 @@
     </script>
 </body>
 </html>
+
 
 
 
