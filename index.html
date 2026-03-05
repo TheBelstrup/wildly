@@ -271,7 +271,7 @@
 			</nav>
 		</div>
 		
-		<div class="mt-auto pt-6 text-[8px] text-stone-600 uppercase tracking-widest text-center">
+		<div class="mt-auto pt-6 text-[11px] text-stone-600 uppercase tracking-widest text-center">
 			Wildy v2.0
 		</div>
 	</div>
@@ -1073,7 +1073,7 @@
 						
 						<div class="absolute inset-0 flex items-center justify-center pointer-events-none z-[1000]">
 							<div class="flex flex-col items-center translate-y-[-20px]">
-								<div class="bg-stone-900 text-white text-[8px] font-bold px-2 py-1 rounded mb-1 uppercase tracking-widest">${ui.spot_location}</div>
+								<div class="bg-stone-900 text-white text-[11px] font-bold px-2 py-1 rounded mb-1 uppercase tracking-widest">${ui.spot_location}</div>
 								<span class="text-4xl drop-shadow-2xl">📍</span>
 							</div>
 						</div>
@@ -1474,7 +1474,7 @@
 											${new Date(spot.timestamp).toLocaleDateString('da-DK')}
 										</span>
 										${spot.dist !== null ? `
-											<span class="bg-amber-100 text-amber-800 text-[8px] font-black px-2 py-0.5 rounded-full uppercase">
+											<span class="bg-amber-100 text-amber-800 text-[11px] font-black px-2 py-0.5 rounded-full uppercase">
 												${spot.dist < 1 ? Math.round(spot.dist * 1000) + ' m' : spot.dist.toFixed(1) + ' km'}
 											</span>
 										` : ''}
@@ -2304,6 +2304,7 @@
     </script>
 </body>
 </html>
+
 
 
 
