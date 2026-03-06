@@ -1410,27 +1410,29 @@
 			const isCritical = remaining <= 1;
 			const dotsHtml = Array.from({ length: total }, (_, i) => {
 			    const isFilled = i < used;
-			    return `<div class="h-1.5 flex-1 rounded-full ${isFilled ? (isCritical ? 'bg-orange-500' : 'bg-emerald-600') : 'bg-stone-200'}"></div>`;
+			    const color = isFilled ? (isCritical ? 'bg-orange-400' : 'bg-emerald-400') : 'bg-white/10';
+			    return `<div class="h-1.5 flex-1 rounded-full ${color}"></div>`;
 			}).join('');
 			
 			if (!userSettings.isPremium) {
 			    const remaining = 5 - spots.length;
 			    
 			    return `
-					<div class="mt-4 p-5 bg-white border border-stone-100 rounded-3xl shadow-sm mx-4 text-center">
-				        <div class="flex justify-center gap-1.5 mb-4">
-				            ${dotsHtml}
-				        </div>
-				        
-				        <p class="text-sm font-sans text-stone-900 leading-snug mb-3">
-				            ${used} ${ui.of} ${total} <span class="text-stone-600 font-medium italic">${ui.spots_used}</span>. 
-				            <span class="block text-[11px] text-stone-600 italic mt-1">${ui.spots_upgrade_premium}</span>
-				        </p>
-				        
-				        <button onclick="showSpotsPaywall()" class="w-full py-3 bg-emerald-100 text-emerald-950 border-2 border-emerald-600/20 text-[11px] font-black uppercase tracking-widest rounded-xl active:scale-[0.97] transition-all">
-				            ${ui.spots_unlock_premium} 🍄
-				        </button>
-				    </div>
+					<div class="mt-8 p-6 bg-stone-900 text-white text-center w-full shadow-inner">
+					    <div class="flex justify-center gap-2 mb-5">
+					        ${dotsHtml.replace(/bg-stone-200/g, 'bg-white/10')}
+					    </div>
+					    
+					    <p class="text-sm font-sans text-stone-100 leading-snug mb-4">
+					        <span class="font-bold text-emerald-400">${used} ${ui.of} ${total}</span> 
+					        <span class="text-stone-400 italic font-light">${ui.spots_used}</span>. 
+					        <span class="block text-[11px] text-stone-400 mt-1 opacity-80">${ui.spots_upgrade_premium}</span>
+					    </p>
+					    
+					    <button onclick="showSpotsPaywall()" class="w-full max-w-xs mx-auto py-3.5 bg-emerald-500 text-emerald-950 text-[11px] font-black uppercase tracking-widest rounded-full active:scale-[0.97] transition-all shadow-lg shadow-emerald-500/20">
+					        ${ui.spots_unlock_premium} 🍄
+					    </button>
+					</div>
 			    `;
 			}
 
@@ -2362,6 +2364,7 @@
     </script>
 </body>
 </html>
+
 
 
 
