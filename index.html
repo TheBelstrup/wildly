@@ -1026,7 +1026,7 @@
 		        let targetPoint = window.currentMap.project(marker.getLatLng(), targetZoom);
 		        
 		        // Dette flytter kameraet OP, hvilket betyder at pinden ender længere NEDE på kortet.
-		        targetPoint.y -= 80; 
+		        targetPoint.y -= 40; 
 		        
 		        // Omdan de nye pixels tilbage til GPS-koordinater
 		        const targetLatLng = window.currentMap.unproject(targetPoint, targetZoom);
@@ -2342,6 +2342,7 @@
     </script>
 </body>
 </html>
+
 
 
 
