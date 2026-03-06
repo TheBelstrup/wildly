@@ -998,7 +998,18 @@
 						autoPan: false,
 					    autoPanPadding: L.point(50, 100) // Dette sikrer 100px luft i toppen, så popup'en ikke skæres af
 					});
-		            
+
+					marker.on('click', function(e) {
+					    // Vi bruger stort set samme logik som i focusSpotOnMap
+					    // Først centrerer vi
+					    window.currentMap.setView(e.target.getLatLng(), 15, { animate: true });
+					    
+					    // Derefter skubber vi kortet ned for at give plads
+					    setTimeout(() => {
+					        window.currentMap.panBy([0, -120], { animate: true });
+					    }, 300);
+					});
+					
 		            activeMarkers[spot.originalIndex] = marker;
 		            markerArray.push(marker);
 		        });
@@ -1027,7 +1038,7 @@
 		        let targetPoint = window.currentMap.project(marker.getLatLng(), targetZoom);
 		        
 		        // Dette flytter kameraet OP, hvilket betyder at pinden ender længere NEDE på kortet.
-		        targetPoint.y -= 40; 
+		        targetPoint.y -= 120; 
 		        
 		        // Omdan de nye pixels tilbage til GPS-koordinater
 		        const targetLatLng = window.currentMap.unproject(targetPoint, targetZoom);
@@ -2343,6 +2354,7 @@
     </script>
 </body>
 </html>
+
 
 
 
