@@ -1465,39 +1465,40 @@
 		
 		            <div class="space-y-3 px-4">
 		                ${processedSpots.map((spot) => `
-							<div class="card p-5 border-stone-100 flex justify-between items-center active:scale-[0.98] transition-all" 
-								 onclick="focusSpotOnMap('${spot.originalIndex}')">
-								
-								<div class="flex-1 min-w-0 pr-2">
-									<div class="flex items-center gap-2 mb-1">
-										<span class="id-label !mb-0 text-[11px] font-medium text-stone-600">
-											${new Date(spot.timestamp).toLocaleDateString('da-DK')}
-										</span>
-										${spot.dist !== null ? `
-											<span class="bg-amber-100 text-amber-800 text-[11px] font-black px-2 py-0.5 rounded-full uppercase">
-												${spot.dist < 1 ? Math.round(spot.dist * 1000) + ' m' : spot.dist.toFixed(1) + ' km'}
-											</span>
-										` : ''}
-									</div>
-									<h4 class="text-xl font-black uppercase italic tracking-tighter text-stone-900 truncate">${spot.info.name}</h4>
-									<div class="flex gap-1 mt-1">
-										${spot.info.months.map(m => `
-											<span class="text-[7px] font-bold uppercase px-1 rounded ${m === activeSeason ? 'bg-green-800 text-white' : 'bg-stone-100 text-stone-600'}">${m}</span>
-										`).join('')}
-									</div>
-								</div>
+							<div class="card p-4 border-stone-100 active:scale-[0.98] transition-all relative overflow-hidden" 
+						         onclick="focusSpotOnMap('${spot.originalIndex}')">
+						        
+						        <div class="flex items-center gap-2 mb-2">
+						            <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500">
+						                ${new Date(spot.timestamp).toLocaleDateString('da-DK')}
+						            </span>
+						            ${spot.dist !== null ? `
+						                <span class="bg-amber-100 text-amber-900 border border-amber-200 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
+						                    ${spot.dist < 1 ? Math.round(spot.dist * 1000) + ' m' : spot.dist.toFixed(1) + ' km'}
+						                </span>
+						            ` : ''}
+						        </div>
 						
-								<div class="flex items-center gap-2 ml-4 flex-shrink-0">
-									<button onclick="event.stopPropagation(); navigate('view_spot', { spotId: '${spot.uid}' })" 
-										class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-950 border-2 border-emerald-600/30 flex items-center justify-center active:scale-90 transition-transform">
-									    <span class="text-sm font-bold">❯</span>
-									</button>
-									<button onclick="event.stopPropagation(); deleteFullSpot('${spot.uid}')" 
-										class="w-10 h-10 rounded-xl bg-red-50 text-red-700 border-2 border-red-200 flex items-center justify-center text-xs active:bg-red-100 transition-colors">
-									    ✕
-									</button>
-								</div>
-							</div>
+						        <div class="pr-12"> <h4 class="text-xl font-black uppercase italic tracking-tighter text-stone-900 leading-tight">
+						                ${spot.info.name}
+						            </h4>
+						        </div>
+						
+						        <div class="flex flex-wrap gap-1 mt-3">
+						            ${spot.info.months.map(m => `
+						                <span class="text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md ${m === activeSeason ? 'bg-emerald-800 text-white' : 'bg-stone-100 text-stone-600 border border-stone-200'}">
+						                    ${m}
+						                </span>
+						            `).join('')}
+						        </div>
+						
+						        <div class="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+						            <button onclick="event.stopPropagation(); navigate('view_spot', { spotId: '${spot.uid}' })" 
+						                    class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-950 border-2 border-emerald-600/30 shadow-sm flex items-center justify-center active:scale-90 transition-transform">
+						                <span class="text-lg font-bold">❯</span>
+						            </button>
+						        </div>
+						    </div>
 		                `).join('')}
 		            </div>
 					${statusHtml}
@@ -2303,6 +2304,7 @@
     </script>
 </body>
 </html>
+
 
 
 
