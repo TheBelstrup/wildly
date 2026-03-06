@@ -583,7 +583,7 @@
 		    if (!isLoggedIn) {
 		        container.innerHTML = `
 		            <button onclick="navigate('my-spots')" class="w-full text-left py-3 px-3 flex items-center gap-3">
-		                <span class="text-lg">📍</span> 
+		                <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="h-5 w-auto" alt="Map pin"> 
 		                <div class="flex flex-col">
 		                    <span class="font-bold text-sm">${ui.my_spots}</span>
 		                </div>
@@ -600,7 +600,7 @@
 		    } else {
 		        container.innerHTML = `
 		            <button onclick="navigate('my-spots')" class="w-full text-left py-3 px-3 flex items-center gap-3 bg-white rounded-xl">
-		                <span class="text-lg">📍</span> 
+		                <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="h-5 w-auto" alt="Map pin">
 		                <div class="flex flex-col text-emerald-900">
 		                    <span class="font-bold text-sm">${ui.my_spots}</span>
 		                </div>
@@ -748,10 +748,13 @@
                     </button>
 
 					<button onclick="navigate('my-spots')" 
-							class="w-full p-4 border-2 border-stone-200 text-stone-600 rounded-[24px] font-black text-[11px] uppercase tracking-widest text-center mt-4">
-						${ui.start_my_spots || 'Mine hemmelige steder'} 📍
+					        class="w-full p-4 border-2 border-stone-200 text-stone-600 rounded-[24px] font-black text-[11px] uppercase tracking-widest mt-4 active:scale-[0.98] transition-all">
+					    <span class="flex items-center justify-center gap-2">
+					        ${ui.start_my_spots} 
+					        <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="h-4 w-auto">
+					    </span>
 					</button>
-                </div>
+				</div>
             `;
         }
 
@@ -1077,8 +1080,8 @@
 						
 						<div class="absolute inset-0 flex items-center justify-center pointer-events-none z-[1000]">
 							<div class="flex flex-col items-center translate-y-[-20px]">
-								<div class="bg-stone-900 text-white text-[11px] font-bold px-2 py-1 rounded mb-1 uppercase tracking-widest">${ui.spot_location}</div>
-								<span class="text-4xl drop-shadow-2xl">📍</span>
+							    <div class="bg-stone-900 text-white text-[11px] font-bold px-2 py-1 rounded mb-2 uppercase tracking-widest">${ui.spot_location}</div>
+							    <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="h-12 w-auto drop-shadow-2xl" alt="Map pin">
 							</div>
 						</div>
 						${navigator.onLine ? `
@@ -1409,7 +1412,9 @@
 		        const hasAnySpots = (JSON.parse(localStorage.getItem('mySpots')) || []).length > 0;
 		        container.innerHTML = `
 		            <div class="flex flex-col items-center justify-center min-h-[60vh] px-8 text-center fade-in">
-		                <div class="w-20 h-20 bg-stone-100 rounded-full flex items-center justify-center text-3xl mb-6">📍</div>
+		                <div class="w-20 h-20 bg-stone-100 rounded-full flex items-center justify-center mb-6">
+						    <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="w-8 h-auto" alt="Pin">
+						</div>
 		                <h3 class="text-xl font-black uppercase italic tracking-tighter text-stone-900 mb-2">
 		                    ${hasAnySpots ? `${ui.no_species_in_season}` : `${ui.spot_no_saved}`}
 		                </h3>
@@ -1452,9 +1457,10 @@
 		        processedSpots.sort((a, b) => a.dist - b.dist);
 		    }
 
+			const pinImg = `<img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="inline-block w-6 h-auto align-bottom ml-1" alt="Pin">`;
 			const title = filterId && processedSpots.length > 0 
-			        ? `${ui.spot_finds_of} ${processedSpots[0].info.name} 📍` 
-			        : `${ui.my_spots} 📍`;
+			    ? `${ui.spot_finds_of} ${processedSpots[0].info.name} ${pinImg}` 
+			    : `${ui.my_spots} ${pinImg}`;
 			
 			container.innerHTML = `
 		        <div class="fade-in space-y-6 pb-20">
@@ -1482,7 +1488,7 @@
 						        </div>
 						
 						        <div class="pr-24"> 
-						            <h4 class="text-base font-black uppercase italic tracking-tight text-stone-900 leading-tight">
+						            <h4 class="text-sm font-black uppercase italic tracking-tight text-stone-900 leading-tight">
 						                ${spot.info.name}
 						            </h4>
 						        </div>
@@ -1496,9 +1502,8 @@
 						        </div>
 						
 						        <div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-2">
-						            
 									<button onclick="focusSpotOnMap('${spot.originalIndex}')" 
-						                    class="w-11 h-11 rounded-xl bg-stone-50 border-2 border-stone-200 flex items-center justify-center active:scale-90 transition-transform shadow-sm"
+						                    class="w-10 h-10 rounded-xl bg-stone-50 border-2 border-stone-200 flex items-center justify-center active:scale-90 transition-transform shadow-sm"
 						                    aria-label="Find på kort">
 						                <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" 
 						                     class="h-6 w-auto object-contain" 
@@ -1604,12 +1609,14 @@
 					</button>
 					` : ''}
 					${navigator.onLine ? `
-						<button onclick="editExistingSpotLocation('${spot.uid}')" 
-							class="w-full mt-2 text-xs font-black uppercase tracking-widest text-emerald-950 bg-emerald-100 border-2 border-emerald-600/30 px-4 py-3 rounded-full active:scale-95 transition-all">
-						    ${ui.spot_edit_location} 📍
-						</button>
+					    <button onclick="editExistingSpotLocation('${spot.uid}')" 
+					        class="w-full mt-2 text-xs font-black uppercase tracking-widest text-emerald-950 bg-emerald-100 border-2 border-emerald-600/30 px-4 py-3 rounded-full active:scale-95 transition-all">
+					        <span class="flex items-center justify-center gap-2">
+					            ${ui.spot_edit_location} 
+					            <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="h-4 w-auto">
+					        </span>
+					    </button>
 					` : ''}
-
 		            <div>
 		                <div class="flex justify-between items-end mb-3">
 		                    <h2 class="text-sm font-bold text-stone-600 uppercase tracking-wider">${ui.spot_images}</h2>
@@ -1961,9 +1968,9 @@
             document.getElementById('app-content').innerHTML = `
 				<div class="fab-container">
 				    <button onclick="handleSaveLocation('${id}', this)" 
-				            class="floating-save-btn active:scale-95">
-				        <span>📍</span>
-				        <span>${ui.detail_save_spot}</span>
+				            class="floating-save-btn active:scale-95 flex items-center justify-center gap-3">
+				        <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="h-6 w-auto drop-shadow-md" alt="Map pin">
+				        <span class="font-black uppercase tracking-widest text-[11px]">${ui.detail_save_spot}</span>
 				    </button>
 				</div>
 
@@ -2315,6 +2322,7 @@
     </script>
 </body>
 </html>
+
 
 
 
