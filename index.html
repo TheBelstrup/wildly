@@ -1093,7 +1093,7 @@
 								<div class="absolute inset-0 flex items-center justify-center font-mono font-bold text-[10px] text-emerald-900 gps-text" id="gps-accuracy">${Math.round(loc.acc)}m</div>
 							</div>
 							<div>
-								<p class="text-[10px] font-black uppercase tracking-widest text-emerald-950 border-2 border-emerald-600/20 transition-colors" id="gps-message">${ui.spot_map_searching}Søger...</p>
+								<p class="text-[10px] font-black uppercase tracking-widest text-emerald-950 border-2 border-emerald-600/20 transition-colors" id="gps-message">${ui.spot_map_searching}</p>
 								${navigator.onLine ? `
 									<p class="text-[11px] text-stone-600 italic mt-0.5">${ui.spot_map_pull_to_adjust}</p>
 					            ` : `
@@ -2311,6 +2311,7 @@
     </script>
 </body>
 </html>
+
 
 
 
