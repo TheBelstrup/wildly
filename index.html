@@ -1465,37 +1465,44 @@
 		
 		            <div class="space-y-3 px-4">
 		                ${processedSpots.map((spot) => `
-							<div class="card p-4 border-stone-100 active:scale-[0.98] transition-all relative overflow-hidden" 
-						         onclick="focusSpotOnMap('${spot.originalIndex}')">
-						        
-						        <div class="flex items-center gap-2 mb-2">
-						            <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500">
+							<div class="card p-4 border-stone-100 relative overflow-hidden bg-white shadow-sm mb-3">    
+						        <div class="flex items-center gap-2 mb-1.5">
+						            <span class="text-[9px] font-bold uppercase tracking-wider text-stone-500">
 						                ${new Date(spot.timestamp).toLocaleDateString('da-DK')}
 						            </span>
 						            ${spot.dist !== null ? `
-						                <span class="bg-amber-100 text-amber-900 border border-amber-200 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
+						                <span class="bg-amber-50 text-amber-900 border border-amber-200/50 text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase">
 						                    ${spot.dist < 1 ? Math.round(spot.dist * 1000) + ' m' : spot.dist.toFixed(1) + ' km'}
 						                </span>
 						            ` : ''}
 						        </div>
 						
-						        <div class="pr-12"> <h4 class="text-xl font-black uppercase italic tracking-tighter text-stone-900 leading-tight">
+						        <div class="pr-24"> 
+						            <h4 class="text-base font-black uppercase italic tracking-tight text-stone-900 leading-tight">
 						                ${spot.info.name}
 						            </h4>
 						        </div>
 						
-						        <div class="flex flex-wrap gap-1 mt-3">
+						        <div class="flex flex-wrap gap-1 mt-2.5">
 						            ${spot.info.months.map(m => `
-						                <span class="text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md ${m === activeSeason ? 'bg-emerald-800 text-white' : 'bg-stone-100 text-stone-600 border border-stone-200'}">
+						                <span class="text-[7px] font-black uppercase px-1.5 py-0.5 rounded ${m === activeSeason ? 'bg-emerald-800 text-white' : 'bg-stone-50 text-stone-400 border border-stone-100'}">
 						                    ${m}
 						                </span>
 						            `).join('')}
 						        </div>
 						
-						        <div class="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2">
-						            <button onclick="event.stopPropagation(); navigate('view_spot', { spotId: '${spot.uid}' })" 
-						                    class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-950 border-2 border-emerald-600/30 shadow-sm flex items-center justify-center active:scale-90 transition-transform">
-						                <span class="text-lg font-bold">❯</span>
+						        <div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-2">
+						            
+									<button onclick="focusSpotOnMap('${spot.originalIndex}')" 
+						                    class="w-11 h-11 rounded-xl bg-stone-50 border-2 border-stone-200 flex items-center justify-center active:scale-90 transition-transform shadow-sm"
+						                    aria-label="Find på kort">
+						                <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" 
+						                     class="h-6 w-auto object-contain" 
+						                     alt="Kort markør">
+						            </button>
+						            <button onclick="navigate('view_spot', { spotId: '${spot.uid}' })" 
+						                    class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-950 border-2 border-emerald-600/30 flex items-center justify-center active:scale-90 transition-transform shadow-sm">
+						                <span class="text-sm font-bold">❯</span>
 						            </button>
 						        </div>
 						    </div>
@@ -2304,6 +2311,7 @@
     </script>
 </body>
 </html>
+
 
 
 
