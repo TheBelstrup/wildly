@@ -942,7 +942,7 @@
 		                    <p class="text-xs font-sans leading-relaxed">
 		                        ${ui.offline_map_msg}
 		                    </p>
-		                    <button onclick="render('start')" class="mt-4 text-xs font-bold uppercase tracking-widest text-emerald-950 border-2 border-emerald-600/20 border-b border-emerald-700 pb-1">
+		                    <button onclick="render('start')" class="mt-4 text-xs font-bold uppercase tracking-widest text-emerald-950 pb-1">
 		                        ${ui.offline_map_button}
 		                    </button>
 		                </div>`;
@@ -1130,10 +1130,16 @@
 						<div class="flex items-center gap-4 bg-stone-50 p-3 rounded-2xl border border-stone-100">
 							<div id="gps-bobble" class="relative w-12 h-12 rounded-full border-[4px] border-emerald-100 bg-emerald-100 transition-all duration-500 ease-out flex-shrink-0 flex items-center justify-center">
 							    <div class="absolute inset-0 bg-emerald-400 rounded-full animate-radar-pulse" id="gps-ping"></div>
-							    <div class="relative font-mono font-bold text-[10px] text-emerald-900" id="gps-accuracy">${Math.round(loc.acc)}m</div>
+							    
+							    <div class="relative flex flex-col items-center justify-center leading-none">
+							        <span class="text-[8px] uppercase font-black text-emerald-800/50 tracking-tighter mb-0.5">${ui.gps_precision}</span>
+							        <div class="font-mono font-bold text-[10px] text-emerald-900" id="gps-accuracy">
+							            ${Math.round(loc.acc)}m
+							        </div>
+							    </div>
 							</div>
 							<div>
-								<p class="text-[10px] font-black uppercase tracking-widest text-emerald-950 border-2 transition-colors" id="gps-message">${ui.spot_map_searching}</p>
+								<p class="text-[10px] font-black uppercase tracking-widest text-emerald-950 transition-colors" id="gps-message">${ui.spot_map_searching}</p>
 								${navigator.onLine ? `
 									<p class="text-[11px] text-stone-600 italic mt-0.5">${ui.spot_map_pull_to_adjust}</p>
 					            ` : `
@@ -1212,7 +1218,7 @@
 		        const message = document.getElementById('gps-message');
 		        if (message) {
 		            message.innerText = ui.gps_searching;
-		            message.classList.replace('text-emerald-950 border-2 border-emerald-600/20', 'text-red-700');
+		            message.classList.replace('text-emerald-950', 'text-red-700');
 		        }
 		    }, { 
 		        enableHighAccuracy: true, // Tvinger telefonen til at bruge GPS-chippen (ikke bare Wifi)
@@ -1244,21 +1250,21 @@
 		        // NIVEAU 1: DÅRLIGT (> 30m)
 		        bobble.classList.add('gps-poor-signal');
 		        ping.style.opacity = "0";
-		        message.innerText = ui.gps_poor || "Dårligt signal";
+		        message.innerText = ui.gps_poor;
 		        message.classList.add('text-red-700');
 		    } 
 		    else if (accuracy > 8) {
 		        // NIVEAU 2: OK / SØGER BEDRE (15m - 30m)
 		        bobble.classList.add('gps-ok-signal');
 		        ping.style.opacity = "0.5";
-		        message.innerText = ui.gps_ok || "Søger bedre signal...";
+		        message.innerText = ui.gps_ok;
 		        message.classList.add('text-orange-600');
 		    } 
 		    else {
 		        // NIVEAU 3: PERFEKT (< 15m)
 		        // Ingen ekstra klasser (standard er grøn)
 		        ping.style.opacity = "1";
-		        message.innerText = ui.gps_perfect || "Perfekt signal";
+		        message.innerText = ui.gps_perfect;
 		        message.classList.add('text-emerald-950');
 		    }
 		}
@@ -2355,6 +2361,7 @@
     </script>
 </body>
 </html>
+
 
 
 
