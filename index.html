@@ -1000,7 +1000,8 @@
 					});
 
 					marker.on('click', function(e) {
-					    // Vi bruger stort set samme logik som i focusSpotOnMap
+						e.originalEvent.preventDefault();
+						// Vi bruger stort set samme logik som i focusSpotOnMap
 					    // Først centrerer vi
 					    window.currentMap.setView(e.target.getLatLng(), 15, { animate: true });
 					    
@@ -2354,6 +2355,7 @@
     </script>
 </body>
 </html>
+
 
 
 
