@@ -816,7 +816,7 @@
                     </button>
                 `).join('');
 
-                document.getElementById('search-results').innerHTML = listHtml || '<p class="text-center py-10 text-stone-600 italic sans">${ui.no_search_results}</p>';
+                document.getElementById('search-results').innerHTML = listHtml || `<p class="text-center py-10 text-stone-600 italic sans">${ui.no_search_results}</p>`;
             };
 
             appContent.innerHTML = `
@@ -1001,11 +1001,8 @@
 
 					marker.on('click', function(e) {
 						e.originalEvent.preventDefault();
-						// Vi bruger stort set samme logik som i focusSpotOnMap
-					    // Først centrerer vi
 					    window.currentMap.setView(e.target.getLatLng(), 15, { animate: true });
 					    
-					    // Derefter skubber vi kortet ned for at give plads
 					    setTimeout(() => {
 					        window.currentMap.panBy([0, -120], { animate: true });
 					    }, 300);
@@ -1532,7 +1529,7 @@
 						            </h4>
 						        </div>
 						
-						        <div class="flex flex-wrap gap-1 mt-2.5">
+						        <div class="flex flex-wrap gap-1 mt-2.5 pr-24">
 						            ${spot.info.months.map(m => `
 						                <span class="text-[7px] font-black uppercase px-1.5 py-0.5 rounded ${m === activeSeason ? 'bg-emerald-800 text-white' : 'bg-stone-50 text-stone-400 border border-stone-100'}">
 						                    ${m}
@@ -2362,6 +2359,7 @@
     </script>
 </body>
 </html>
+
 
 
 
