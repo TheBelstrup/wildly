@@ -994,6 +994,7 @@
 		                    </div>
 		                </div>
 		            `, {
+					    closeButton: false,
 					    autoPanPadding: L.point(50, 100) // Dette sikrer 100px luft i toppen, så popup'en ikke skæres af
 					});
 		            
@@ -1012,13 +1013,23 @@
 
 		// Funktionen der kører når du trykker på et punkt i listen
 		function focusSpotOnMap(originalIndex) {
-		    const marker = activeMarkers[originalIndex];
+			const marker = activeMarkers[originalIndex];
 		    if (marker && window.currentMap) {
-		        window.currentMap.setView(marker.getLatLng(), 15, { animate: true });
-		        marker.openPopup();
-		        
+		        // 1. Scroll selve kortet ind midt på skærmen med det samme
 		        const mapEl = document.getElementById('overview-map');
 		        if(mapEl) mapEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		
+		        // 2. Brug flyTo (i stedet for setView) for en blødere bevægelse
+		        window.currentMap.flyTo(marker.getLatLng(), 15, { 
+		            animate: true,
+		            duration: 0.8 
+		        });
+		        
+		        // 3. Vent lidt med at åbne popup'en, så Leaflet kan nå at 
+		        // beregne pladsen korrekt efter flyvningen
+		        setTimeout(() => {
+		            marker.openPopup();
+		        }, 400);
 		    }
 		}
 
@@ -1969,9 +1980,9 @@
 
             document.getElementById('app-content').innerHTML = `
 				<div class="fab-container">
-				    <button onclick="handleSaveLocation('${id}', this)" 
+				    <button onclick="handleSaveLocation('${id}', this)"
 				            class="floating-save-btn active:scale-95 flex items-center justify-center gap-3">
-				        <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="h-6 w-auto drop-shadow-md" alt="Map pin">
+				        <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="h-6 w-auto drop-shadow-md brightness-0 invert" alt="Map pin">
 				        <span class="font-black uppercase tracking-widest text-[11px]">${ui.detail_save_spot}</span>
 				    </button>
 				</div>
@@ -2324,6 +2335,7 @@
     </script>
 </body>
 </html>
+
 
 
 
