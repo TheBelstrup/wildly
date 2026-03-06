@@ -971,12 +971,12 @@
 		            const plant = spot.info; 
 		
 		            const monthsHtml = spot.info.months.map(m => `
-		                <span style="display:inline-block; font-size:7px; font-weight:800; padding:1px 4px; border-radius:3px; margin:0 1px; ${m === activeSeason ? 'background-color:#064e3b;color:white;' : 'background-color:#f5f5f4;color:#a8a29e;'}">${m}</span>
+		                <span style="display:inline-block; font-size:10px; font-weight:500; padding:1px 4px; border-radius:3px; margin:0 1px; ${m === activeSeason ? 'background-color:#064e3b;color:white;' : 'background-color:#f5f5f4;color:#a8a29e;'}">${m}</span>
 		            `).join('');
 		
 		            marker.bindPopup(`
 		                <div class="p-2">
-		                    <p class="text-xs text-gray-500 mb-2 font-sans">${new Date(spot.timestamp).toLocaleDateString()}</p>
+		                    <p class="text-xs text-gray-500 font-sans">${new Date(spot.timestamp).toLocaleDateString()}</p>
 		                    <h3 class="font-bold">${plant.name}</h3>
 							<div style="display: flex; flex-wrap: wrap; gap: 2px; margin-bottom: 10px;">
 								${monthsHtml}
@@ -1015,21 +1015,30 @@
 		function focusSpotOnMap(originalIndex) {
 			const marker = activeMarkers[originalIndex];
 		    if (marker && window.currentMap) {
-		        // 1. Scroll selve kortet ind midt på skærmen med det samme
+		        // 1. Scroll ned til kortet
 		        const mapEl = document.getElementById('overview-map');
-		        if(mapEl) mapEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		        if (mapEl) mapEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 		
-		        // 2. Brug flyTo (i stedet for setView) for en blødere bevægelse
-		        window.currentMap.flyTo(marker.getLatLng(), 15, { 
-		            animate: true,
-		            duration: 0.8 
-		        });
+		        const targetZoom = 15;
+		
+		        // 2. MATEMATIKKEN: Vi beregner et "falskt" centerpunkt
+		        // Omdan GPS-koordinater til pixels på skærmen
+		        let targetPoint = window.currentMap.project(marker.getLatLng(), targetZoom);
 		        
-		        // 3. Vent lidt med at åbne popup'en, så Leaflet kan nå at 
-		        // beregne pladsen korrekt efter flyvningen
+		        // Træk 120 pixels fra Y-aksen. 
+		        // Dette flytter kameraet OP, hvilket betyder at pinden ender længere NEDE på kortet.
+		        targetPoint.y -= 120; 
+		        
+		        // Omdan de nye pixels tilbage til GPS-koordinater
+		        const targetLatLng = window.currentMap.unproject(targetPoint, targetZoom);
+		
+		        // 3. Flyt kortet til det nye "falske" center
+		        window.currentMap.setView(targetLatLng, targetZoom, { animate: true });
+		
+		        // 4. Åbn popup (Vi venter lige et splitsekund så kortet er begyndt at rykke sig)
 		        setTimeout(() => {
 		            marker.openPopup();
-		        }, 400);
+		        }, 300);
 		    }
 		}
 
@@ -2335,6 +2344,7 @@
     </script>
 </body>
 </html>
+
 
 
 
