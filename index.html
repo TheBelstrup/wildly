@@ -976,7 +976,7 @@
 		
 		            marker.bindPopup(`
 		                <div class="p-2">
-		                    <p class="m-0 text-xs text-gray-500 font-sans">${new Date(spot.timestamp).toLocaleDateString()}</p>
+		                    <span style="font-size: 10px;" class="text-xs text-gray-500 font-sans">${new Date(spot.timestamp).toLocaleDateString()}</span>
 		                    <h3 class="font-bold">${plant.name}</h3>
 							<div style="display: flex; flex-wrap: wrap; gap: 2px; margin-bottom: 10px;">
 								${monthsHtml}
@@ -995,6 +995,7 @@
 		                </div>
 		            `, {
 					    closeButton: false,
+						autoPan: false,
 					    autoPanPadding: L.point(50, 100) // Dette sikrer 100px luft i toppen, så popup'en ikke skæres af
 					});
 		            
@@ -2342,6 +2343,7 @@
     </script>
 </body>
 </html>
+
 
 
 
