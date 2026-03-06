@@ -993,7 +993,9 @@
 								</button>
 		                    </div>
 		                </div>
-		            `);
+		            `, {
+					    autoPanPadding: L.point(50, 100) // Dette sikrer 100px luft i toppen, så popup'en ikke skæres af
+					});
 		            
 		            activeMarkers[spot.originalIndex] = marker;
 		            markerArray.push(marker);
@@ -2322,6 +2324,7 @@
     </script>
 </body>
 </html>
+
 
 
 
