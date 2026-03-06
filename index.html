@@ -1025,9 +1025,8 @@
 		        // Omdan GPS-koordinater til pixels på skærmen
 		        let targetPoint = window.currentMap.project(marker.getLatLng(), targetZoom);
 		        
-		        // Træk 120 pixels fra Y-aksen. 
 		        // Dette flytter kameraet OP, hvilket betyder at pinden ender længere NEDE på kortet.
-		        targetPoint.y -= 100; 
+		        targetPoint.y -= 80; 
 		        
 		        // Omdan de nye pixels tilbage til GPS-koordinater
 		        const targetLatLng = window.currentMap.unproject(targetPoint, targetZoom);
@@ -2343,6 +2342,7 @@
     </script>
 </body>
 </html>
+
 
 
 
