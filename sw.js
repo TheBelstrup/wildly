@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wildly-cache-v1.0.3';
+const CACHE_NAME = 'wildly-cache-v1.0.4';
 
     // './dist/style.css', Aktiver denne når tailwind er bygget
 const PRECACHE_ASSETS = [
