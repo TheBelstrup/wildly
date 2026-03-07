@@ -97,7 +97,7 @@
                 },
                 {
                   "match": "Den er muslingeformet med lameller, men er IKKE ekstremt slimet.",
-                  "prompt": "Tjek farve og årstid for at finde den rette østershat:",
+                  "prompt": "Tjek farve og årstid for at finde den rette østershat",
                   "choices": [
                     {
                       "match": "Det er efterår/vinter (eller koldt forår). Hatten er mørkegrå, blågrå eller brunlig.",
@@ -157,7 +157,7 @@
                       "id": "res_poppel_skaelroerhat"
                     },
                     {
-                      "match": "Kødet skifter til grålilla/gråsort:",
+                      "match": "Kødet skifter til grålilla/gråsort",
                       "prompt": "Hvilket træ vokser svampen under?",
                       "description": "Identificer træer inden for 10 meter (Birk, Lærk, Fyr, Eg, Bøg)",
                       "choices": [
@@ -167,14 +167,14 @@
                           "id": "res_birkeskael"
                         },
                         {
-                          "match": "Under Asp (orange/rød hat, hvide skæl bliver sorte)?",
-                          "text_more": "Aspe-skælrørhat",
-                          "id": "res_aspe_skael"
-                        },
-                        {
                           "match": "Under Birk (orange/rød hat, hvide skæl bliver brune)?",
                           "text_more": "Orange Skælrørhat",
                           "id": "res_orange_skael"
+                        },
+                        {
+                          "match": "Under Asp (orange/rød hat, hvide skæl bliver sorte)?",
+                          "text_more": "Aspe-skælrørhat",
+                          "id": "res_aspe_skael"
                         },
                         {
                           "match": "Under Eg/Bøg/Hassel (skæl ikke kulsorte)?",
@@ -678,7 +678,7 @@
                 },
                 {
                   "match": "Den er muslingeformet med lameller, men er IKKE ekstremt slimet.",
-                  "prompt": "Tjek farve og årstid for at finde den rette østershat:",
+                  "prompt": "Tjek farve og årstid for at finde den rette østershat",
                   "choices": [
                     {
                       "match": "Det er efterår/vinter (eller koldt forår). Hatten er mørkegrå, blågrå eller brunlig.",
@@ -738,7 +738,7 @@
                       "id": "res_poppel_skaelroerhat"
                     },
                     {
-                      "match": "Kødet skifter til grålilla/gråsort:",
+                      "match": "Kødet skifter til grålilla/gråsort",
                       "prompt": "Hvilket træ vokser svampen under?",
                       "description": "Identificer træer inden for 10 meter (Birk, Lærk, Fyr, Eg, Bøg)",
                       "choices": [
