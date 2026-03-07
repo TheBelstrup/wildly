@@ -722,14 +722,14 @@
 							return isForest ? `
 								<button onclick="navigate('view_forest_type')" class="p-6 card flex flex-col items-center justify-center gap-2 btn-active">
 									<span class="font-black text-stone-900 uppercase italic sans text-lg">${label}</span>
-									<span class="text-[9px] font-bold text-green-700 uppercase sans font-black text-center">
+									<span class="text-[11px] font-bold text-green-700 uppercase sans font-black text-center">
 										${ui.start_forest_type || 'Vælg skovtype'} →
 									</span>
 								</button>
 							` : `
 								<button onclick="navigate('view_${id}')" class="p-6 card flex flex-col items-center justify-center gap-2 btn-active">
 									<span class="font-black text-stone-900 uppercase italic sans text-lg">${label}</span>
-									<span class="text-[9px] font-bold text-stone-600 uppercase sans">
+									<span class="text-[11px] font-bold text-stone-600 uppercase sans">
 										${ui.start_explore || 'Udforsk'}
 									</span>
 								</button>
@@ -869,7 +869,7 @@
 		    return `
 		    <button onclick="navigate('${id}')" class="w-full card p-6 flex flex-col btn-active text-left">
 		        <div class="flex items-center justify-between mb-2">
-		            <div class="font-black text-stone-900 text-xl uppercase italic tracking-tighter sans leading-none">
+		            <div class="font-black text-stone-900 text-l uppercase italic tracking-tighter sans leading-none">
 		                ${data.name}
 		            </div>
 		            <span class="type-badge badge-${data.type}">${data.type}</span>
@@ -1499,7 +1499,7 @@
 			    : `${ui.my_spots} ${pinImg}`;
 			
 			container.innerHTML = `
-		        <div class="fade-in space-y-6 pb-20">
+		        <div class="fade-in space-y-6 pb-6">
 		            <div class="text-center px-4">
 		                <h2 class="text-3xl font-black text-stone-900 uppercase italic tracking-tighter">${title}</h2>
 						${filterId ? `<button onclick="renderMySpots()" class="text-[9px] font-bold text-emerald-600 uppercase">← ${ui.spot_all_species}</button>` : ''}
@@ -1553,7 +1553,7 @@
 						    </div>
 		                `).join('')}
 		            </div>
-					</div> <div class="px-4 pt-8 pb-12 text-center">
+					</div> <div class="px-4 pt-4 pb-4 text-center">
 			            <button onclick="clearAllSpots()" class="text-[10px] font-bold text-stone-600 uppercase tracking-widest border border-stone-200 px-6 py-3 rounded-full hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all">
 			                ${ui.spot_delete_all}
 			            </button>
@@ -2359,6 +2359,7 @@
     </script>
 </body>
 </html>
+
 
 
 
