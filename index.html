@@ -1277,9 +1277,15 @@
 			    } else {
 			        // Hvis online: Kør Leaflet som normalt
 			        map = L.map('map-container', {
-			            zoomControl: false, 
-			            attributionControl: false
-			        }).setView([loc.lat, loc.lng], 18); 
+					    dragging: false,
+					    zoomControl: false,
+					    scrollWheelZoom: false,
+					    doubleClickZoom: false,
+					    touchZoom: false,
+					    boxZoom: false,
+					    keyboard: false,
+					    tap: false
+					}).setView([loc.lat, loc.lng], 18); 
 			        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 			    }
 			    
@@ -2496,4 +2502,5 @@
     </script>
 </body>
 </html>
+
 
