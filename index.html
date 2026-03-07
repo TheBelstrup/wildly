@@ -307,6 +307,113 @@
 		let database = {};
 		let locationEditorWatchId = null; 
 		let currentEditorAccuracy = 0;
+		const photoStorage = {
+		    dbName: "WildlyDB",
+		    storeName: "photos",
+		
+		    // Åbner databasen
+		    init() {
+		        return new Promise((resolve, reject) => {
+		            const request = indexedDB.open(this.dbName, 1);
+		            request.onupgradeneeded = (e) => {
+		                const db = e.target.result;
+		                if (!db.objectStoreNames.contains(this.storeName)) {
+		                    // Vi opretter et lager hvor hvert billede har et unikt ID
+		                    // og et index så vi hurtigt kan finde alle billeder til ét fund (spotUid)
+		                    const store = db.createObjectStore(this.storeName, { keyPath: "id", autoIncrement: true });
+		                    store.createIndex("spotUid", "spotUid", { unique: false });
+		                }
+		            };
+		            request.onsuccess = () => resolve(request.result);
+		            request.onerror = () => reject("Could not open IndexedDB");
+		        });
+		    },
+		
+		    // Gem et billede til et specifikt fund
+		    async add(spotUid, base64Data) {
+		        const db = await this.init();
+		        return new Promise((resolve, reject) => {
+		            const tx = db.transaction(this.storeName, "readwrite");
+		            const store = tx.objectStore(this.storeName);
+		            const request = store.add({ spotUid, data: base64Data, date: Date.now() });
+		            request.onsuccess = () => resolve();
+		            request.onerror = () => reject();
+		        });
+		    },
+		
+		    // Hent alle billeder til et specifikt fund
+		    async getAll(spotUid) {
+		        const db = await this.init();
+		        return new Promise((resolve) => {
+		            const tx = db.transaction(this.storeName, "readonly");
+		            const store = tx.objectStore(this.storeName);
+		            const index = store.index("spotUid");
+		            const request = index.getAll(spotUid);
+		            request.onsuccess = () => resolve(request.result);
+		        });
+		    },
+		
+		    // Slet et specifikt billede
+		    async delete(photoId) {
+		        const db = await this.init();
+		        const tx = db.transaction(this.storeName, "readwrite");
+		        tx.objectStore(this.storeName).delete(photoId);
+		    }
+		};
+		const mapStorage = {
+		    dbName: "WildlyDB",
+		    storeName: "maps", // En separat skuffe til kort
+		
+		    async init() {
+		        return new Promise((resolve, reject) => {
+		            // Vi hæver versionen til 2 for at trigge onupgradeneeded
+		            const request = indexedDB.open(this.dbName, 2);
+		
+		            request.onupgradeneeded = (e) => {
+		                const db = e.target.result;
+		                
+		                // Bevar eksisterende foto-skuffe
+		                if (!db.objectStoreNames.contains("photos")) {
+		                    const photoStore = db.createObjectStore("photos", { keyPath: "id", autoIncrement: true });
+		                    photoStore.createIndex("spotUid", "spotUid", { unique: false });
+		                }
+		
+		                // Opret den nye kort-skuffe
+		                if (!db.objectStoreNames.contains(this.storeName)) {
+		                    // Vi bruger et tekst-ID som nøgle (f.eks. "overview_123")
+		                    db.createObjectStore(this.storeName);
+		                }
+		            };
+		
+		            request.onsuccess = () => resolve(request.result);
+		            request.onerror = () => reject("Could not open IndexedDB");
+		        });
+		    },
+		
+		    // Gem kort (type er enten 'overview' eller 'detail')
+		    async save(spotUid, type, base64Data) {
+		        const db = await this.init();
+		        return new Promise((resolve, reject) => {
+		            const tx = db.transaction(this.storeName, "readwrite");
+		            const store = tx.objectStore(this.storeName);
+		            // Vi gemmer med en nøgle som "overview_abc-123"
+		            const request = store.put(base64Data, `${type}_${spotUid}`);
+		            request.onsuccess = () => resolve();
+		            request.onerror = () => reject();
+		        });
+		    },
+		
+		    // Hent kort
+		    async get(spotUid, type) {
+		        const db = await this.init();
+		        return new Promise((resolve) => {
+		            const tx = db.transaction(this.storeName, "readonly");
+		            const store = tx.objectStore(this.storeName);
+		            const request = store.get(`${type}_${spotUid}`);
+		            request.onsuccess = () => resolve(request.result);
+		        });
+		    }
+		};
 		
 		function toggleMenu() {
 		    const menu = document.getElementById('side-menu');
@@ -1050,7 +1157,7 @@
 		    }
 		}
 
-		function showSpotsPaywall() {
+		function showPaywall() {
 		    // Opret et simpelt overlay
 			const overlay = document.createElement('div');
 			overlay.className = "fixed inset-0 bg-black/80 z-[9999] flex items-center justify-center p-6 backdrop-blur-sm";
@@ -1088,7 +1195,7 @@
 			const savedSpots = JSON.parse(localStorage.getItem('mySpots')) || [];
 			
 			if (!window.editingSpotUid && !isPremium && savedSpots.length >= freeLimit) {
-		        showSpotsPaywall(); 
+		        showPaywall(); 
 		        return;
 		    }
 
@@ -1296,12 +1403,7 @@
 		        }
 		        const updatedUid = window.editingSpotUid;
 		        window.editingSpotUid = null; // Nulstil
-		        
-		        localStorage.setItem('mySpots', JSON.stringify(spots));
-		        closeLocationEditor();
-		        navigate('view_spot', { spotId: updatedUid });
 		    } else {
-		        // Din eksisterende kode til at oprette et NYT spot...
 		        const spotUid = `spot_${crypto.randomUUID()}`;
 		        const newDiscovery = { 
 		            uid: spotUid,           
@@ -1313,9 +1415,16 @@
 		            photos: []              
 		        };
 		        spots.push(newDiscovery);
-		        localStorage.setItem('mySpots', JSON.stringify(spots));
-		        closeLocationEditor();
-		        navigate('view_spot', { spotId: spotUid });
+		    }
+			
+			localStorage.setItem('mySpots', JSON.stringify(spots));
+			closeLocationEditor();
+			try {
+				await syncMissingMaps(spotUid);
+				navigate('view_spot', { spotId: updatedUid });
+		    } catch (err) {
+		        console.error("Error while retrieving map:", err);
+				navigate('view_spot', { spotId: updatedUid });
 		    }
 		}
 		
@@ -1397,7 +1506,7 @@
 		        btn.disabled = false;
 		    }
 		}
-
+		
 		function renderPremiumSpotUpgrade() {
 		    const spots = JSON.parse(localStorage.getItem('mySpots')) || [];
 			const used = spots.length;
@@ -1423,7 +1532,7 @@
 							<span class="block text-[11px] text-stone-600 italic mt-1">${ui.spots_upgrade_premium}</span>
 						</p>
 						
-						<button onclick="showSpotsPaywall()" class="w-full py-3 bg-emerald-100 text-emerald-950 border-2 border-emerald-600/20 text-[11px] font-black uppercase tracking-widest rounded-xl active:scale-[0.97] transition-all">
+						<button onclick="showPaywall()" class="w-full py-3 bg-emerald-100 text-emerald-950 border-2 border-emerald-600/20 text-[11px] font-black uppercase tracking-widest rounded-xl active:scale-[0.97] transition-all">
 							${ui.spots_unlock_premium} 🍄
 						</button>
 					</div>
@@ -1602,9 +1711,13 @@
 		    const app = document.getElementById('app-content');
 		    const lat = spot.lat || (spot.location ? spot.location.lat : null);
 			const lng = spot.lng || (spot.location ? spot.location.lng : null);
-			const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+			const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 			const photos = await photoStorage.getAll(spotUid);
 
+			let staticMapBase64 = null;
+			if (userSettings.isPremium) {
+				staticMapBase64 = await mapStorage.get(spotUid, 'detail');
+			}
 			let photoGridHtml = '';
 		    
 		    if (photos.length === 0) {
@@ -1632,8 +1745,11 @@
 					    ${new Date(spot.timestamp).toLocaleDateString()}
 					</p>
 					<h1 class="text-3xl font-black text-stone-900 uppercase italic tracking-tighter">${plantInfo.name}</h1>
-		            
-		            <div id="spot-map" class="w-full h-48 rounded-2xl border border-stone-200 shadow-inner mb-3"></div>
+
+					<div id="spot-map" class="w-full h-48 rounded-2xl border border-stone-200 shadow-inner mb-3 overflow-hidden bg-stone-100">
+						${staticMapBase64 ? `<img src="${staticMapBase64}" class="w-full h-full object-cover">` : ''}
+					</div>
+			
 					${(lat && lng) ? `
 					<button onclick="window.open('${mapsUrl}', '_blank')" 
 					        class="w-full bg-stone-100 text-emerald-800 border-2 border-emerald-800/10 py-3 rounded-xl font-bold text-sm shadow-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2 mb-6">
@@ -1688,21 +1804,23 @@
 		    `;
 		
 		    // Initialisér kort (håndterer både nye flade coords og gamle nested coords)
-			setTimeout(() => {
-				const mapElem = document.getElementById('spot-map');
-				if (!mapElem) return; // Stop hvis elementet ikke findes endnu
-		
-				try {
-					const spotMap = L.map('spot-map', { zoomControl: false, attributionControl: false }).setView([spot.lat, spot.lng], 16);
-					L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(spotMap);
-					L.marker([spot.lat, spot.lng]).addTo(spotMap);
-					
-					// Fix Leaflet resize bug
-					setTimeout(() => spotMap.invalidateSize(), 200);
-				} catch (err) {
-					console.error("Leaflet init fejl:", err);
-				}
-			}, 100);
+			if (!staticMapBase64) {
+				setTimeout(() => {
+					const mapElem = document.getElementById('spot-map');
+					if (!mapElem) return; // Stop hvis elementet ikke findes endnu
+			
+					try {
+						const spotMap = L.map('spot-map', { zoomControl: false, attributionControl: false }).setView([spot.lat, spot.lng], 16);
+						L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(spotMap);
+						L.marker([spot.lat, spot.lng]).addTo(spotMap);
+						
+						// Fix Leaflet resize bug
+						setTimeout(() => spotMap.invalidateSize(), 200);
+					} catch (err) {
+						console.error("Leaflet init fejl:", err);
+					}
+				}, 100);
+			}
 		
 		    // Hent billeder
 			const grid = document.getElementById('photo-grid');
@@ -1793,60 +1911,79 @@
 		        renderSpot(spotUid); // Opdater visningen
 		    }
 		}
-		
-		const photoStorage = {
-		    dbName: "WildlyDB",
-		    storeName: "photos",
-		
-		    // Åbner databasen
-		    init() {
+
+		async function fetchStaticMap(lat, lng, zoom) {
+		    // Erstat med din faktiske API-nøgle fra Stadia Maps eller Mapbox
+		    const apiKey = '53e3cd82-c8ef-4d98-afb5-1730d1215ca7';
+		    
+		    // Vi bruger Stadia Maps "Outdoors" stil, som passer godt til Wildly
+		    // Size 600x400 passer godt til de fleste mobilskærme uden at fylde for meget
+		    const url = `https://api.stadiamaps.com/static/v1/outdoors?center=${lat},${lng}&zoom=${zoom}&size=600,400&api_key=${apiKey}`;
+		    
+		    try {
+		        const response = await fetch(url);
+		        if (!response.ok) throw new Error('Netværksfejl ved hentning af kort');
+		        
+		        const blob = await response.blob();
+		        
+		        // Konvertér billed-blob'en til en Base64-streng (DataURL)
 		        return new Promise((resolve, reject) => {
-		            const request = indexedDB.open(this.dbName, 1);
-		            request.onupgradeneeded = (e) => {
-		                const db = e.target.result;
-		                if (!db.objectStoreNames.contains(this.storeName)) {
-		                    // Vi opretter et lager hvor hvert billede har et unikt ID
-		                    // og et index så vi hurtigt kan finde alle billeder til ét fund (spotUid)
-		                    const store = db.createObjectStore(this.storeName, { keyPath: "id", autoIncrement: true });
-		                    store.createIndex("spotUid", "spotUid", { unique: false });
-		                }
-		            };
-		            request.onsuccess = () => resolve(request.result);
-		            request.onerror = () => reject("Could not open IndexedDB");
+		            const reader = new FileReader();
+		            reader.onloadend = () => resolve(reader.result); // Her returneres selve strengen
+		            reader.onerror = reject;
+		            reader.readAsDataURL(blob);
 		        });
-		    },
-		
-		    // Gem et billede til et specifikt fund
-		    async add(spotUid, base64Data) {
-		        const db = await this.init();
-		        return new Promise((resolve, reject) => {
-		            const tx = db.transaction(this.storeName, "readwrite");
-		            const store = tx.objectStore(this.storeName);
-		            const request = store.add({ spotUid, data: base64Data, date: Date.now() });
-		            request.onsuccess = () => resolve();
-		            request.onerror = () => reject();
-		        });
-		    },
-		
-		    // Hent alle billeder til et specifikt fund
-		    async getAll(spotUid) {
-		        const db = await this.init();
-		        return new Promise((resolve) => {
-		            const tx = db.transaction(this.storeName, "readonly");
-		            const store = tx.objectStore(this.storeName);
-		            const index = store.index("spotUid");
-		            const request = index.getAll(spotUid);
-		            request.onsuccess = () => resolve(request.result);
-		        });
-		    },
-		
-		    // Slet et specifikt billede
-		    async delete(photoId) {
-		        const db = await this.init();
-		        const tx = db.transaction(this.storeName, "readwrite");
-		        tx.objectStore(this.storeName).delete(photoId);
+		    } catch (error) {
+		        console.error("fetchStaticMap fejl:", error);
+		        throw error;
 		    }
-		};
+		}
+		
+		async function fetchMapForSingleSpot(spot) {
+		    if (!userSettings.isPremium || !navigator.onLine) return;
+		
+		    try {
+		        const lat = spot.lat || (spot.location ? spot.location.lat : null);
+		        const lng = spot.lng || (spot.location ? spot.location.lng : null);
+		        
+		        if (lat && lng) {
+		            const mapBase64 = await fetchStaticMap(lat, lng, 16);
+		            await mapStorage.save(spot.uid, 'detail', mapBase64);
+		        }
+		    } catch (err) {
+		        console.error("Kunne ikke hente kort for dette spot:", err);
+		    }
+		}
+		
+		async function syncMissingMaps(targetUid = null) {
+			if (!userSettings.isPremium || !navigator.onLine) return;
+		
+		    // Vi henter dine spots fra localStorage (hvor vi gemmer alt tekst-data)
+		    const spots = JSON.parse(localStorage.getItem('mySpots')) || [];
+			if (targetUid) {
+				spots = spots.filter(s => s.uid === targetUid);
+			}
+
+		    for (let spot of spots) {
+		        // Tjek om vi allerede har kortene i IndexedDB
+		        const hasOverview = await mapStorage.get(spot.uid, 'overview');
+		        const hasDetail = await mapStorage.get(spot.uid, 'detail');
+		
+		        if (!hasOverview || !hasDetail) {
+		            try {
+		                // Hent fra API (Stadia/Mapbox)
+		                const overviewBase64 = await fetchStaticMap(spot.lat, spot.lng, 14);
+		                const detailBase64 = await fetchStaticMap(spot.lat, spot.lng, 17);
+		
+		                // Gem i IndexedDB
+		                await mapStorage.save(spot.uid, 'overview', overviewBase64);
+		                await mapStorage.save(spot.uid, 'detail', detailBase64);
+		            } catch (e) {
+		                console.error("Fejl ved hentning af kort", e);
+		            }
+		        }
+		    }
+		}		
 
 		// Hjælpefunktion til at generere Naturbasen-linket
 		function renderNaturbasenLink(url) {
@@ -1959,7 +2096,7 @@
 				setTimeout(() => modal.remove(), 300);
 			}
 		}
-
+		
         function renderResult(id) {
             const res = database[id];
 			const allSpots = JSON.parse(localStorage.getItem('mySpots')) || [];
@@ -2354,8 +2491,8 @@
 		        });
 		    }
 			initApp();
+			syncMissingMaps();
 		});
     </script>
 </body>
 </html>
-
