@@ -1372,7 +1372,7 @@
 		    }
 		}
 		
-		function saveFinalLocation(resId) {
+		async function saveFinalLocation(resId) {
 			if (!navigator.onLine) {
 		        // OFFLINE: Brug den rå GPS position (sidste kendte fra boblen)
 		        if (window.lastKnownLocation) {
@@ -2496,3 +2496,4 @@
     </script>
 </body>
 </html>
+
