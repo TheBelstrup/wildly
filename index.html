@@ -1214,6 +1214,10 @@
 					
 					<div class="relative flex-1 bg-stone-100">
 						<div id="map-container" class="w-full h-full"></div>
+						<div class="relative">
+						    <div id="map-container" class="h-48 w-full"></div>
+						    <div class="absolute inset-0 z-[1000] cursor-default"></div>
+						</div>
 						
 						<div class="absolute inset-0 flex items-center justify-center pointer-events-none z-[1000]">
 							<div class="flex flex-col items-center translate-y-[-20px]">
@@ -1276,15 +1280,18 @@
 			        `;
 			    } else {
 			        // Hvis online: Kør Leaflet som normalt
-			        map = L.map('map-container').setView([loc.lat, loc.lng], 18); 
+			        map = L.map('map-container', {
+					    dragging: false,
+					    scrollWheelZoom: false,
+					    doubleClickZoom: false,
+					    touchZoom: false,
+					    boxZoom: false,
+					    keyboard: false,
+					    tap: false, // Meget vigtig for visse enheder
+					    zoomControl: false,
+					    attributionControl: false
+					}).setView([loc.lat, loc.lng], 18); 
 			        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-					map.dragging.disable();
-					map.touchZoom.disable();
-					map.doubleClickZoom.disable();
-					map.scrollWheelZoom.disable();
-					map.boxZoom.disable();
-					map.keyboard.disable();
 					
 					if (map.tap) map.tap.disable();
 				}
@@ -2502,6 +2509,7 @@
     </script>
 </body>
 </html>
+
 
 
 
