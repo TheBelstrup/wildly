@@ -65,7 +65,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 8px;
+            font-size: 9px;
             font-weight: 900;
             font-family: sans-serif;
             text-transform: uppercase;
@@ -1513,11 +1513,11 @@
 		                ${processedSpots.map((spot) => `
 							<div class="card p-4 border-stone-100 relative overflow-hidden bg-white shadow-sm mb-3">    
 						        <div class="flex items-center gap-2 mb-1.5">
-						            <span class="text-[9px] font-bold uppercase tracking-wider text-stone-500">
+						            <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500">
 						                ${new Date(spot.timestamp).toLocaleDateString('da-DK')}
 						            </span>
 						            ${spot.dist !== null ? `
-						                <span class="bg-amber-50 text-amber-900 border border-amber-200/50 text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase">
+						                <span class="bg-amber-50 text-amber-900 border border-amber-200/50 text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase">
 						                    ${spot.dist < 1 ? Math.round(spot.dist * 1000) + ' m' : spot.dist.toFixed(1) + ' km'}
 						                </span>
 						            ` : ''}
@@ -1531,7 +1531,7 @@
 						
 						        <div class="flex flex-wrap gap-1 mt-2.5 pr-24">
 						            ${spot.info.months.map(m => `
-						                <span class="text-[7px] font-black uppercase px-1.5 py-0.5 rounded ${m === activeSeason ? 'bg-emerald-800 text-white' : 'bg-stone-50 text-stone-400 border border-stone-100'}">
+						                <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${m === activeSeason ? 'bg-emerald-800 text-white' : 'bg-stone-50 text-stone-500 border border-stone-100'}">
 						                    ${m}
 						                </span>
 						            `).join('')}
@@ -2359,6 +2359,7 @@
     </script>
 </body>
 </html>
+
 
 
 
