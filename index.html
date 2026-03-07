@@ -186,10 +186,12 @@
 				</svg>
                 <span data-i18n="menu_home" class="text-[9px] font-black uppercase sans text-stone-600">&nbsp;</span>
             </button>
-            <button onclick="navigate('all')" class="flex flex-col items-center justify-center gap-1 btn-active">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>
-                <span data-i18n="menu_library" class="text-[9px] font-black uppercase sans text-stone-600">&nbsp;</span>
-            </button>
+			<button onclick="navigate('my-spots')" class="flex flex-col items-center justify-center gap-1 btn-active">
+			    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"<defs><mask id="hole-nav"><rect width="24" height="24" fill="white" /><circle cx="12" cy="9.5" r="3.2" fill="black" /></mask></defs>
+			        <path d="M12 2C8.13 2 5 5.13 5 9.5C5 14.25 12 22 12 22C12 22 19 14.25 19 9.5C19 5.13 15.87 2 12 2Z" fill="#064D34" mask="url(#hole-nav)" />
+			    </svg>
+			    <span data-i18n="menu_spots" class="text-[9px] font-black uppercase sans text-stone-600">&nbsp;</span>
+			</button>
             <button onclick="navigate('wizard', 'START')" class="flex flex-col items-center justify-center gap-1 btn-active text-green-800">
 				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 					<path d="M12 13v8M5 13c0-3.87 3.13-7 7-7s7 3.13 7 7H5Z"></path>
@@ -746,14 +748,6 @@
                             </div>
                         </div>
                     </button>
-
-					<button onclick="navigate('my-spots')" 
-					        class="w-full p-4 border-2 border-stone-200 text-stone-600 rounded-[24px] font-black text-[11px] uppercase tracking-widest mt-4 active:scale-[0.98] transition-all">
-					    <span class="flex items-center justify-center gap-2">
-					        ${ui.start_my_spots} 
-					        <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="h-4 w-auto">
-					    </span>
-					</button>
 				</div>
             `;
         }
@@ -2359,6 +2353,7 @@
     </script>
 </body>
 </html>
+
 
 
 
