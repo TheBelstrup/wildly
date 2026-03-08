@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wildly-cache-v1.0.4';
+const CACHE_NAME = 'wildly-cache-v1.1.4';
 
     // './dist/style.css', Aktiver denne når tailwind er bygget
 const PRECACHE_ASSETS = [
@@ -12,6 +12,7 @@ const PRECACHE_ASSETS = [
     './icons/wildly_logo.svg',
     './lib/leaflet/leaflet.css',
     './lib/leaflet/leaflet.js',
+	'./lib/leaflet/leaflet-image.js',
     './lib/leaflet/images/marker-icon.png',
     './lib/leaflet/images/marker-shadow.png',
     './lib/leaflet/images/marker-icon-2x.png'    
