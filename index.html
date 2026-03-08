@@ -180,7 +180,7 @@
     <main id="app-content" class="flex-1 p-6 max-w-lg mx-auto w-full pb-32"></main>
 	<div id="loading-overlay" class="hidden fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center backdrop-blur-sm">
 	    <div class="bg-white p-6 rounded-2xl shadow-xl text-center max-w-xs">
-			<svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+			<svg class="animate-spin h-8 w-8 mx-auto text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
 				<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
 				<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
 			</svg>`;
@@ -1380,6 +1380,8 @@
 		}
 		
 		async function saveFinalLocation(resId) {
+			let spotUid;
+			
 			if (!navigator.onLine) {
 		        // OFFLINE: Brug den rå GPS position (sidste kendte fra boblen)
 		        if (window.lastKnownLocation) {
@@ -1401,7 +1403,7 @@
 			let spots = JSON.parse(localStorage.getItem('mySpots')) || [];
 			if (window.editingSpotUid) {
 		        // Vi retter et eksisterende spot
-				const spotUid = window.editingSpotUid;
+				spotUid = window.editingSpotUid;
 		        const index = spots.findIndex(s => s.uid === spotUid);
 		        if (index !== -1) {
 					spots[index].lat = finalLat;
@@ -1409,7 +1411,7 @@
 		        }
 		        window.editingSpotUid = null; // Nulstil
 		    } else {
-				const spotUid = `spot_${crypto.randomUUID()}`;
+				spotUid = `spot_${crypto.randomUUID()}`;
 		        const newDiscovery = { 
 		            uid: spotUid,           
 		            resId: resId,           
@@ -2564,6 +2566,7 @@
     </script>
 </body>
 </html>
+
 
 
 
