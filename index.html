@@ -684,6 +684,8 @@
 
 		// Hjælpefunktion til at gemme i localStorage
 		function saveSettings() {
+			//REMOVE THIS FOR PRODUCTION
+			userSettings.isPremium = true;
 		    localStorage.setItem('userSettings', JSON.stringify(userSettings));
 		}
 
@@ -2487,6 +2489,7 @@
     </script>
 </body>
 </html>
+
 
 
 
