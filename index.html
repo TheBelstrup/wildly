@@ -425,7 +425,7 @@
 		            const request = store.get(`${type}_${spotUid}`);
 		            request.onsuccess = () => resolve(request.result);
 		        });
-		    }
+		    },
 			
 			async delete(spotUid) {
 			    const db = await this.init();
@@ -2583,6 +2583,7 @@
     </script>
 </body>
 </html>
+
 
 
 
