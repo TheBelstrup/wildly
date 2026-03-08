@@ -15,6 +15,7 @@
 	<!--Interaktivt kort-->
 	<link rel="stylesheet" href="lib/leaflet/leaflet.css" />
 	<script src="lib/leaflet/leaflet.js"></script>
+	<script src="lib/leaflet/leaflet-image.js"></script>
 	<script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --ios-bg: #fdfcfb; }
@@ -177,7 +178,19 @@
     </header>
 
     <main id="app-content" class="flex-1 p-6 max-w-lg mx-auto w-full pb-32"></main>
-
+	<div id="loading-overlay" class="hidden fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center backdrop-blur-sm">
+	    <div class="bg-white p-6 rounded-2xl shadow-xl text-center max-w-xs">
+	        <div class="animate-spin text-3xl mb-4">
+				<svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+					<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+					<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+				</svg>`;
+			</div>
+	        <h3 data-i18n="spinner_msg_header" class="font-bold text-lg">Gemmer dit fund</h3>
+	        <p data-i18n="spinner_msg" id="loading-status-text" class="text-gray-600 text-sm mt-2">Gør kortet klar til offline brug...</p>
+	    </div>
+	</div>
+	
     <nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-stone-100 safe-area-bottom z-50">
         <div class="grid grid-cols-5 h-16">
 			<button onclick="navigate('start')" class="flex flex-col items-center justify-center gap-1 btn-active">
@@ -413,6 +426,27 @@
 		            request.onsuccess = () => resolve(request.result);
 		        });
 		    }
+			
+			async delete(spotUid) {
+			    const db = await this.init();
+			    const tx = db.transaction(this.storeName, "readwrite");
+			    const store = tx.objectStore(this.storeName);
+			
+			    // Slet begge billedtyper tilknyttet dette spot
+			    store.delete(`overview_${spotUid}`);
+			    store.delete(`detail_${spotUid}`);
+			
+			    return new Promise((resolve, reject) => {
+			        tx.oncomplete = () => {
+			            resolve();
+			        };
+			        tx.onerror = (e) => {
+			            console.error("Error deleting offline map data:", e.target.error);
+			            reject(e.target.error);
+			        };
+			    });
+			}
+
 		};
 		
 		function toggleMenu() {
@@ -1419,8 +1453,17 @@
 			localStorage.setItem('mySpots', JSON.stringify(spots));
 			closeLocationEditor();
 			try {
+				const overlay = document.getElementById('loading-overlay');
+			    const statusText = document.getElementById('loading-status-text');
+			    
+				statusText.innerText = ui.spinner_detail_image;
+			    overlay.classList.remove('hidden');
 				await syncMissingMaps(spotUid);
-				navigate('view_spot', { spotId: updatedUid });
+				setTimeout(() => {
+					overlay.classList.add('hidden');
+					navigate('view_spot', { spotId: updatedUid });
+				}, 500);
+				
 		    } catch (err) {
 		        console.error("Error while retrieving map:", err);
 				navigate('view_spot', { spotId: updatedUid });
@@ -1922,13 +1965,64 @@
 		}
 
 		async function fetchStaticMap(lat, lng, zoom) {
+			return new Promise((resolve, reject) => {
+		        // 1. Opret et usynligt div-element til kortet
+		        const tempDiv = document.createElement('div');
+		        tempDiv.style.width = '600px';
+		        tempDiv.style.height = '400px';
+		        tempDiv.style.position = 'absolute';
+		        tempDiv.style.top = '-9999px'; // Gem det væk fra skærmen
+		        document.body.appendChild(tempDiv);
+		
+		        // 2. Initialisér et standard Leaflet kort i div'en
+		        const tempMap = L.map(tempDiv, {
+		            zoomControl: false,
+		            attributionControl: false,
+		            fadeAnimation: false
+		        }).setView([lat, lng], zoom);
+		
+		        // 3. Brug de præcise OSM fliser, du kender
+		        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		            crossOrigin: true
+		        }).addTo(tempMap);
+		
+		        // 4. Tilføj en markør i midten (valgfrit)
+		        L.marker([lat, lng]).addTo(tempMap);
+		
+		        // 5. Vent på at fliserne er indlæst og tag billedet
+		        tempMap.whenReady(() => {
+		            setTimeout(() => {
+		                leafletImage(tempMap, function(err, canvas) {
+		                    if (err) {
+		                        document.body.removeChild(tempDiv);
+		                        reject(err);
+		                        return;
+		                    }
+		                    
+		                    // Konvertér canvas til Base64 streng
+		                    const base64Data = canvas.toDataURL('image/png');
+		                    
+		                    // Ryd op
+		                    document.body.removeChild(tempDiv);
+		                    resolve(base64Data);
+		                });
+		            }, 500); // En lille buffer for at undgå hvide områder
+		        });
+		    });
+		}
+
+		async function fetchStaticMapDELELETHIS(lat, lng, zoom) {
 		    // Erstat med din faktiske API-nøgle fra Stadia Maps eller Mapbox
 		    const apiKey = '53e3cd82-c8ef-4d98-afb5-1730d1215ca7';
 		    
 		    // Vi bruger Stadia Maps "Outdoors" stil, som passer godt til Wildly
 		    // Size 600x400 passer godt til de fleste mobilskærme uden at fylde for meget
-		    const url = `https://api.stadiamaps.com/static/v1/outdoors?center=${lat},${lng}&zoom=${zoom}&size=600,400&api_key=${apiKey}`;
-		    
+		    const url = `https://api.stadiamaps.com/static/v1/outdoors.png?center=${lat},${lng}&zoom=${zoom}&size=600,400&api_key=${apiKey}`;
+			https://tiles.stadiamaps.com/static/outdoors.png?center=${lat},${lng}&zoom=${zoom}&size=600x400@2x&api_key=${apiKey}
+			https://tiles.stadiamaps.com/static/outdoors.png?center=55.668981874999986,12.517798749999999&zoom=14&size=600x400&api_key=53e3cd82-c8ef-4d98-afb5-1730d1215ca7
+		    https://tiles.stadiamaps.com/static/outdoors.png?center=55.668981874999986,12.517798749999999&zoom=14&size=600,400&api_key=53e3cd82-c8ef-4d98-afb5-1730d1215ca7
+			
+			https://api.stadiamaps.com/static/v1/outdoors.png?center=55.668981874999986,12.517798749999999&zoom=14&size=600,400&api_key=53e3cd82-c8ef-4d98-afb5-1730d1215ca7
 		    try {
 		        const response = await fetch(url);
 		        if (!response.ok) throw new Error('Netværksfejl ved hentning af kort');
@@ -2489,6 +2583,7 @@
     </script>
 </body>
 </html>
+
 
 
 
