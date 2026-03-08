@@ -1695,13 +1695,14 @@
 		        
 		        // 2. Ryd IndexedDB (alle billedfiler)
 		        try {
-		            const db = await photoStorage.init();
+					const db = await getDB(); // Bruger den fælles manager
 		            const tx = db.transaction("photos", "readwrite");
-		            const store = tx.objectStore("photos");
+		            const store_photos = tx.objectStore("photos");
+		            const request_photos = store_photos.clear();
+		            const store_maps = tx.objectStore("maps");
+		            const request_maps = store_maps.clear();
 		            
-		            const request = store.clear();
-		            
-		            request.onsuccess = () => {
+		            request_maps.onsuccess = () => {
 		                // 3. Opdater UI
 		                if (typeof mySpots !== 'undefined') mySpots = [];
 		                alert(ui.spot_deleted_all);
@@ -1924,7 +1925,13 @@
 		        for (let p of photos) {
 		            await photoStorage.delete(p.id);
 		        }
-		
+
+		        // 3. Slet alle kort i IndexedDB til dette spot
+		        const maps = await mapStorage.getAll(spotUid);
+		        for (let m of maps) {
+		            await mapStorage.delete(m.id);
+		        }
+				
 		        navigate('start');
 		    }
 		}
@@ -2557,6 +2564,7 @@
     </script>
 </body>
 </html>
+
 
 
 
