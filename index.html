@@ -321,28 +321,10 @@
 		const photoStorage = {
 		    dbName: "WildlyDB",
 		    storeName: "photos",
-		
-		    // Åbner databasen
-		    init() {
-		        return new Promise((resolve, reject) => {
-		            const request = indexedDB.open(this.dbName, 1);
-		            request.onupgradeneeded = (e) => {
-		                const db = e.target.result;
-		                if (!db.objectStoreNames.contains(this.storeName)) {
-		                    // Vi opretter et lager hvor hvert billede har et unikt ID
-		                    // og et index så vi hurtigt kan finde alle billeder til ét fund (spotUid)
-		                    const store = db.createObjectStore(this.storeName, { keyPath: "id", autoIncrement: true });
-		                    store.createIndex("spotUid", "spotUid", { unique: false });
-		                }
-		            };
-		            request.onsuccess = () => resolve(request.result);
-		            request.onerror = () => reject("Could not open IndexedDB");
-		        });
-		    },
-		
+				
 		    // Gem et billede til et specifikt fund
 		    async add(spotUid, base64Data) {
-		        const db = await this.init();
+				const db = await getDB();
 		        return new Promise((resolve, reject) => {
 		            const tx = db.transaction(this.storeName, "readwrite");
 		            const store = tx.objectStore(this.storeName);
@@ -354,7 +336,7 @@
 		
 		    // Hent alle billeder til et specifikt fund
 		    async getAll(spotUid) {
-		        const db = await this.init();
+				const db = await getDB();
 		        return new Promise((resolve) => {
 		            const tx = db.transaction(this.storeName, "readonly");
 		            const store = tx.objectStore(this.storeName);
@@ -366,44 +348,18 @@
 		
 		    // Slet et specifikt billede
 		    async delete(photoId) {
-		        const db = await this.init();
+				const db = await getDB();
 		        const tx = db.transaction(this.storeName, "readwrite");
 		        tx.objectStore(this.storeName).delete(photoId);
 		    }
 		};
+		
 		const mapStorage = {
 		    dbName: "WildlyDB",
-		    storeName: "maps", // En separat skuffe til kort
-		
-		    async init() {
-		        return new Promise((resolve, reject) => {
-		            // Vi hæver versionen til 2 for at trigge onupgradeneeded
-		            const request = indexedDB.open(this.dbName, 2);
-		
-		            request.onupgradeneeded = (e) => {
-		                const db = e.target.result;
-		                
-		                // Bevar eksisterende foto-skuffe
-		                if (!db.objectStoreNames.contains("photos")) {
-		                    const photoStore = db.createObjectStore("photos", { keyPath: "id", autoIncrement: true });
-		                    photoStore.createIndex("spotUid", "spotUid", { unique: false });
-		                }
-		
-		                // Opret den nye kort-skuffe
-		                if (!db.objectStoreNames.contains(this.storeName)) {
-		                    // Vi bruger et tekst-ID som nøgle (f.eks. "overview_123")
-		                    db.createObjectStore(this.storeName);
-		                }
-		            };
-		
-		            request.onsuccess = () => resolve(request.result);
-		            request.onerror = () => reject("Could not open IndexedDB");
-		        });
-		    },
-		
+		    storeName: "maps", // En separat skuffe til kort		
 		    // Gem kort (type er enten 'overview' eller 'detail')
 		    async save(spotUid, type, base64Data) {
-		        const db = await this.init();
+				const db = await getDB();
 		        return new Promise((resolve, reject) => {
 		            const tx = db.transaction(this.storeName, "readwrite");
 		            const store = tx.objectStore(this.storeName);
@@ -416,7 +372,7 @@
 		
 		    // Hent kort
 		    async get(spotUid, type) {
-		        const db = await this.init();
+				const db = await getDB();
 		        return new Promise((resolve) => {
 		            const tx = db.transaction(this.storeName, "readonly");
 		            const store = tx.objectStore(this.storeName);
@@ -426,7 +382,7 @@
 		    },
 			
 			async delete(spotUid) {
-			    const db = await this.init();
+				const db = await getDB();
 			    const tx = db.transaction(this.storeName, "readwrite");
 			    const store = tx.objectStore(this.storeName);
 			
@@ -444,8 +400,28 @@
 			        };
 			    });
 			}
-
 		};
+
+		function getDB() {
+		    return new Promise((resolve, reject) => {
+		        const request = indexedDB.open("WildlyDB", 2);
+		        request.onupgradeneeded = (e) => {
+		            const db = e.target.result;
+		            
+		            if (!db.objectStoreNames.contains("photos")) {
+		                const photoStore = db.createObjectStore("photos", { keyPath: "id", autoIncrement: true });
+		                photoStore.createIndex("spotUid", "spotUid", { unique: false });
+		            }
+		            
+		            if (!db.objectStoreNames.contains("maps")) {
+		                db.createObjectStore("maps");
+		            }
+		        };
+		
+		        request.onsuccess = () => resolve(request.result);
+		        request.onerror = (e) => reject(e.target.error);
+		    });
+		}
 		
 		function toggleMenu() {
 		    const menu = document.getElementById('side-menu');
@@ -1423,19 +1399,17 @@
 		    }
 
 			let spots = JSON.parse(localStorage.getItem('mySpots')) || [];
-			const spotUid = 'spot_' + Date.now();
-		    
 			if (window.editingSpotUid) {
 		        // Vi retter et eksisterende spot
-		        const index = spots.findIndex(s => s.uid === window.editingSpotUid);
+				const spotUid = window.editingSpotUid;
+		        const index = spots.findIndex(s => s.uid === spotUid);
 		        if (index !== -1) {
 					spots[index].lat = finalLat;
 		            spots[index].lng = finalLng;
 		        }
-		        const updatedUid = window.editingSpotUid;
 		        window.editingSpotUid = null; // Nulstil
 		    } else {
-		        const spotUid = `spot_${crypto.randomUUID()}`;
+				const spotUid = `spot_${crypto.randomUUID()}`;
 		        const newDiscovery = { 
 		            uid: spotUid,           
 		            resId: resId,           
@@ -1459,12 +1433,12 @@
 				await syncMissingMaps(spotUid);
 				setTimeout(() => {
 					overlay.classList.add('hidden');
-					navigate('view_spot', { spotId: updatedUid });
+					navigate('view_spot', { spotId: spotUid });
 				}, 500);
 				
 		    } catch (err) {
 		        console.error("Error while retrieving map:", err);
-				navigate('view_spot', { spotId: updatedUid });
+				navigate('view_spot', { spotId: spotUid });
 		    }
 		}
 		
@@ -2583,6 +2557,7 @@
     </script>
 </body>
 </html>
+
 
 
 
