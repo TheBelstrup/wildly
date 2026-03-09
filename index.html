@@ -183,7 +183,7 @@
 			<svg class="animate-spin h-8 w-8 mx-auto text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
 				<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
 				<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-			</svg>`;
+			</svg>
 	        <h3 data-i18n="spinner_msg_header" class="font-bold text-lg">Gemmer dit fund</h3>
 	        <p data-i18n="spinner_msg" id="loading-status-text" class="text-gray-600 text-sm mt-2">Gør kortet klar til offline brug...</p>
 	    </div>
@@ -1408,6 +1408,7 @@
 		        if (index !== -1) {
 					spots[index].lat = finalLat;
 		            spots[index].lng = finalLng;
+					spots[index].mapsSynced = false;
 		        }
 		        window.editingSpotUid = null; // Nulstil
 		    } else {
@@ -1419,6 +1420,7 @@
 		            lng: finalLng, 
 		            acc: currentEditorAccuracy,
 		            timestamp: new Date().toISOString(),
+					mapsSynced: false,
 		            photos: []              
 		        };
 		        spots.push(newDiscovery);
@@ -2029,30 +2031,31 @@
 			if (!userSettings.isPremium || !navigator.onLine) return;
 		
 		    // Vi henter dine spots fra localStorage (hvor vi gemmer alt tekst-data)
-		    let spots = JSON.parse(localStorage.getItem('mySpots')) || [];
-			if (targetUid) {
-				spots = spots.filter(s => s.uid === targetUid);
-			}
+		    let allspots = JSON.parse(localStorage.getItem('mySpots')) || [];
+			let pendingSpots = allSpots.filter(spot => {
+		        if (targetUid) return spot.uid === targetUid && spot.mapsSynced !== true;
+		        return spot.mapsSynced !== true;
+		    });
 
-		    for (let spot of spots) {
-		        // Tjek om vi allerede har kortene i IndexedDB
-		        const hasOverview = await mapStorage.get(spot.uid, 'overview');
-		        const hasDetail = await mapStorage.get(spot.uid, 'detail');
-		
-		        if (!hasOverview || !hasDetail) {
-		            try {
-		                // Hent fra API (Stadia/Mapbox)
-		                const overviewBase64 = await fetchStaticMap(spot.lat, spot.lng, 14);
-		                const detailBase64 = await fetchStaticMap(spot.lat, spot.lng, 17);
-		
-		                // Gem i IndexedDB
-		                await mapStorage.save(spot.uid, 'overview', overviewBase64);
-		                await mapStorage.save(spot.uid, 'detail', detailBase64);
-		            } catch (e) {
-		                console.error("Fejl ved hentning af kort", e);
-		            }
-		        }
+			if (pendingSpots.length === 0) return;
+
+		    for (let spot of pendingSpots) {
+				try {
+					const overviewBase64 = await fetchStaticMap(spot.lat, spot.lng, 14);
+					const detailBase64 = await fetchStaticMap(spot.lat, spot.lng, 17);
+	
+					// Gem i IndexedDB
+					await mapStorage.save(spot.uid, 'overview', overviewBase64);
+					await mapStorage.save(spot.uid, 'detail', detailBase64);
+					
+					const originalSpot = allSpots.find(s => s.uid === spot.uid);
+					if (originalSpot) originalSpot.mapsSynced = true;
+				} catch (e) {
+					console.error("Fejl ved hentning af kort", e);
+				}
 		    }
+
+			localStorage.setItem('mySpots', JSON.stringify(allSpots))
 		}		
 
 		// Hjælpefunktion til at generere Naturbasen-linket
@@ -2566,6 +2569,7 @@
     </script>
 </body>
 </html>
+
 
 
 
