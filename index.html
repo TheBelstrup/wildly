@@ -2031,7 +2031,7 @@
 			if (!userSettings.isPremium || !navigator.onLine) return;
 		
 		    // Vi henter dine spots fra localStorage (hvor vi gemmer alt tekst-data)
-		    let allspots = JSON.parse(localStorage.getItem('mySpots')) || [];
+		    let allSpots = JSON.parse(localStorage.getItem('mySpots')) || [];
 			let pendingSpots = allSpots.filter(spot => {
 		        if (targetUid) return spot.uid === targetUid && spot.mapsSynced !== true;
 		        return spot.mapsSynced !== true;
@@ -2569,6 +2569,7 @@
     </script>
 </body>
 </html>
+
 
 
 
