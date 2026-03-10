@@ -340,6 +340,8 @@
 		let database = {};
 		let locationEditorWatchId = null; 
 		let radarWatchId = null;
+		let radarMapDetail = null;
+		let radarMapOverview = null;		
 		let currentEditorAccuracy = 0;
 		const photoStorage = {
 		    dbName: "WildlyDB",
@@ -824,9 +826,8 @@
 		    } else if (current === 'view_forest_type') {
 		        renderForestMenu();
 			} else if (current === 'radar') {
-            	// 2. Start radaren med data fra navigate()
 	            if (data && data.lat && data.lng) {
-	                renderRadar(data.lat, data.lng);
+	                handleRadarNavigation(data);
 	            } else {
 	                history.back();
 	            }
@@ -2202,19 +2203,14 @@
 		    return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
 		}
 
-		function handleRadarNavigation(spotUid) {
+		function handleRadarNavigation(spot) {
 		    if (!userSettings.isPremium) {
 		        showPaywall();
 		        return;
 		    }
 		
-		    const spots = JSON.parse(localStorage.getItem('mySpots')) || [];
-		    const spot = spots.find(s => s.uid === spotUid);
-		    
-		    if (spot) {
-		        // Her kalder vi permission-tjekket i stedet for render direkte
-		        requestCompassPermission(spot);
-		    }
+			// Her kalder vi permission-tjekket i stedet for render direkte
+			requestCompassPermission(spot);
 		}
 
 		async function requestCompassPermission(spot) {
@@ -2223,7 +2219,7 @@
 		        try {
 		            const permission = await DeviceOrientationEvent.requestPermission();
 		            if (permission === 'granted') {
-		                renderRadarMode(spot);
+		                renderRadar(spot);
 		            } else {
 		                alert(ui.radar_permission);
 		            }
@@ -2233,7 +2229,7 @@
 		        }
 		    } else {
 		        // Android eller Desktop kræver ikke permission på samme måde
-		        renderRadarMode(spot);
+		        renderRadar(spot);
 		    }
 		}
 		
@@ -2243,6 +2239,8 @@
 		    const distLabel = document.getElementById('radar-distance');
 		    const mapImg = document.getElementById('radar-map-img');
 		    const instruction = document.getElementById('radar-instruction');
+			radarMapDetail = await mapStorage.get(spotUid, 'detail');;
+			radarMapOverview = await mapStorage.get(spotUid, 'overview');
 			
 		    // 1. Lyt til telefonens kompas (Heading)
 		    if (window.DeviceOrientationEvent) {
@@ -2264,12 +2262,12 @@
 		        
 		        // Opdater afstandstekst
 		        distLabel.innerText = dist < 1 ? Math.round(dist * 1000) + ' m' : dist.toFixed(1) + ' km';
-		
+
 		        if (dist <= 0.3) { // 300 meter
-		            if (mapImg.src !== spot.detailMapUrl) mapImg.src = spot.detailMapUrl;
+		            if (mapImg.src !== radarMapDetail) mapImg.src = radarMapDetail;
 		            instruction.innerText = "Du er tæt på! Brug detaljekortet.";
 		        } else {
-		            if (mapImg.src !== spot.overviewMapUrl) mapImg.src = spot.overviewMapUrl;
+		            if (mapImg.src !== radarMapOverview) mapImg.src = radarMapOverview;
 		            instruction.innerText = "Gå mod midten af radaren";
 		        }
 		
@@ -2743,6 +2741,7 @@
     </script>
 </body>
 </html>
+
 
 
 
