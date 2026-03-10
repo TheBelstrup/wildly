@@ -826,11 +826,7 @@
 		    } else if (current === 'view_forest_type') {
 		        renderForestMenu();
 			} else if (current === 'radar') {
-	            if (data && data.lat && data.lng) {
-	                handleRadarNavigation(data.spotId);
-	            } else {
-	                history.back();
-	            }
+				handleRadarNavigation(data.spotId);
 			} else if (typeof current === 'string' && current.startsWith('view_')) {
 		        renderHabitat(current.replace('view_', ''));
 		    } else if (database[current]) { // Tjekker om ID findes i databasen (res_...)
@@ -2745,6 +2741,7 @@
     </script>
 </body>
 </html>
+
 
 
 
