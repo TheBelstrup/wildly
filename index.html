@@ -730,7 +730,7 @@
 		    if (!isLoggedIn) {
 		        container.innerHTML = `
 		            <button onclick="navigate('my-spots')" class="w-full text-left py-3 px-3 flex items-center gap-3">
-		                <img src="/lib/leaflet/images/marker-icon-2x.png" class="h-5 w-auto" alt="Map pin"> 
+		                <img src="lib/leaflet/images/marker-icon-2x.png" class="h-5 w-auto" alt="Map pin"> 
 		                <div class="flex flex-col">
 		                    <span class="font-bold text-sm">${ui.my_spots}</span>
 		                </div>
@@ -747,7 +747,7 @@
 		    } else {
 		        container.innerHTML = `
 		            <button onclick="navigate('my-spots')" class="w-full text-left py-3 px-3 flex items-center gap-3 bg-white rounded-xl">
-		                <img src="/lib/leaflet/images/marker-icon-2x.png" class="h-5 w-auto" alt="Map pin">
+		                <img src="lib/leaflet/images/marker-icon-2x.png" class="h-5 w-auto" alt="Map pin">
 		                <div class="flex flex-col text-emerald-900">
 		                    <span class="font-bold text-sm">${ui.my_spots}</span>
 		                </div>
@@ -1269,7 +1269,7 @@
 						<div class="absolute inset-0 flex items-center justify-center pointer-events-none z-[1000]">
 							<div class="flex flex-col items-center translate-y-[-20px]">
 							    <div class="bg-stone-900 text-white text-[11px] font-bold px-2 py-1 rounded mb-2 uppercase tracking-widest">${ui.spot_location}</div>
-							    <img src="/lib/leaflet/images/marker-icon-2x.png" class="h-12 w-auto drop-shadow-2xl" alt="Map pin">
+							    <img src="lib/leaflet/images/marker-icon-2x.png" class="h-12 w-auto drop-shadow-2xl" alt="Map pin">
 							</div>
 						</div>
 						${navigator.onLine ? `
@@ -1616,7 +1616,7 @@
 		        container.innerHTML = `
 		            <div class="flex flex-col items-center justify-center min-h-[60vh] px-8 text-center fade-in">
 		                <div class="w-20 h-20 bg-stone-100 rounded-full flex items-center justify-center mb-6">
-						    <img src="/lib/leaflet/images/marker-icon-2x.png" class="w-8 h-auto" alt="Pin">
+						    <img src="lib/leaflet/images/marker-icon-2x.png" class="w-8 h-auto" alt="Pin">
 						</div>
 		                <h3 class="text-xl font-black uppercase italic tracking-tighter text-stone-900 mb-2">
 		                    ${hasAnySpots ? `${ui.no_species_in_season}` : `${ui.spot_no_saved}`}
@@ -1660,7 +1660,7 @@
 		        processedSpots.sort((a, b) => a.dist - b.dist);
 		    }
 
-			const pinImg = `<img src="/lib/leaflet/images/marker-icon-2x.png" class="inline-block w-6 h-auto align-bottom ml-1" alt="Pin">`;
+			const pinImg = `<img src="lib/leaflet/images/marker-icon-2x.png" class="inline-block w-6 h-auto align-bottom ml-1" alt="Pin">`;
 			const title = filterId && processedSpots.length > 0 
 			    ? `${ui.spot_finds_of} ${processedSpots[0].info.name} ${pinImg}` 
 			    : `${ui.my_spots} ${pinImg}`;
@@ -1708,7 +1708,7 @@
 									<button onclick="focusSpotOnMap('${spot.originalIndex}')" 
 						                    class="w-10 h-10 rounded-xl bg-stone-50 border-2 border-stone-200 flex items-center justify-center active:scale-90 transition-transform shadow-sm"
 						                    aria-label="Find på kort">
-						                <img src="/lib/leaflet/images/marker-icon-2x.png" 
+						                <img src="lib/leaflet/images/marker-icon-2x.png" 
 						                     class="h-6 w-auto object-contain" 
 						                     alt="Kort markør">
 						            </button>
@@ -1827,7 +1827,7 @@
 					        class="w-full mt-2 text-xs font-black uppercase tracking-widest text-emerald-950 bg-emerald-100 border-2 border-emerald-600/30 px-4 py-3 rounded-full active:scale-95 transition-all">
 					        <span class="flex items-center justify-center gap-2">
 					            ${ui.spot_edit_location} 
-					            <img src="/lib/leaflet/images/marker-icon-2x.png" class="h-4 w-auto">
+					            <img src="lib/leaflet/images/marker-icon-2x.png" class="h-4 w-auto">
 					        </span>
 					    </button>
 					` : ''}
@@ -2388,7 +2388,7 @@
 				<div class="fab-container">
 				    <button onclick="handleSaveLocation('${id}', this)"
 				            class="floating-save-btn active:scale-95 flex items-center justify-center gap-3">
-				        <img src="/lib/leaflet/images/marker-icon-2x.png" class="h-6 w-auto drop-shadow-md brightness-0 invert" alt="Map pin">
+				        <img src="lib/leaflet/images/marker-icon-2x.png" class="h-6 w-auto drop-shadow-md brightness-0 invert" alt="Map pin">
 				        <span class="font-black uppercase tracking-widest text-[11px]">${ui.detail_save_spot}</span>
 				    </button>
 				</div>
@@ -2743,6 +2743,7 @@
     </script>
 </body>
 </html>
+
 
 
 
