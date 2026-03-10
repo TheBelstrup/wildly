@@ -730,7 +730,7 @@
 		    if (!isLoggedIn) {
 		        container.innerHTML = `
 		            <button onclick="navigate('my-spots')" class="w-full text-left py-3 px-3 flex items-center gap-3">
-		                <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="h-5 w-auto" alt="Map pin"> 
+		                <img src="/lib/leaflet/images/marker-icon-2x.png" class="h-5 w-auto" alt="Map pin"> 
 		                <div class="flex flex-col">
 		                    <span class="font-bold text-sm">${ui.my_spots}</span>
 		                </div>
@@ -747,7 +747,7 @@
 		    } else {
 		        container.innerHTML = `
 		            <button onclick="navigate('my-spots')" class="w-full text-left py-3 px-3 flex items-center gap-3 bg-white rounded-xl">
-		                <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="h-5 w-auto" alt="Map pin">
+		                <img src="/lib/leaflet/images/marker-icon-2x.png" class="h-5 w-auto" alt="Map pin">
 		                <div class="flex flex-col text-emerald-900">
 		                    <span class="font-bold text-sm">${ui.my_spots}</span>
 		                </div>
@@ -791,8 +791,12 @@
 		    // Hvis pageId ikke er defineret (f.eks. ved reload), brug 'start'
 		    const current = pageId || 'start';
 			currentPageId = pageId;
+
+			if (pageId !== 'radar') {
+		        stopRadar();
+		    }
 			
-		    // Styr tilbage-knappens synlighed
+			// Styr tilbage-knappens synlighed
 		    const backBtn = document.getElementById('back-btn');
 		    if (current === 'start') {
 		        backBtn.classList.add('hidden');
@@ -819,7 +823,14 @@
 		        renderSafety();
 		    } else if (current === 'view_forest_type') {
 		        renderForestMenu();
-		    } else if (typeof current === 'string' && current.startsWith('view_')) {
+			} else if (current === 'radar')
+            	// 2. Start radaren med data fra navigate()
+	            if (data && data.lat && data.lng) {
+	                renderRadar(data.lat, data.lng);
+	            } else {
+	                history.back();
+	            }
+			} else if (typeof current === 'string' && current.startsWith('view_')) {
 		        renderHabitat(current.replace('view_', ''));
 		    } else if (database[current]) { // Tjekker om ID findes i databasen (res_...)
 		        renderResult(current);
@@ -1127,10 +1138,13 @@
 								<button onclick="navigate('${spot.resId}')" class="border border-stone-300 bg-stone-50 text-stone-600 px-2 py-2 rounded text-[10px] font-bold uppercase tracking-wide flex items-center justify-center gap-1">
 									${ui.map_plant_info}
 								</button>
-								<button onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}', '_blank')" class="border border-blue-200 bg-blue-50 text-blue-700 px-2 py-2 rounded text-[10px] font-bold uppercase tracking-wide flex items-center justify-center gap-1">
+								<button onclick="navigate('radar', { lat: ${spot.lat}, lng: ${spot.lng} })" class="border border-blue-200 bg-blue-50 text-blue-700 px-2 py-2 rounded text-[10px] font-bold uppercase tracking-wide flex items-center justify-center gap-1 flex-1">
+								    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+								        <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+								    </svg>
 									${ui.spot_get_directions}
 								</button>
-		                    </div>
+							</div>
 		                </div>
 		            `, {
 					    closeButton: false,
@@ -1251,7 +1265,7 @@
 						<div class="absolute inset-0 flex items-center justify-center pointer-events-none z-[1000]">
 							<div class="flex flex-col items-center translate-y-[-20px]">
 							    <div class="bg-stone-900 text-white text-[11px] font-bold px-2 py-1 rounded mb-2 uppercase tracking-widest">${ui.spot_location}</div>
-							    <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="h-12 w-auto drop-shadow-2xl" alt="Map pin">
+							    <img src="/lib/leaflet/images/marker-icon-2x.png" class="h-12 w-auto drop-shadow-2xl" alt="Map pin">
 							</div>
 						</div>
 						${navigator.onLine ? `
@@ -1598,7 +1612,7 @@
 		        container.innerHTML = `
 		            <div class="flex flex-col items-center justify-center min-h-[60vh] px-8 text-center fade-in">
 		                <div class="w-20 h-20 bg-stone-100 rounded-full flex items-center justify-center mb-6">
-						    <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="w-8 h-auto" alt="Pin">
+						    <img src="/lib/leaflet/images/marker-icon-2x.png" class="w-8 h-auto" alt="Pin">
 						</div>
 		                <h3 class="text-xl font-black uppercase italic tracking-tighter text-stone-900 mb-2">
 		                    ${hasAnySpots ? `${ui.no_species_in_season}` : `${ui.spot_no_saved}`}
@@ -1642,7 +1656,7 @@
 		        processedSpots.sort((a, b) => a.dist - b.dist);
 		    }
 
-			const pinImg = `<img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="inline-block w-6 h-auto align-bottom ml-1" alt="Pin">`;
+			const pinImg = `<img src="/lib/leaflet/images/marker-icon-2x.png" class="inline-block w-6 h-auto align-bottom ml-1" alt="Pin">`;
 			const title = filterId && processedSpots.length > 0 
 			    ? `${ui.spot_finds_of} ${processedSpots[0].info.name} ${pinImg}` 
 			    : `${ui.my_spots} ${pinImg}`;
@@ -1690,7 +1704,7 @@
 									<button onclick="focusSpotOnMap('${spot.originalIndex}')" 
 						                    class="w-10 h-10 rounded-xl bg-stone-50 border-2 border-stone-200 flex items-center justify-center active:scale-90 transition-transform shadow-sm"
 						                    aria-label="Find på kort">
-						                <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" 
+						                <img src="/lib/leaflet/images/marker-icon-2x.png" 
 						                     class="h-6 w-auto object-contain" 
 						                     alt="Kort markør">
 						            </button>
@@ -1753,7 +1767,6 @@
 		    const app = document.getElementById('app-content');
 		    const lat = spot.lat || (spot.location ? spot.location.lat : null);
 			const lng = spot.lng || (spot.location ? spot.location.lng : null);
-			const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 			const photos = await photoStorage.getAll(spotUid);
 
 			let staticMapBase64 = null;
@@ -1793,7 +1806,7 @@
 					</div>
 			
 					${(lat && lng) ? `
-					<button onclick="window.open('${mapsUrl}', '_blank')" 
+					<button onclick="navigate('radar', { lat: ${spot.lat}, lng: ${spot.lng} })" 
 					        class="w-full bg-stone-100 text-emerald-800 border-2 border-emerald-800/10 py-3 rounded-xl font-bold text-sm shadow-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2 mb-6">
 					    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 					        <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
@@ -1806,7 +1819,7 @@
 					        class="w-full mt-2 text-xs font-black uppercase tracking-widest text-emerald-950 bg-emerald-100 border-2 border-emerald-600/30 px-4 py-3 rounded-full active:scale-95 transition-all">
 					        <span class="flex items-center justify-center gap-2">
 					            ${ui.spot_edit_location} 
-					            <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="h-4 w-auto">
+					            <img src="/lib/leaflet/images/marker-icon-2x.png" class="h-4 w-auto">
 					        </span>
 					    </button>
 					` : ''}
@@ -2203,13 +2216,13 @@
 		    }
 		}
 		
-		function startRadarLogic(spot) {
+		function startRadarLogic(spot) {			
 		    const marker = document.getElementById('radar-user-marker');
 		    const arrow = document.getElementById('radar-user-arrow');
 		    const distLabel = document.getElementById('radar-distance');
 		    const mapImg = document.getElementById('radar-map-img');
 		    const instruction = document.getElementById('radar-instruction');
-		
+			
 		    // 1. Lyt til telefonens kompas (Heading)
 		    if (window.DeviceOrientationEvent) {
 		        window.addEventListener('deviceorientationabsolute', (e) => {
@@ -2262,13 +2275,13 @@
 		    }, { enableHighAccuracy: true });
 		}
 
-		function renderRadarMode(spot) {
+		function renderRadar(spot) {
 		    const container = document.getElementById('app-content');
 		    
 		    container.innerHTML = `
 		        <div class="flex flex-col items-center justify-between min-h-[80vh] p-6 fade-in">
 		            <div class="text-center w-full">
-		                <button onclick="render('spot_detail', '${spot.uid}')" class="absolute left-6 top-8 text-stone-400 text-sm font-bold uppercase tracking-widest">← Tilbage</button>
+		                <button onclick="history.back()" class="absolute left-6 top-8 text-stone-400 text-sm font-bold uppercase tracking-widest">← Tilbage</button>
 		                <h2 class="text-2xl font-black text-stone-900 uppercase italic tracking-tighter mt-12">${spot.name}</h2>
 		                <p class="text-[10px] text-emerald-600 font-bold uppercase tracking-widest">Radar Navigering</p>
 		            </div>
@@ -2308,7 +2321,7 @@
 
 		
 		function stopRadar() {
-		    if (radarWatchId) navigator.geolocation.clearWatch(radarWatchId);
+			if (radarWatchId) navigator.geolocation.clearWatch(radarWatchId);
 		}
 		
         function renderResult(id) {
@@ -2355,7 +2368,7 @@
 				<div class="fab-container">
 				    <button onclick="handleSaveLocation('${id}', this)"
 				            class="floating-save-btn active:scale-95 flex items-center justify-center gap-3">
-				        <img src="https://thebelstrup.github.io/wildly/lib/leaflet/images/marker-icon-2x.png" class="h-6 w-auto drop-shadow-md brightness-0 invert" alt="Map pin">
+				        <img src="/lib/leaflet/images/marker-icon-2x.png" class="h-6 w-auto drop-shadow-md brightness-0 invert" alt="Map pin">
 				        <span class="font-black uppercase tracking-widest text-[11px]">${ui.detail_save_spot}</span>
 				    </button>
 				</div>
@@ -2604,8 +2617,8 @@
 		
         function navigate(pageId, data = null) {
 			closeMenuIfOpen();
-			
-		    // Gemmer tilstanden i browserens historik
+
+			// Gemmer tilstanden i browserens historik
 		    window.history.pushState({ pageId: pageId, data: data }, "", "");
 		    render(pageId, data);
 		}
@@ -2710,6 +2723,7 @@
     </script>
 </body>
 </html>
+
 
 
 
