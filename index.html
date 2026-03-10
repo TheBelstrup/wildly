@@ -2239,8 +2239,8 @@
 		    const distLabel = document.getElementById('radar-distance');
 		    const mapImg = document.getElementById('radar-map-img');
 		    const instruction = document.getElementById('radar-instruction');
-			radarMapDetail = await mapStorage.get(spotUid, 'detail');;
-			radarMapOverview = await mapStorage.get(spotUid, 'overview');
+			radarMapDetail = await mapStorage.get(spot.uid, 'detail');;
+			radarMapOverview = await mapStorage.get(spot.uid, 'overview');
 			
 		    // 1. Lyt til telefonens kompas (Heading)
 		    if (window.DeviceOrientationEvent) {
@@ -2741,6 +2741,7 @@
     </script>
 </body>
 </html>
+
 
 
 
