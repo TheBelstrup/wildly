@@ -163,6 +163,28 @@
 		    text-align: center;
 		    color: #9ca3af;
 		}
+
+		/* Radar */
+		
+		#radar-user-marker {
+		    /* Gør bevægelsen af prikken glidende når GPS opdaterer */
+		    transition: left 0.8s cubic-bezier(0.4, 0, 0.2, 1), top 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+		
+		#radar-user-arrow {
+		    /* Gør rotationen af kompasset lynhurtig men jævn */
+		    transition: transform 0.1s linear;
+		}
+		
+		@keyframes pulse-emerald {
+		    0% { transform: scale(1); opacity: 0.5; }
+		    100% { transform: scale(2.5); opacity: 0; }
+		}
+		
+		.animate-radar-pulse {
+		    animation: pulse-emerald 2s infinite;
+		}
+		
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -317,6 +339,7 @@
 		let geoData = {};
 		let database = {};
 		let locationEditorWatchId = null; 
+		let radarWatchId = null;
 		let currentEditorAccuracy = 0;
 		const photoStorage = {
 		    dbName: "WildlyDB",
@@ -1855,6 +1878,118 @@
 			const grid = document.getElementById('photo-grid');
 		}
 
+		// Hjælpefunktion til at generere Naturbasen-linket
+		function renderNaturbasenLink(url) {
+			if (!url) return ''; // Hvis der ikke er et link, returneres intet
+
+			return `
+				<div class="mt-8 pt-6 border-t border-stone-100">
+					<a href="${url}" target="_blank" rel="noopener noreferrer" 
+					   class="flex items-center gap-4 w-full p-4 bg-white rounded-2xl border-2 border-stone-100 shadow-sm active:scale-[0.98] transition-all group">
+						
+						<div class="flex-shrink-0 w-12 h-12 bg-blue-900 rounded-xl flex items-center justify-center text-white font-black text-xs shadow-inner uppercase tracking-tighter">
+							NB.dk
+						</div>
+
+						<div class="flex flex-col text-left">
+							<span class="text-[9px] font-black text-blue-900 uppercase tracking-widest leading-none mb-1">${ui.naturbasen_external_db}</span>
+							<span class="text-[15px] font-bold text-stone-900 leading-tight group-hover:underline">${ui.naturbasen_see_confirm}</span>
+						</div>
+
+						<svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-5 w-5 text-stone-300 group-hover:text-blue-900 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+						</svg>
+					</a>
+					<p class="mt-2 text-[10px] text-stone-600 text-center px-6 italic">
+						${ui.naturbasen_explainer}
+					</p>
+				</div>
+			`;
+		}
+
+		function showPreservationGuide() {
+			const modalHtml = `
+				<div id="preservation-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+					<div class="fixed inset-0 bg-stone-900/90 backdrop-blur-md" onclick="closePreservationGuide()"></div>
+					
+					<div class="bg-white rounded-[40px] w-full max-w-xl max-h-[85vh] overflow-hidden relative z-10 shadow-2xl border border-stone-200 flex flex-col">
+						
+						<div class="p-8 pb-4 bg-white flex justify-between items-start">
+							<div>
+								<h3 class="text-3xl font-black uppercase italic tracking-tighter text-stone-900 leading-none">${ui.detail_preservation}</h3>
+							</div>
+							<button onclick="closePreservationGuide()" class="h-12 w-12 rounded-full bg-stone-100 flex items-center justify-center font-bold text-stone-600 hover:bg-stone-200 transition-all active:scale-90">✕</button>
+						</div>
+
+						<div class="flex-1 overflow-y-auto p-8 pt-4 space-y-12">
+							
+							<section>
+								<div class="flex items-center gap-3 mb-4">
+									<div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-2xl border border-amber-100">☀️</div>
+									<div>
+										<h4 class="font-black uppercase text-sm tracking-widest text-stone-800 italic leading-none">${ui.detail_preservation_drying}</h4>
+										<span class="text-[10px] text-amber-600 font-bold uppercase tracking-tighter">${ui.detail_preservation_drying_best_for}</span>
+									</div>
+								</div>
+								<div class="text-sm text-stone-600 space-y-3 leading-relaxed border-l-2 border-stone-100 pl-6 ml-6">
+									<p>${ui.detail_preservation_drying_preparation}</p>
+									<p>${ui.detail_preservation_drying_oven}</p>
+									<p>${ui.detail_preservation_drying_time}</p>
+									<div class="bg-amber-50/50 p-3 rounded-xl border border-amber-100 text-[12px] italic">
+										${ui.detail_preservation_drying_tip}
+									</div>
+								</div>
+							</section>
+
+							<section>
+								<div class="flex items-center gap-3 mb-4">
+									<div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-2xl border border-blue-100">❄️</div>
+									<div>
+										<h4 class="font-black uppercase text-sm tracking-widest text-stone-800 italic leading-none">${ui.detail_preservation_frying}</h4>
+										<span class="text-[10px] text-blue-600 font-bold uppercase tracking-tighter">${ui.detail_preservation_frying_best_for}</span>
+									</div>
+								</div>
+								<div class="text-sm text-stone-600 space-y-3 leading-relaxed border-l-2 border-stone-100 pl-6 ml-6">
+									<p>${ui.detail_preservation_frying_method}</p>
+									<p>${ui.detail_preservation_frying_process}</p>
+									<p>${ui.detail_preservation_frying_freeze}</p>
+									<p>${ui.detail_preservation_frying_shelf_life}</p>
+								</div>
+							</section>
+
+							<section>
+								<div class="flex items-center gap-3 mb-4">
+									<div class="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center text-2xl border border-rose-100">🧪</div>
+									<div>
+										<h4 class="font-black uppercase text-sm tracking-widest text-stone-800 italic leading-none">${ui.detail_preservation_pickling}</h4>
+										<span class="text-[10px] text-rose-600 font-bold uppercase tracking-tighter">${ui.detail_preservation_pickling_best_for}</span>
+									</div>
+								</div>
+								<div class="text-sm text-stone-600 space-y-3 leading-relaxed border-l-2 border-stone-100 pl-6 ml-6">
+									<p>${ui.detail_preservation_pickling_brine}</p>
+									<p>${ui.detail_preservation_pickling_process}</p>
+									<p>${ui.detail_preservation_pickling_tip}</p>
+								</div>
+							</section>
+						</div>
+
+						<div class="p-8 bg-stone-50 border-t border-stone-100">
+							<button onclick="closePreservationGuide()" class="w-full p-5 bg-stone-900 text-white rounded-[24px] font-black text-xs uppercase tracking-[0.2em] shadow-xl active:scale-95 transition-all">${ui.close}</button>
+						</div>
+					</div>
+				</div>
+			`;
+			document.body.insertAdjacentHTML('beforeend', modalHtml);
+		}
+
+		function closePreservationGuide() {
+			const modal = document.getElementById('preservation-modal');
+			if (modal) {
+				modal.classList.add('opacity-0');
+				setTimeout(() => modal.remove(), 300);
+			}
+		}
+		
 		function editExistingSpotLocation(spotUid) {
 			const spots = JSON.parse(localStorage.getItem('mySpots')) || [];
 		    const spot = spots.find(s => s.uid === spotUid);
@@ -1993,39 +2128,6 @@
 		        });
 		    });
 		}
-
-		async function fetchStaticMapDELELETHIS(lat, lng, zoom) {
-		    // Erstat med din faktiske API-nøgle fra Stadia Maps eller Mapbox
-		    const apiKey = '53e3cd82-c8ef-4d98-afb5-1730d1215ca7';
-		    
-		    // Vi bruger Stadia Maps "Outdoors" stil, som passer godt til Wildly
-		    // Size 600x400 passer godt til de fleste mobilskærme uden at fylde for meget
-		    const url = `https://api.stadiamaps.com/static/v1/outdoors.png?center=${lat},${lng}&zoom=${zoom}&size=600,400&api_key=${apiKey}`;
-			/*
-			https://tiles.stadiamaps.com/static/outdoors.png?center=${lat},${lng}&zoom=${zoom}&size=600x400@2x&api_key=${apiKey}
-			https://tiles.stadiamaps.com/static/outdoors.png?center=55.668981874999986,12.517798749999999&zoom=14&size=600x400&api_key=53e3cd82-c8ef-4d98-afb5-1730d1215ca7
-		    https://tiles.stadiamaps.com/static/outdoors.png?center=55.668981874999986,12.517798749999999&zoom=14&size=600,400&api_key=53e3cd82-c8ef-4d98-afb5-1730d1215ca7
-			*/
-			
-			https://api.stadiamaps.com/static/v1/outdoors.png?center=55.668981874999986,12.517798749999999&zoom=14&size=600,400&api_key=53e3cd82-c8ef-4d98-afb5-1730d1215ca7
-		    try {
-		        const response = await fetch(url);
-		        if (!response.ok) throw new Error('Netværksfejl ved hentning af kort');
-		        
-		        const blob = await response.blob();
-		        
-		        // Konvertér billed-blob'en til en Base64-streng (DataURL)
-		        return new Promise((resolve, reject) => {
-		            const reader = new FileReader();
-		            reader.onloadend = () => resolve(reader.result); // Her returneres selve strengen
-		            reader.onerror = reject;
-		            reader.readAsDataURL(blob);
-		        });
-		    } catch (error) {
-		        console.error("fetchStaticMap fejl:", error);
-		        throw error;
-		    }
-		}
 				
 		async function syncMissingMaps(targetUid = null) {
 			if (!userSettings.isPremium || !navigator.onLine) return;
@@ -2056,118 +2158,157 @@
 		    }
 
 			localStorage.setItem('mySpots', JSON.stringify(allSpots))
-		}		
-
-		// Hjælpefunktion til at generere Naturbasen-linket
-		function renderNaturbasenLink(url) {
-			if (!url) return ''; // Hvis der ikke er et link, returneres intet
-
-			return `
-				<div class="mt-8 pt-6 border-t border-stone-100">
-					<a href="${url}" target="_blank" rel="noopener noreferrer" 
-					   class="flex items-center gap-4 w-full p-4 bg-white rounded-2xl border-2 border-stone-100 shadow-sm active:scale-[0.98] transition-all group">
-						
-						<div class="flex-shrink-0 w-12 h-12 bg-blue-900 rounded-xl flex items-center justify-center text-white font-black text-xs shadow-inner uppercase tracking-tighter">
-							NB.dk
-						</div>
-
-						<div class="flex flex-col text-left">
-							<span class="text-[9px] font-black text-blue-900 uppercase tracking-widest leading-none mb-1">${ui.naturbasen_external_db}</span>
-							<span class="text-[15px] font-bold text-stone-900 leading-tight group-hover:underline">${ui.naturbasen_see_confirm}</span>
-						</div>
-
-						<svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-5 w-5 text-stone-300 group-hover:text-blue-900 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-						</svg>
-					</a>
-					<p class="mt-2 text-[10px] text-stone-600 text-center px-6 italic">
-						${ui.naturbasen_explainer}
-					</p>
-				</div>
-			`;
+		}
+		
+		function calculateBearing(lat1, lon1, lat2, lon2) {
+		    const toRad = (v) => v * Math.PI / 180;
+		    const y = Math.sin(toRad(lon2 - lon1)) * Math.cos(toRad(lat2));
+		    const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
+		              Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(toRad(lon2 - lon1));
+		    return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
 		}
 
-		function showPreservationGuide() {
-			const modalHtml = `
-				<div id="preservation-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-					<div class="fixed inset-0 bg-stone-900/90 backdrop-blur-md" onclick="closePreservationGuide()"></div>
-					
-					<div class="bg-white rounded-[40px] w-full max-w-xl max-h-[85vh] overflow-hidden relative z-10 shadow-2xl border border-stone-200 flex flex-col">
-						
-						<div class="p-8 pb-4 bg-white flex justify-between items-start">
-							<div>
-								<h3 class="text-3xl font-black uppercase italic tracking-tighter text-stone-900 leading-none">${ui.detail_preservation}</h3>
-							</div>
-							<button onclick="closePreservationGuide()" class="h-12 w-12 rounded-full bg-stone-100 flex items-center justify-center font-bold text-stone-600 hover:bg-stone-200 transition-all active:scale-90">✕</button>
-						</div>
-
-						<div class="flex-1 overflow-y-auto p-8 pt-4 space-y-12">
-							
-							<section>
-								<div class="flex items-center gap-3 mb-4">
-									<div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-2xl border border-amber-100">☀️</div>
-									<div>
-										<h4 class="font-black uppercase text-sm tracking-widest text-stone-800 italic leading-none">${ui.detail_preservation_drying}</h4>
-										<span class="text-[10px] text-amber-600 font-bold uppercase tracking-tighter">${ui.detail_preservation_drying_best_for}</span>
-									</div>
-								</div>
-								<div class="text-sm text-stone-600 space-y-3 leading-relaxed border-l-2 border-stone-100 pl-6 ml-6">
-									<p>${ui.detail_preservation_drying_preparation}</p>
-									<p>${ui.detail_preservation_drying_oven}</p>
-									<p>${ui.detail_preservation_drying_time}</p>
-									<div class="bg-amber-50/50 p-3 rounded-xl border border-amber-100 text-[12px] italic">
-										${ui.detail_preservation_drying_tip}
-									</div>
-								</div>
-							</section>
-
-							<section>
-								<div class="flex items-center gap-3 mb-4">
-									<div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-2xl border border-blue-100">❄️</div>
-									<div>
-										<h4 class="font-black uppercase text-sm tracking-widest text-stone-800 italic leading-none">${ui.detail_preservation_frying}</h4>
-										<span class="text-[10px] text-blue-600 font-bold uppercase tracking-tighter">${ui.detail_preservation_frying_best_for}</span>
-									</div>
-								</div>
-								<div class="text-sm text-stone-600 space-y-3 leading-relaxed border-l-2 border-stone-100 pl-6 ml-6">
-									<p>${ui.detail_preservation_frying_method}</p>
-									<p>${ui.detail_preservation_frying_process}</p>
-									<p>${ui.detail_preservation_frying_freeze}</p>
-									<p>${ui.detail_preservation_frying_shelf_life}</p>
-								</div>
-							</section>
-
-							<section>
-								<div class="flex items-center gap-3 mb-4">
-									<div class="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center text-2xl border border-rose-100">🧪</div>
-									<div>
-										<h4 class="font-black uppercase text-sm tracking-widest text-stone-800 italic leading-none">${ui.detail_preservation_pickling}</h4>
-										<span class="text-[10px] text-rose-600 font-bold uppercase tracking-tighter">${ui.detail_preservation_pickling_best_for}</span>
-									</div>
-								</div>
-								<div class="text-sm text-stone-600 space-y-3 leading-relaxed border-l-2 border-stone-100 pl-6 ml-6">
-									<p>${ui.detail_preservation_pickling_brine}</p>
-									<p>${ui.detail_preservation_pickling_process}</p>
-									<p>${ui.detail_preservation_pickling_tip}</p>
-								</div>
-							</section>
-						</div>
-
-						<div class="p-8 bg-stone-50 border-t border-stone-100">
-							<button onclick="closePreservationGuide()" class="w-full p-5 bg-stone-900 text-white rounded-[24px] font-black text-xs uppercase tracking-[0.2em] shadow-xl active:scale-95 transition-all">${ui.close}</button>
-						</div>
-					</div>
-				</div>
-			`;
-			document.body.insertAdjacentHTML('beforeend', modalHtml);
+		function handleRadarNavigation(spotUid) {
+		    if (!userSettings.isPremium) {
+		        showPaywall();
+		        return;
+		    }
+		
+		    const spots = JSON.parse(localStorage.getItem('mySpots')) || [];
+		    const spot = spots.find(s => s.uid === spotUid);
+		    
+		    if (spot) {
+		        // Her kalder vi permission-tjekket i stedet for render direkte
+		        requestCompassPermission(spot);
+		    }
 		}
 
-		function closePreservationGuide() {
-			const modal = document.getElementById('preservation-modal');
-			if (modal) {
-				modal.classList.add('opacity-0');
-				setTimeout(() => modal.remove(), 300);
-			}
+		async function requestCompassPermission(spot) {
+		    // Tjek om det er en iPhone (iOS kræver permission)
+		    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+		        try {
+		            const permission = await DeviceOrientationEvent.requestPermission();
+		            if (permission === 'granted') {
+		                renderRadarMode(spot);
+		            } else {
+		                alert(ui.radar_permission);
+		            }
+		        } catch (error) {
+		            console.error(error);
+		            alert(ui.radar_permission_error);
+		        }
+		    } else {
+		        // Android eller Desktop kræver ikke permission på samme måde
+		        renderRadarMode(spot);
+		    }
+		}
+		
+		function startRadarLogic(spot) {
+		    const marker = document.getElementById('radar-user-marker');
+		    const arrow = document.getElementById('radar-user-arrow');
+		    const distLabel = document.getElementById('radar-distance');
+		    const mapImg = document.getElementById('radar-map-img');
+		    const instruction = document.getElementById('radar-instruction');
+		
+		    // 1. Lyt til telefonens kompas (Heading)
+		    if (window.DeviceOrientationEvent) {
+		        window.addEventListener('deviceorientationabsolute', (e) => {
+		            const heading = e.alpha || e.webkitCompassHeading; // iOS support
+		            if (heading) {
+		                arrow.style.transform = `rotate(${-heading}deg)`;
+		            }
+		        }, true);
+		    }
+		
+		    // 2. Lyt til GPS (Position)
+		    radarWatchId = navigator.geolocation.watchPosition((pos) => {
+		        const userLat = pos.coords.latitude;
+		        const userLng = pos.coords.longitude;
+		        
+		        const dist = getDistance(userLat, userLng, spot.lat, spot.lng);
+		        const bearing = calculateBearing(userLat, userLng, spot.lat, spot.lng);
+		        
+		        // Opdater afstandstekst
+		        distLabel.innerText = dist < 1 ? Math.round(dist * 1000) + ' m' : dist.toFixed(1) + ' km';
+		
+		        if (dist <= 0.3) { // 300 meter
+		            if (mapImg.src !== spot.detailMapUrl) mapImg.src = spot.detailMapUrl;
+		            instruction.innerText = "Du er tæt på! Brug detaljekortet.";
+		        } else {
+		            if (mapImg.src !== spot.overviewMapUrl) mapImg.src = spot.overviewMapUrl;
+		            instruction.innerText = "Gå mod midten af radaren";
+		        }
+		
+		        // BEREGN POSITION PÅ RADAREN
+		        const radarRadius = 144; // 72px * 2 (halvdelen af w-72)
+		        const maxVisualRange = dist > 0.3 ? 1.5 : 0.3; // Skalerer rækkevidden efter hvilket kort vi ser
+		        
+		        let visualDist = (dist / maxVisualRange) * radarRadius;
+		        
+		        // Hvis udenfor, læg på kanten
+		        if (visualDist > radarRadius - 20) visualDist = radarRadius - 20;
+		
+		        // Polar til Kartesisk koordinat (Vigtigt: Vi vender den så Nord er op)
+		        const angleRad = (bearing - 90) * (Math.PI / 180);
+		        const x = Math.cos(angleRad) * visualDist;
+		        const y = Math.sin(angleRad) * visualDist;
+		
+		        // Flyt markøren (Relativt til midten 50%, 50%)
+		        marker.style.left = `calc(50% + ${x}px)`;
+		        marker.style.top = `calc(50% + ${y}px)`;
+		
+		    }, (err) => {
+		        instruction.innerText = "GPS signal mistet";
+		    }, { enableHighAccuracy: true });
+		}
+
+		function renderRadarMode(spot) {
+		    const container = document.getElementById('app-content');
+		    
+		    container.innerHTML = `
+		        <div class="flex flex-col items-center justify-between min-h-[80vh] p-6 fade-in">
+		            <div class="text-center w-full">
+		                <button onclick="render('spot_detail', '${spot.uid}')" class="absolute left-6 top-8 text-stone-400 text-sm font-bold uppercase tracking-widest">← Tilbage</button>
+		                <h2 class="text-2xl font-black text-stone-900 uppercase italic tracking-tighter mt-12">${spot.name}</h2>
+		                <p class="text-[10px] text-emerald-600 font-bold uppercase tracking-widest">Radar Navigering</p>
+		            </div>
+		
+		            <div class="relative w-72 h-72 rounded-full border-[6px] border-white shadow-2xl overflow-hidden bg-stone-200" id="radar-boundary">
+		                
+		                <img id="radar-map-img" src="${spot.overviewMapUrl}" class="absolute inset-0 w-full h-full object-cover opacity-80 transition-opacity duration-500">
+		                
+		                <div class="absolute inset-0 border border-black/5 rounded-full pointer-events-none"></div>
+		                <div class="absolute top-1/2 left-0 w-full h-[1px] bg-black/5"></div>
+		                <div class="absolute left-1/2 top-0 w-[1px] h-full bg-black/5"></div>
+		
+		                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+		                    <div class="relative">
+		                        <span class="text-3xl drop-shadow-md">🍄</span>
+		                        <div class="absolute -inset-2 bg-emerald-500/20 animate-ping rounded-full"></div>
+		                    </div>
+		                </div>
+		
+		                <div id="radar-user-marker" class="absolute w-10 h-10 -ml-5 -mt-5 z-30 transition-all duration-700 ease-out">
+		                    <div id="radar-user-arrow" class="relative w-full h-full flex items-center justify-center">
+		                        <div class="absolute bottom-1/2 w-4 h-8 bg-blue-500/20 blur-sm rounded-t-full origin-bottom"></div>
+		                        <div class="text-blue-600 text-2xl drop-shadow-sm">▲</div>
+		                    </div>
+		                </div>
+		            </div>
+		
+		            <div class="text-center bg-white p-6 rounded-3xl shadow-sm w-full border border-stone-100">
+		                <div id="radar-distance" class="text-4xl font-black text-stone-900 tabular-nums">--- m</div>
+		                <p id="radar-instruction" class="text-stone-400 text-[10px] font-bold uppercase tracking-widest mt-1 italic">Venter på GPS...</p>
+		            </div>
+		        </div>
+		    `;
+		
+		    startRadarLogic(spot);
+		}
+
+		
+		function stopRadar() {
+		    if (radarWatchId) navigator.geolocation.clearWatch(radarWatchId);
 		}
 		
         function renderResult(id) {
@@ -2569,6 +2710,7 @@
     </script>
 </body>
 </html>
+
 
 
 
