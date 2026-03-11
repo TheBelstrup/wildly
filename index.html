@@ -339,9 +339,10 @@
 		let geoData = {};
 		let database = {};
 		let locationEditorWatchId = null; 
+		let isRadarRunning = false;
 		let radarWatchId = null;
 		let radarMapDetail = null;
-		let radarMapOverview = null;		
+		let radarMapOverview = null;	
 		let currentEditorAccuracy = 0;
 		const photoStorage = {
 		    dbName: "WildlyDB",
@@ -2233,21 +2234,77 @@
 		    }
 		}
 		
+		// Hjælpefunktion: Glidende overgang for almindelige tal (X og Y)
+		function lerp(start, end, factor) {
+		    return start + (end - start) * factor;
+		}
+		
+		// Hjælpefunktion: Glidende overgang for vinkler (håndterer springet ved 0/360 grader)
+		function lerpAngle(start, end, factor) {
+		    let delta = ((((end - start) % 360) + 540) % 360) - 180;
+		    return start + (delta * factor);
+		}
+		
 		async function startRadarLogic(spot) {			
 		    const marker = document.getElementById('radar-user-marker');
 		    const arrow = document.getElementById('radar-user-arrow');
 		    const distLabel = document.getElementById('radar-distance');
 		    const mapImg = document.getElementById('radar-map-img');
 		    const instruction = document.getElementById('radar-instruction');
-			radarMapDetail = await mapStorage.get(spot.uid, 'detail');;
-			radarMapOverview = await mapStorage.get(spot.uid, 'overview');
-			
+		    
+		    radarMapDetail = await mapStorage.get(spot.uid, 'detail');
+		    radarMapOverview = await mapStorage.get(spot.uid, 'overview');
+		    
+		    // --- JITTER FILTER SETUP ---
+		    isRadarRunning = true;
+		    let currentX = 0, targetX = 0;
+		    let currentY = 0, targetY = 0;
+		    let currentHeading = 0, targetHeading = 0;
+		    let firstGps = true;
+		    let firstCompass = true;
+		
+		    // Browserens tegneloop (kører typisk 60 gange i sekundet)
+		    function animateRadar() {
+		        if (!isRadarRunning) return; // Stop animationen når radaren lukkes
+		
+		        // Smooth factor bestemmer hvor "træg" bevægelsen er (0.05 til 0.2 er bedst)
+		        const smoothFactor = 0.08; 
+		
+		        // 1. Opdater vinkel blødt
+		        currentHeading = lerpAngle(currentHeading, targetHeading, smoothFactor);
+		        arrow.style.transform = `rotate(${currentHeading}deg)`;
+		
+		        // 2. Opdater position blødt
+		        currentX = lerp(currentX, targetX, smoothFactor);
+		        currentY = lerp(currentY, targetY, smoothFactor);
+		        marker.style.left = `calc(50% + ${currentX}px)`;
+		        marker.style.top = `calc(50% + ${currentY}px)`;
+		
+		        // Bed browseren om at køre funktionen igen til næste billede
+		        requestAnimationFrame(animateRadar);
+		    }
+		    
+		    // Start animationen
+		    requestAnimationFrame(animateRadar);
+		
+		    // --- SENSOR LYTTERE (Sætter bare 'target' værdierne) ---
+		
 		    // 1. Lyt til telefonens kompas (Heading)
 		    if (window.DeviceOrientationEvent) {
 		        window.addEventListener('deviceorientationabsolute', (e) => {
-		            const heading = e.alpha || e.webkitCompassHeading; // iOS support
-		            if (heading) {
-		                arrow.style.transform = `rotate(${-heading}deg)`;
+		            let heading = 0;
+		            if (e.webkitCompassHeading !== undefined) {
+		                heading = e.webkitCompassHeading;
+		            } else if (e.alpha !== null) {
+		                heading = 360 - e.alpha; 
+		            }
+		            
+		            targetHeading = heading;
+		
+		            // Første måling: "Snap" direkte til vinklen i stedet for at spinne rundt
+		            if (firstCompass) {
+		                currentHeading = targetHeading;
+		                firstCompass = false;
 		            }
 		        }, true);
 		    }
@@ -2260,10 +2317,9 @@
 		        const dist = getDistance(userLat, userLng, spot.lat, spot.lng);
 		        const bearing = calculateBearing(userLat, userLng, spot.lat, spot.lng);
 		        
-		        // Opdater afstandstekst
 		        distLabel.innerText = dist < 1 ? Math.round(dist * 1000) + ' m' : dist.toFixed(1) + ' km';
-
-		        if (dist <= 0.3) { // 300 meter
+		
+		        if (dist <= 0.3) { 
 		            if (mapImg.src !== radarMapDetail) mapImg.src = radarMapDetail;
 		            instruction.innerText = "Du er tæt på! Brug detaljekortet.";
 		        } else {
@@ -2271,23 +2327,22 @@
 		            instruction.innerText = "Gå mod midten af radaren";
 		        }
 		
-		        // BEREGN POSITION PÅ RADAREN
-		        const radarRadius = 144; // 72px * 2 (halvdelen af w-72)
-		        const maxVisualRange = dist > 0.3 ? 1.5 : 0.3; // Skalerer rækkevidden efter hvilket kort vi ser
+		        const radarRadius = 144; 
+		        const maxVisualRange = dist > 0.3 ? 1.5 : 0.3; 
 		        
 		        let visualDist = (dist / maxVisualRange) * radarRadius;
-		        
-		        // Hvis udenfor, læg på kanten
 		        if (visualDist > radarRadius - 20) visualDist = radarRadius - 20;
 		
-		        // Polar til Kartesisk koordinat (Vigtigt: Vi vender den så Nord er op)
-		        const angleRad = (bearing - 90) * (Math.PI / 180);
-		        const x = Math.cos(angleRad) * visualDist;
-		        const y = Math.sin(angleRad) * visualDist;
+		        // BEREGN DEN KORREKTE X/Y POSITION (Målet)
+		        targetX = -Math.sin(bearing * (Math.PI / 180)) * visualDist;
+		        targetY = Math.cos(bearing * (Math.PI / 180)) * visualDist;
 		
-		        // Flyt markøren (Relativt til midten 50%, 50%)
-		        marker.style.left = `calc(50% + ${x}px)`;
-		        marker.style.top = `calc(50% + ${y}px)`;
+		        // Første måling: "Snap" direkte til positionen i stedet for at svæve ind fra hjørnet
+		        if (firstGps) {
+		            currentX = targetX;
+		            currentY = targetY;
+		            firstGps = false;
+		        }
 		
 		    }, (err) => {
 		        instruction.innerText = "GPS signal mistet";
@@ -2339,6 +2394,7 @@
 		}
 		
 		function stopRadar() {
+			isRadarRunning = false;
 			if (radarWatchId) navigator.geolocation.clearWatch(radarWatchId);
 		}
 		
@@ -2741,6 +2797,7 @@
     </script>
 </body>
 </html>
+
 
 
 
