@@ -2310,34 +2310,50 @@
 		    }
 		
 		    // 2. Lyt til GPS (Position)
-		    radarWatchId = navigator.geolocation.watchPosition((pos) => {
+			radarWatchId = navigator.geolocation.watchPosition((pos) => {
 		        const userLat = pos.coords.latitude;
 		        const userLng = pos.coords.longitude;
 		        
 		        const dist = getDistance(userLat, userLng, spot.lat, spot.lng);
 		        const bearing = calculateBearing(userLat, userLng, spot.lat, spot.lng);
 		        
+		        // --- NY MAGISK MATEMATIK TIL SKALERING ---
+		        // 1. Leaflets formel: Hvor mange meter dækker 1 pixel ved zoom 14?
+		        // Vi bruger spottets breddegrad (spot.lat) for at få det præcist uanset hvor i verden vi er.
+		        const metersPerPxZ14 = (156543.03 * Math.cos(spot.lat * (Math.PI / 180))) / 16384; 
+		        
+		        // 2. Vores kortbillede er beskåret til at svare til 200 pixels fra midten til kanten
+		        const overviewRange = (metersPerPxZ14 * 200) / 1000; // Omregnet til km (ca. 1.07 km i Danmark)
+		        const detailRange = overviewRange / 8; // Zoom 17 er præcis 8 gange tættere på end zoom 14 (2^3)
+		
+		        // Opdater afstandstekst
 		        distLabel.innerText = dist < 1 ? Math.round(dist * 1000) + ' m' : dist.toFixed(1) + ' km';
 		
-		        if (dist <= 0.3) { 
+		        let maxVisualRange;
+		
+		        // Skift kun til detaljekortet, når vi FAKTISK er inden for dets rækkevidde
+		        if (dist <= detailRange) { 
 		            if (mapImg.src !== radarMapDetail) mapImg.src = radarMapDetail;
 		            instruction.innerText = "Du er tæt på! Brug detaljekortet.";
+		            maxVisualRange = detailRange;
 		        } else {
 		            if (mapImg.src !== radarMapOverview) mapImg.src = radarMapOverview;
 		            instruction.innerText = "Gå mod midten af radaren";
+		            maxVisualRange = overviewRange;
 		        }
 		
-		        const radarRadius = 144; 
-		        const maxVisualRange = dist > 0.3 ? 1.5 : 0.3; 
+		        const radarRadius = 144; // Cirklen er w-72 (288px i diameter)
 		        
 		        let visualDist = (dist / maxVisualRange) * radarRadius;
+		        
+		        // Læg prikken fast på kanten, indtil brugeren træder ind på selve kortets område
 		        if (visualDist > radarRadius - 20) visualDist = radarRadius - 20;
 		
 		        // BEREGN DEN KORREKTE X/Y POSITION (Målet)
 		        targetX = -Math.sin(bearing * (Math.PI / 180)) * visualDist;
 		        targetY = Math.cos(bearing * (Math.PI / 180)) * visualDist;
 		
-		        // Første måling: "Snap" direkte til positionen i stedet for at svæve ind fra hjørnet
+		        // Første måling: "Snap" direkte til positionen for at undgå at den flyver ind fra siden
 		        if (firstGps) {
 		            currentX = targetX;
 		            currentY = targetY;
@@ -2362,7 +2378,7 @@
 		
 		            <div class="relative w-72 h-72 rounded-full border-[6px] border-white shadow-2xl overflow-hidden bg-stone-200" id="radar-boundary">
 		                
-		                <img id="radar-map-img" src="${spot.overviewMapUrl}" class="absolute inset-0 w-full h-full object-cover opacity-80 transition-opacity duration-500">
+		                <img id="radar-map-img" src="" class="absolute inset-0 w-full h-full object-cover opacity-80 transition-opacity duration-500">
 		                
 		                <div class="absolute inset-0 border border-black/5 rounded-full pointer-events-none"></div>
 		                <div class="absolute top-1/2 left-0 w-full h-[1px] bg-black/5"></div>
@@ -2797,6 +2813,7 @@
     </script>
 </body>
 </html>
+
 
 
 
