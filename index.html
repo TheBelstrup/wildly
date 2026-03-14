@@ -2577,60 +2577,60 @@
 		}
 
 		async function startAreaDownload() {
-		    // 1. Hent referencer til UI
 		    const bounds = prepareMap.getBounds();
 		    const overlay = document.getElementById('offline-download-overlay');
 		    const progressBar = document.getElementById('download-progress-bar');
 		    const progressText = document.getElementById('download-progress-text');
 		
-		    // Vis overlay med det samme
 		    overlay.classList.remove('hidden');
 		    progressBar.style.width = '0%';
 		    progressText.innerText = '0%';
 		
 		    try {
-		        // 2. Ryd cachen og vent på at det nye prepareLayer er oprettet og klar
 		        await clearOfflineMapCache();
 		
+		        // Variabler til manuel tælling
+		        let tilesLoaded = 0;
+		        let totalTiles = 0;
+		
+		        // 1. Lyt efter 'seedstart' - her får vi at vide hvor mange tiles der skal hentes i alt
+		        prepareLayer.on('seedstart', function(e) {
+		            totalTiles = e.queued;
+		        });
+		
+		        // 2. Lyt efter hver enkelt tile der bliver gemt (uanset om den er ny eller ej)
+		        const updateProgress = () => {
+		            tilesLoaded++;
+		            const percent = Math.round((tilesLoaded / (totalTiles || 1)) * 100);
+		            
+		            // Tving UI opdatering
+		            requestAnimationFrame(() => {
+		                progressBar.style.width = percent + '%';
+		                progressText.innerText = percent + '%';
+		            });
+		        };
+		
+		        prepareLayer.on('seedprogress', updateProgress);
+		
+		        // 3. Færdig-logik
 		        prepareLayer.on('seedend', function() {
 		            localStorage.setItem('wildly_has_offline_map', 'true');
 		            overlay.classList.add('hidden');
 		            updateCacheStatusUI();
 		            alert("Kortet er gemt!");
+		            
+		            // Fjern listeners så de ikke kører næste gang
+		            prepareLayer.off('seedstart');
+		            prepareLayer.off('seedprogress');
+		            prepareLayer.off('seedend');
 		        });
 		
-		        prepareLayer.on('seederror', function(err) {
-		            overlay.classList.add('hidden');
-		            alert("Der opstod en fejl under download.");
-		            console.error("Seed error:", err);
-		        });
+		        // 4. START SEED (Vi sender et tomt objekt med, da vi bruger listeners i stedet)
+		        prepareLayer.seed(bounds, 13, 17);
 		
-		        // 3. Start selve downloadet
-		        console.log("Starter download for område:", bounds);
-
-				prepareLayer.seed(bounds, 13, 17, {
-				    onProgress: function(progress) {
-				        // 1. Beregn procenten sikkert
-				        const total = progress.total || 1;
-				        const loaded = progress.loaded || 0;
-				        const percent = Math.round((loaded / total) * 100);
-				        
-				        // 2. Tving browseren til at prioritere UI-opdateringen
-				        requestAnimationFrame(() => {
-				            const progressBar = document.getElementById('download-progress-bar');
-				            const progressText = document.getElementById('download-progress-text');
-				            
-				            if (progressBar && progressText) {
-				                progressBar.style.width = percent + '%';
-				                progressText.innerText = percent + '%';
-				            }
-				        });
-				    }
-				});
 		    } catch (e) {
 		        overlay.classList.add('hidden');
-		        console.error("Fejl i download flow:", e);
-		        alert("Fejl ved initialisering af download.");
+		        console.error("Download fejl:", e);
 		    }
 		}
 
@@ -3040,6 +3040,7 @@
     </script>
 </body>
 </html>
+
 
 
 
