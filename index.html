@@ -1123,7 +1123,7 @@
 				const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 					useCache: !!userSettings.isPremium, // AKTIVER CACHE
 					crossOrigin: true, // Kræves for at gemme tiles
-					cacheName: 'prepare-trip-cache' // Navnet på PouchDB databasen
+					cacheName: 'wildly-prepare-trip-cache' // Navnet på PouchDB databasen
 				});
 				baseLayer.addTo(overviewMap);
 		
@@ -1353,7 +1353,7 @@
 					const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 						useCache: !!userSettings.isPremium, // AKTIVER CACHE
 						crossOrigin: true, // Kræves for at gemme tiles
-						cacheName: 'prepare-trip-cache' // Navnet på PouchDB databasen
+						cacheName: 'wildly-prepare-trip-cache' // Navnet på PouchDB databasen
 					});
 					baseLayer.addTo(map);
 				}
@@ -1914,7 +1914,7 @@
 						const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 							useCache: !!userSettings.isPremium, // AKTIVER CACHE
 							crossOrigin: true, // Kræves for at gemme tiles
-							cacheName: 'prepare-trip-cache' // Navnet på PouchDB databasen
+							cacheName: 'wildly-prepare-trip-cache' // Navnet på PouchDB databasen
 						});
 						baseLayer.addTo(spotMap);
 
@@ -2157,7 +2157,7 @@
 				const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 					useCache: !!userSettings.isPremium, // AKTIVER CACHE
 					crossOrigin: true, // Kræves for at gemme tiles
-					cacheName: 'prepare-trip-cache' // Navnet på PouchDB databasen
+					cacheName: 'wildly-prepare-trip-cache' // Navnet på PouchDB databasen
 				});
 				baseLayer.addTo(tempMap);
 		
@@ -2551,7 +2551,31 @@
 		
 		    startAreaDownload();
 		}
+
+		async function clearOfflineMapCache() {
+		    try {
+		        // 1. Fjern laget fra kortet midlertidigt for at undgå læse/skrive-konflikter
+		        if (prepareLayer && prepareMap) {
+		            prepareMap.removeLayer(prepareLayer);
+		        }
 		
+		        // 2. Slet hele PouchDB databasen (navnet SKAL matche det du brugte i cacheName)
+		        const db = new PouchDB('wildly-prepare-trip-cache');
+		        await db.destroy();
+		
+		        // 3. Opret laget på ny, så det er klar til det nye download
+		        prepareLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		            useCache: true,
+		            crossOrigin: true,
+		            cacheName: 'wildly-prepare-trip-cache'
+		        }).addTo(prepareMap);
+		
+		        console.log("Gammel kort-cache er slettet succesfuldt.");
+		    } catch (err) {
+		        console.error("Kunne ikke slette cache:", err);
+		    }
+		}
+
 		async function startAreaDownload() {
 		    const bounds = prepareMap.getBounds();
 		    const overlay = document.getElementById('offline-download-overlay');
@@ -2561,7 +2585,7 @@
 		    overlay.classList.remove('hidden');
 		    
 		    try {
-		        await prepareLayer.clearCache();
+		        await clearOfflineMapCache();
 		
 		        prepareLayer.seed(bounds, 13, 17, {
 		            onProgress: function(progress) {
@@ -2989,6 +3013,7 @@
     </script>
 </body>
 </html>
+
 
 
 
