@@ -1363,7 +1363,19 @@
 		                useOnlyCache: !navigator.onLine
 		            });
 		            baseLayer.addTo(map);
-		        }
+					
+					map.whenReady(() => {
+					    // invalidateSize(true) med 'true' gør at den ikke animerer, 
+					    // hvilket ofte løser "grå tiles" problemet bedre offline.
+					    map.invalidateSize(true);
+					    
+					    // Et lille ekstra "skub" efter 200ms er ofte nødvendigt på mobile enheder,
+					    // da tastaturet eller UI-animationer kan ændre container-størrelsen
+					    setTimeout(() => {
+					        map.invalidateSize();
+					    }, 200);
+					});					
+				}
 		        
 		        // Start altid GPS-boblen
 		        startLiveGpsTracking();
