@@ -1101,7 +1101,12 @@
 		        if (mapContainer != null) mapContainer._leaflet_id = null;
 		
 		        const overviewMap = L.map('overview-map', { zoomControl: false, attributionControl: false });
-		        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(overviewMap);
+				const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+					useCache: true, // AKTIVER CACHE
+					crossOrigin: true, // Kræves for at gemme tiles
+					cacheName: 'prepare-trip-cache' // Navnet på PouchDB databasen
+				});
+				baseLayer.addTo(overviewMap);
 		
 		        activeMarkers = {}; 
 		        const markerArray = [];
@@ -1326,7 +1331,12 @@
 			    } else {
 			        // Hvis online: Kør Leaflet som normalt
 			        map = L.map('map-container').setView([loc.lat, loc.lng], 18); 
-			        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+					const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+						useCache: true, // AKTIVER CACHE
+						crossOrigin: true, // Kræves for at gemme tiles
+						cacheName: 'prepare-trip-cache' // Navnet på PouchDB databasen
+					});
+					baseLayer.addTo(map);
 				}
 			    
 			    // Start altid GPS-boblen uanset internet
@@ -1882,7 +1892,13 @@
 						    zoomControl: false,
 						    attributionControl: false
 						}).setView([spot.lat, spot.lng], 16);
-						L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(spotMap);
+						const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+							useCache: true, // AKTIVER CACHE
+							crossOrigin: true, // Kræves for at gemme tiles
+							cacheName: 'prepare-trip-cache' // Navnet på PouchDB databasen
+						});
+						baseLayer.addTo(spotMap);
+
 						L.marker([spot.lat, spot.lng]).addTo(spotMap);
 						
 						// Fix Leaflet resize bug
@@ -2119,9 +2135,12 @@
 		        }).setView([lat, lng], zoom);
 		
 		        // 3. Brug de præcise OSM fliser, du kender
-		        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-		            crossOrigin: true
-		        }).addTo(tempMap);
+				const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+					useCache: true, // AKTIVER CACHE
+					crossOrigin: true, // Kræves for at gemme tiles
+					cacheName: 'prepare-trip-cache' // Navnet på PouchDB databasen
+				});
+				baseLayer.addTo(tempMap);
 		
 		        // 4. Tilføj en markør i midten (valgfrit)
 		        L.marker([lat, lng]).addTo(tempMap);
@@ -2811,6 +2830,7 @@
     </script>
 </body>
 </html>
+
 
 
 
