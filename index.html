@@ -2570,7 +2570,6 @@
 		            cacheName: 'wildly-prepare-trip-cache'
 		        }).addTo(prepareMap);
 		
-		        console.log("Gammel kort-cache er slettet succesfuldt.");
 		    } catch (err) {
 		        console.error("Kunne ikke slette cache:", err);
 		    }
@@ -2594,7 +2593,6 @@
 		
 		        prepareLayer.on('seedstart', function(e) {
 		            totalExpected = e.queued || 0;
-		            console.log("Forventet antal tiles:", totalExpected);
 		        });
 		
 		        // 2. Lyt på hver eneste tile (uanset succes eller fejl)
@@ -2666,8 +2664,6 @@
 		                    if (progressBar) progressBar.style.width = safePercent + '%';
 		                    if (progressText) progressText.innerText = safePercent + '%';
 		                });
-		                
-		                console.log(`Progress: ${safePercent}% (${processed}/${total})`);
 		            }
 		        });
 		
@@ -3093,10 +3089,10 @@
 		        window.addEventListener('load', () => {
 		            navigator.serviceWorker.register('./sw.js')
 		                .then((registration) => {
-		                    console.log('ServiceWorker registrering succesfuld med scope: ', registration.scope);
+		                    console.log('ServiceWorker registrery successfully saved with scope: ', registration.scope);
 		                })
 		                .catch((error) => {
-		                    console.log('ServiceWorker registrering fejlede: ', error);
+		                    console.log('ServiceWorker registrery failed: ', error);
 		                });
 		        });
 		    }
@@ -3106,6 +3102,7 @@
     </script>
 </body>
 </html>
+
 
 
 
