@@ -2577,6 +2577,68 @@
 		}
 
 		async function startAreaDownload() {
+		    const bounds = prepareMap.getBounds();
+		    const overlay = document.getElementById('offline-download-overlay');
+		    const progressBar = document.getElementById('download-progress-bar');
+		    const progressText = document.getElementById('download-progress-text');
+		
+		    overlay.classList.remove('hidden');
+		    progressBar.style.width = '0%';
+		    progressText.innerText = '0%';
+		
+		    try {
+		        await clearOfflineMapCache();
+		
+		        let tilesProcessed = 0;
+		        let totalExpected = 0;
+		
+		        prepareLayer.on('seedstart', function(e) {
+		            totalExpected = e.queued || 0;
+		            console.log("Forventet antal tiles:", totalExpected);
+		        });
+		
+		        // 2. Lyt på hver eneste tile (uanset succes eller fejl)
+		        const incrementAndUI = () => {
+		            tilesProcessed++;
+		            
+		            const divisor = totalExpected > 0 ? totalExpected : (tilesProcessed + 1);
+		            const percent = Math.min(Math.round((tilesProcessed / divisor) * 100), 99);
+		
+		            requestAnimationFrame(() => {
+		                progressBar.style.width = percent + '%';
+		                progressText.innerText = percent + '%';
+		            });
+		        };
+		
+		        // Vi lytter på begge events for at sikre, at tælleren går op uanset hvad
+		        prepareLayer.on('tilecachehit', incrementAndUI);
+		        prepareLayer.on('tilecachemiss', incrementAndUI);
+		
+		        // 3. Færdig-logik
+		        prepareLayer.on('seedend', function() {
+		            progressBar.style.width = '100%';
+		            progressText.innerText = '100%';
+		
+		            setTimeout(() => {
+		                localStorage.setItem('wildly_has_offline_map', 'true');
+		                overlay.classList.add('hidden');
+		                updateCacheStatusUI();
+		                alert("Kortet er gemt!");
+		                
+		                prepareLayer.off('seedstart seedend tilecachehit tilecachemiss');
+		            }, 500);
+		        });
+		
+		        // 4. Start selve processen
+		        prepareLayer.seed(bounds, 13, 17);
+		
+		    } catch (e) {
+		        overlay.classList.add('hidden');
+		        console.error("Download fejl:", e);
+		    }
+		}
+		
+		async function startAreaDownload() {
 		    // 1. Hent referencer til UI-elementer
 		    const bounds = prepareMap.getBounds();
 		    const overlay = document.getElementById('offline-download-overlay');
@@ -3067,6 +3129,7 @@
     </script>
 </body>
 </html>
+
 
 
 
