@@ -16,6 +16,8 @@
 	<link rel="stylesheet" href="lib/leaflet/leaflet.css" />
 	<script src="lib/leaflet/leaflet.js"></script>
 	<script src="lib/leaflet/leaflet-image.js"></script>
+	<script src="lib/leaflet/pouchdb.js"></script>
+	<script src="lib/leaflet/PouchDBCached.js"></script>
 	<script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --ios-bg: #fdfcfb; }
@@ -342,7 +344,9 @@
 		let isRadarRunning = false;
 		let radarWatchId = null;
 		let radarMapDetail = null;
-		let radarMapOverview = null;	
+		let radarMapOverview = null;
+		let prepareMap = null;
+		let prepareLayer = null;
 		let currentEditorAccuracy = 0;
 		const photoStorage = {
 		    dbName: "WildlyDB",
@@ -828,6 +832,8 @@
 		        renderForestMenu();
 			} else if (current === 'radar') {
 				handleRadarNavigation(data.spotId);
+			} else if (current === 'prepare_trip') {
+				renderPrepareTrip();
 			} else if (typeof current === 'string' && current.startsWith('view_')) {
 		        renderHabitat(current.replace('view_', ''));
 		    } else if (database[current]) { // Tjekker om ID findes i databasen (res_...)
@@ -902,6 +908,19 @@
                             </div>
                         </div>
                     </button>
+					
+					<button onclick="render('prepare_trip'); window.history.pushState({pageId: 'prepare_trip'}, '', '');" 
+					        class="flex flex-col items-center justify-center p-5 bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md active:scale-95 transition-all w-full">
+					    
+					    <div class="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center text-green-700 mb-3">
+					        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
+					        </svg>
+					    </div>
+					    
+					    <span class="font-bold text-gray-800 text-base">Forbered Tur</span>
+					    <span class="text-xs text-gray-500 mt-1 text-center font-medium">Download kort til skoven</span>
+					</button>
 				</div>
             `;
         }
@@ -1102,7 +1121,7 @@
 		
 		        const overviewMap = L.map('overview-map', { zoomControl: false, attributionControl: false });
 				const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-					useCache: true, // AKTIVER CACHE
+					useCache: !!userSettings.isPremium, // AKTIVER CACHE
 					crossOrigin: true, // Kræves for at gemme tiles
 					cacheName: 'prepare-trip-cache' // Navnet på PouchDB databasen
 				});
@@ -1332,7 +1351,7 @@
 			        // Hvis online: Kør Leaflet som normalt
 			        map = L.map('map-container').setView([loc.lat, loc.lng], 18); 
 					const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-						useCache: true, // AKTIVER CACHE
+						useCache: !!userSettings.isPremium, // AKTIVER CACHE
 						crossOrigin: true, // Kræves for at gemme tiles
 						cacheName: 'prepare-trip-cache' // Navnet på PouchDB databasen
 					});
@@ -1893,7 +1912,7 @@
 						    attributionControl: false
 						}).setView([spot.lat, spot.lng], 16);
 						const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-							useCache: true, // AKTIVER CACHE
+							useCache: !!userSettings.isPremium, // AKTIVER CACHE
 							crossOrigin: true, // Kræves for at gemme tiles
 							cacheName: 'prepare-trip-cache' // Navnet på PouchDB databasen
 						});
@@ -2136,7 +2155,7 @@
 		
 		        // 3. Brug de præcise OSM fliser, du kender
 				const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-					useCache: true, // AKTIVER CACHE
+					useCache: !!userSettings.isPremium, // AKTIVER CACHE
 					crossOrigin: true, // Kræves for at gemme tiles
 					cacheName: 'prepare-trip-cache' // Navnet på PouchDB databasen
 				});
@@ -2429,6 +2448,146 @@
 		function stopRadar() {
 			isRadarRunning = false;
 			if (radarWatchId) navigator.geolocation.clearWatch(radarWatchId);
+		}
+
+		/* Forbered tur funktion */ 
+		function ensureOfflineOverlay() {
+		    if (document.getElementById('offline-download-overlay')) return;
+		    
+		    const overlayHTML = `
+		        <div id="offline-download-overlay" class="hidden fixed inset-0 z-[9999] bg-gray-900/80 backdrop-blur-sm flex flex-col items-center justify-center text-white px-6">
+		            <svg class="animate-bounce h-12 w-12 text-green-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
+		            </svg>
+		            <h3 class="text-xl font-bold mb-2">Forbereder kort...</h3>
+		            <div class="w-full max-w-xs bg-gray-700 rounded-full h-4 overflow-hidden shadow-inner mb-2">
+		                <div id="download-progress-bar" class="bg-green-500 h-full transition-all duration-300 ease-out" style="width: 0%"></div>
+		            </div>
+		            <p id="download-progress-text" class="font-mono text-lg font-bold text-green-400">0%</p>
+		        </div>`;
+		    document.body.insertAdjacentHTML('beforeend', overlayHTML);
+		}
+
+		async function renderPrepareTrip() {
+		    ensureOfflineOverlay(); // Sikrer at vi kan vise progress bar
+			const container = document.getElementById('app-content');
+		
+		    // HTML Template som streng
+		    container.innerHTML = `
+		        <div class="h-screen w-full flex flex-col bg-gray-50 overflow-hidden">
+		            <header class="bg-white border-b px-4 py-3 flex items-center justify-between z-20">
+		                <button onclick="render('start')" class="p-2 -ml-2 text-gray-600 active:scale-95">
+		                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+		                </button>
+		                <h1 class="text-lg font-bold text-gray-800 tracking-tight">Forbered Tur</h1>
+		                <div class="w-10"></div>
+		            </header>
+		
+		            <div class="flex-grow flex flex-col overflow-hidden">
+		                <div class="p-4 bg-white border-b shadow-sm z-10">
+		                    <p class="text-sm text-gray-600 leading-relaxed">
+		                        Placer skoven i rammen. Det nye kort erstatter dit nuværende offline-kort.
+		                    </p>
+		                </div>
+		
+		                <div class="relative flex-grow bg-gray-200">
+		                    <div id="prepare-map" class="w-full h-full"></div>
+		                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-[1000]">
+		                        <div class="w-64 h-64 border-2 border-green-500 rounded-3xl bg-green-500/5 shadow-[0_0_0_9999px_rgba(0,0,0,0.3)]">
+		                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 border border-green-500 rounded-full"></div>
+		                        </div>
+		                    </div>
+		                </div>
+		
+		                <div class="bg-white p-6 pb-safe border-t z-10">
+		                    <div id="current-cache-status" class="mb-4 hidden">
+		                        <div class="flex items-center gap-2 text-[10px] font-black text-green-700 bg-green-100 px-3 py-1.5 rounded-full w-fit uppercase tracking-widest">
+		                            <span class="flex h-2 w-2 relative">
+		                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+		                                <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+		                            </span>
+		                            Kort er klar offline
+		                        </div>
+		                    </div>
+		                    <button onclick="handleNewDownload()" class="w-full bg-green-800 text-white font-bold py-4 rounded-2xl shadow-xl active:scale-[0.97] transition-all flex items-center justify-center gap-3">
+		                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+		                        Gem dette område
+		                    </button>
+		                </div>
+		            </div>
+		        </div>
+		    `;
+		
+		    // Initialiser kortet efter HTML er indsat i DOM
+		    setTimeout(() => {
+		        prepareMap = L.map('prepare-map', {
+		            zoomControl: false,
+		            attributionControl: false
+		        }).setView([55.6761, 12.5683], 13);
+		
+		        prepareLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		            useCache: true,
+		            crossOrigin: true,
+		            cacheName: 'wildly-offline-cache'
+		        }).addTo(prepareMap);
+		
+		        updateCacheStatusUI();
+		    }, 50); // Lille delay sikrer at #prepare-map er klar
+		}
+
+		async function handleNewDownload() {
+		    if (!!!userSettings?.premium) {
+		        showPaywall(); 
+		        return;
+		    }
+		    if (!navigator.onLine) {
+		        alert("Du skal være online for at gemme nye kort.");
+		        return;
+		    }
+		
+		    if (localStorage.getItem('wildly_has_offline_map')) {
+		        if (!confirm("Vil du overskrive dit nuværende offline-kort?")) return;
+		    }
+		
+		    startAreaDownload();
+		}
+		
+		async function startAreaDownload() {
+		    const bounds = prepareMap.getBounds();
+		    const overlay = document.getElementById('offline-download-overlay');
+		    const progressBar = document.getElementById('download-progress-bar');
+		    const progressText = document.getElementById('download-progress-text');
+		
+		    overlay.classList.remove('hidden');
+		    
+		    try {
+		        await prepareLayer.clearCache();
+		
+		        prepareLayer.seed(bounds, 13, 17, {
+		            onProgress: function(progress) {
+		                const percent = Math.round((progress.loaded / progress.total) * 100);
+		                progressBar.style.width = percent + '%';
+		                progressText.innerText = percent + '%';
+		            }
+		        });
+		
+		        prepareLayer.on('seedend', function() {
+		            localStorage.setItem('wildly_has_offline_map', 'true');
+		            overlay.classList.add('hidden');
+		            updateCacheStatusUI();
+		            alert("Kortet er gemt!");
+		        });
+		    } catch (e) {
+		        overlay.classList.add('hidden');
+		        alert("Fejl ved download.");
+		    }
+		}
+		
+		function updateCacheStatusUI() {
+		    const statusBox = document.getElementById('current-cache-status');
+		    if (statusBox) {
+		        statusBox.classList.toggle('hidden', !localStorage.getItem('wildly_has_offline_map'));
+		    }
 		}
 		
         function renderResult(id) {
@@ -2830,6 +2989,7 @@
     </script>
 </body>
 </html>
+
 
 
 
