@@ -13,6 +13,8 @@ const PRECACHE_ASSETS = [
     './lib/leaflet/leaflet.css',
     './lib/leaflet/leaflet.js',
 	'./lib/leaflet/leaflet-image.js',
+    './lib/leaflet/pouchdb.js',
+    './lib/leaflet/PouchDBCached.js',
     './lib/leaflet/images/marker-icon.png',
     './lib/leaflet/images/marker-shadow.png',
     './lib/leaflet/images/marker-icon-2x.png'    
