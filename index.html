@@ -2577,36 +2577,59 @@
 		}
 
 		async function startAreaDownload() {
+		    // 1. Hent referencer til UI
 		    const bounds = prepareMap.getBounds();
 		    const overlay = document.getElementById('offline-download-overlay');
 		    const progressBar = document.getElementById('download-progress-bar');
 		    const progressText = document.getElementById('download-progress-text');
 		
+		    // Vis overlay med det samme
 		    overlay.classList.remove('hidden');
-		    
+		    progressBar.style.width = '0%';
+		    progressText.innerText = '0%';
+		
 		    try {
+		        // 2. Ryd cachen og vent på at det nye prepareLayer er oprettet og klar
 		        await clearOfflineMapCache();
 		
-		        prepareLayer.seed(bounds, 13, 17, {
-		            onProgress: function(progress) {
-		                const percent = Math.round((progress.loaded / progress.total) * 100);
-		                progressBar.style.width = percent + '%';
-		                progressText.innerText = percent + '%';
-		            }
-		        });
-		
+		        // VIGTIGT: Tilføj event-listeners FØR du kalder .seed()
 		        prepareLayer.on('seedend', function() {
 		            localStorage.setItem('wildly_has_offline_map', 'true');
 		            overlay.classList.add('hidden');
 		            updateCacheStatusUI();
 		            alert("Kortet er gemt!");
 		        });
+		
+		        prepareLayer.on('seederror', function(err) {
+		            overlay.classList.add('hidden');
+		            alert("Der opstod en fejl under download.");
+		            console.error("Seed error:", err);
+		        });
+		
+		        // 3. Start selve downloadet
+		        console.log("Starter download for område:", bounds);
+		        
+		        prepareLayer.seed(bounds, 13, 17, {
+		            onProgress: function(progress) {
+		                // Beregn procent (sikr mod division med nul)
+		                const total = progress.total || 1;
+		                const percent = Math.round((progress.loaded / total) * 100);
+		                
+		                // Opdater UI
+		                progressBar.style.width = percent + '%';
+		                progressText.innerText = percent + '%';
+		                
+		                console.log(`Download status: ${percent}% (${progress.loaded}/${progress.total})`);
+		            }
+		        });
+		
 		    } catch (e) {
 		        overlay.classList.add('hidden');
-		        alert("Fejl ved download.");
+		        console.error("Fejl i download flow:", e);
+		        alert("Fejl ved initialisering af download.");
 		    }
 		}
-		
+
 		function updateCacheStatusUI() {
 		    const statusBox = document.getElementById('current-cache-status');
 		    if (statusBox) {
@@ -3013,6 +3036,7 @@
     </script>
 </body>
 </html>
+
 
 
 
