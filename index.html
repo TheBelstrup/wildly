@@ -2602,19 +2602,27 @@
 		        });
 		
 		        // 4. EVENT: Seedprogress (Kører for hver tile der behandles)
-		        prepareLayer.on('seedprogress', function(e) {
+				prepareLayer.on('seedprogress', function(e) {
+		            if (!totalTiles || totalTiles === 0) {
+		                totalTiles = (e.remaining + (e.processed || 0)) || 1;
+		            }
+		
 		            const processed = totalTiles - e.remaining;
-		            const percent = Math.round((processed / (totalTiles || 1)) * 100);
+		            
+		            // Beregn procent og håndter NaN-risiko med en "fallback" til 0
+		            let percent = Math.round((processed / totalTiles) * 100);
+		            if (isNaN(percent)) percent = 0; 
 		            
 		            const safePercent = Math.max(0, Math.min(percent, 100));
 		
-		            // Opdater UI via requestAnimationFrame for flydende animation
 		            requestAnimationFrame(() => {
 		                if (progressBar) progressBar.style.width = safePercent + '%';
 		                if (progressText) progressText.innerText = safePercent + '%';
 		            });
+		            
+		            console.log(`Status: ${safePercent}% (${processed}/${totalTiles})`);
 		        });
-		
+						
 		        // 5. EVENT: Seedend (Når alt er færdigt)
 		        prepareLayer.on('seedend', function() {
 		            // Tving UI til 100%
@@ -3059,6 +3067,7 @@
     </script>
 </body>
 </html>
+
 
 
 
