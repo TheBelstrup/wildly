@@ -2536,7 +2536,7 @@
 		}
 
 		async function handleNewDownload() {
-		    if (!!!userSettings?.premium) {
+		    if (!userSettings?.isPremium) {
 		        showPaywall(); 
 		        return;
 		    }
@@ -2989,6 +2989,7 @@
     </script>
 </body>
 </html>
+
 
 
 
