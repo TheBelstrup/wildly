@@ -909,7 +909,7 @@
                         </div>
                     </button>
 					
-					<button onclick="render('prepare_trip'); window.history.pushState({pageId: 'prepare_trip'}, '', '');" 
+					<button onclick="navigate('prepare_trip'); window.history.pushState({pageId: 'prepare_trip'}, '', '');" 
 					        class="flex flex-col items-center justify-center p-5 bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md active:scale-95 transition-all w-full">
 					    
 					    <div class="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center text-green-700 mb-3">
@@ -2451,6 +2451,21 @@
 		}
 
 		/* Forbered tur funktion */ 
+		function isLocationInOfflineCache(lat, lng) {
+		    if (navigator.onLine) return true; // Altid adgang hvis vi er online
+		    
+		    const boundsRaw = localStorage.getItem('wildly_offline_bounds');
+		    if (!boundsRaw) return false;
+		    
+		    try {
+		        const b = JSON.parse(boundsRaw);
+		        // Tjek om koordinaten ligger indenfor den gemte firkant
+		        return (lat <= b.north && lat >= b.south && lng <= b.east && lng >= b.west);
+		    } catch (e) {
+		        return false;
+		    }
+		}
+		
 		function ensureOfflineOverlay() {
 		    if (document.getElementById('offline-download-overlay')) return;
 		    
@@ -2476,9 +2491,6 @@
 		    container.innerHTML = `
 		        <div class="h-screen w-full flex flex-col bg-gray-50 overflow-hidden">
 		            <header class="bg-white border-b px-4 py-3 flex items-center justify-between z-20">
-		                <button onclick="render('start')" class="p-2 -ml-2 text-gray-600 active:scale-95">
-		                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-		                </button>
 		                <h1 class="text-lg font-bold text-gray-800 tracking-tight">Forbered Tur</h1>
 		                <div class="w-10"></div>
 		            </header>
@@ -2616,8 +2628,16 @@
 		        prepareLayer.on('seedend', function() {
 		            progressBar.style.width = '100%';
 		            progressText.innerText = '100%';
-		
+
 		            setTimeout(() => {
+						const currentBounds = prepareMap.getBounds();
+		                const cacheBounds = {
+		                    north: currentBounds.getNorth(),
+		                    south: currentBounds.getSouth(),
+		                    east: currentBounds.getEast(),
+		                    west: currentBounds.getWest()
+		                };
+		                localStorage.setItem('wildly_offline_bounds', JSON.stringify(cacheBounds));
 		                localStorage.setItem('wildly_has_offline_map', 'true');
 		                overlay.classList.add('hidden');
 		                updateCacheStatusUI();
@@ -3102,6 +3122,7 @@
     </script>
 </body>
 </html>
+
 
 
 
