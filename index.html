@@ -2555,20 +2555,46 @@
 		            </div>
 		        </div>
 		    `;
-		
+
+			let startLat = 55.6761;
+		    let startLng = 12.5683;
+			
+			if (navigator.geolocation) {
+		        navigator.geolocation.getCurrentPosition((position) => {
+		            startLat = position.coords.latitude;
+		            startLng = position.coords.longitude;
+		            
+		            // Opdater kortets view til den faktiske position
+		            if (prepareMap) {
+		                prepareMap.setView([startLat, startLng], 14);
+		            }
+		        }, (error) => {
+		            console.warn("GPS adgang nægtet eller fejlet, bruger standard position.");
+		        }, {
+		            enableHighAccuracy: true,
+		            timeout: 5000,
+		            maximumAge: 0
+		        });
+		    }
+
 		    // Initialiser kortet efter HTML er indsat i DOM
 		    setTimeout(() => {
 		        prepareMap = L.map('prepare-map', {
 		            zoomControl: false,
-		            attributionControl: false
-		        }).setView([55.6761, 12.5683], 13);
+		            attributionControl: false,
+					minZoom: 14
+			        maxZoom: 18
+		        }).setView([startLat, startLng], 14);
 		
 		        prepareLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		            useCache: true,
 		            crossOrigin: true,
-		            cacheName: 'wildly-offline-cache'
+		            cacheName: 'wildly-prepare-trip-cache'
 		        }).addTo(prepareMap);
-		
+
+				prepareMap.whenReady(() => {
+			        setTimeout(() => prepareMap.invalidateSize(), 100);
+			    });		
 		        updateCacheStatusUI();
 		    }, 50); // Lille delay sikrer at #prepare-map er klar
 		}
@@ -2673,7 +2699,7 @@
 		        });
 		
 		        // Start seeding
-		        prepareLayer.seed(bounds, 13, 17);
+		        prepareLayer.seed(bounds, 14, 18);
 		
 		    } catch (e) {
 		        overlay.classList.add('hidden');
