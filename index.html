@@ -1340,13 +1340,19 @@
 		        if (!isMapAvailable) {
 		            // Offline og UDEN for cache: Vis en placeholder
 		            mapContainer.classList.add('map-offline-placeholder');
-		            mapContainer.innerHTML = `
-		                <div class="p-8">
-		                    <div class="text-4xl mb-3 opacity-20">🌲</div>
-		                    <p class="text-[10px] font-black uppercase tracking-widest opacity-40">>${ui.spot_map_needs_internet}</p>
-		                    <p class="text-[11px] italic mt-1 px-4 opacity-40">${ui.spot_map_needs_internet_has_GPS}</p>
-		                </div>
-		            `;
+					mapContainer.innerHTML = `
+					    <div class="pt-16 pb-8 px-6 text-center">
+					        <div class="text-4xl mb-4 opacity-20" aria-hidden="true">🌲</div>
+					        
+					        <p class="text-[11px] font-black uppercase tracking-widest text-stone-600 leading-tight">
+					            ${ui.spot_map_needs_internet}
+					        </p>
+					        
+					        <p class="text-[12px] italic mt-2 px-4 text-stone-500 leading-relaxed">
+					            ${ui.spot_map_needs_internet_has_GPS}
+					        </p>
+					    </div>
+					`;
 		        } else {
 		            // Online ELLER i cache: Start Leaflet
 		            map = L.map('map-container').setView([loc.lat, loc.lng], 18); 
@@ -2594,75 +2600,6 @@
 		        console.error("Kunne ikke slette cache:", err);
 		    }
 		}
-
-		async function startAreaDownload() {
-		    const bounds = prepareMap.getBounds();
-		    const overlay = document.getElementById('offline-download-overlay');
-		    const progressBar = document.getElementById('download-progress-bar');
-		    const progressText = document.getElementById('download-progress-text');
-		
-		    overlay.classList.remove('hidden');
-		    progressBar.style.width = '0%';
-		    progressText.innerText = '0%';
-		
-		    try {
-		        await clearOfflineMapCache();
-		
-		        let tilesProcessed = 0;
-		        let totalExpected = 0;
-		
-		        prepareLayer.on('seedstart', function(e) {
-		            totalExpected = e.queued || 0;
-		        });
-		
-		        // 2. Lyt på hver eneste tile (uanset succes eller fejl)
-		        const incrementAndUI = () => {
-		            tilesProcessed++;
-		            
-		            const divisor = totalExpected > 0 ? totalExpected : (tilesProcessed + 1);
-		            const percent = Math.min(Math.round((tilesProcessed / divisor) * 100), 99);
-		
-		            requestAnimationFrame(() => {
-		                progressBar.style.width = percent + '%';
-		                progressText.innerText = percent + '%';
-		            });
-		        };
-		
-		        // Vi lytter på begge events for at sikre, at tælleren går op uanset hvad
-		        prepareLayer.on('tilecachehit', incrementAndUI);
-		        prepareLayer.on('tilecachemiss', incrementAndUI);
-		
-		        // 3. Færdig-logik
-		        prepareLayer.on('seedend', function() {
-		            progressBar.style.width = '100%';
-		            progressText.innerText = '100%';
-
-		            setTimeout(() => {
-						const currentBounds = prepareMap.getBounds();
-		                const cacheBounds = {
-		                    north: currentBounds.getNorth(),
-		                    south: currentBounds.getSouth(),
-		                    east: currentBounds.getEast(),
-		                    west: currentBounds.getWest()
-		                };
-		                localStorage.setItem('wildly_offline_bounds', JSON.stringify(cacheBounds));
-		                localStorage.setItem('wildly_has_offline_map', 'true');
-		                overlay.classList.add('hidden');
-		                updateCacheStatusUI();
-		                alert("Kortet er gemt!");
-		                
-		                prepareLayer.off('seedstart seedend tilecachehit tilecachemiss');
-		            }, 500);
-		        });
-		
-		        // 4. Start selve processen
-		        prepareLayer.seed(bounds, 13, 17);
-		
-		    } catch (e) {
-		        overlay.classList.add('hidden');
-		        console.error("Download fejl:", e);
-		    }
-		}
 		
 		async function startAreaDownload() {
 		    const bounds = prepareMap.getBounds();
@@ -2700,7 +2637,15 @@
 		            progressText.innerText = '100%';
 		
 		            setTimeout(() => {
-		                localStorage.setItem('wildly_has_offline_map', 'true');
+						const currentBounds = prepareMap.getBounds();
+		                const cacheBounds = {
+		                    north: currentBounds.getNorth(),
+		                    south: currentBounds.getSouth(),
+		                    east: currentBounds.getEast(),
+		                    west: currentBounds.getWest()
+		                };
+		                localStorage.setItem('wildly_offline_bounds', JSON.stringify(cacheBounds));
+						localStorage.setItem('wildly_has_offline_map', 'true');
 		                overlay.classList.add('hidden');
 		                updateCacheStatusUI();
 		                alert("Kortet er gemt!");
