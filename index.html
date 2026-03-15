@@ -2558,47 +2558,59 @@
 		        </div>
 		    `;
 
-			let startLat = 55.6761;
-		    let startLng = 12.5683;
+			setTimeout(() => {
+			    // 1. Standard fallback (København)
+			    let startLat = geoData[userSettings.country].startLat;
+			    let startLng = geoData[userSettings.country].startLng;
+			    let hasSetView = false;
 			
-			if (navigator.geolocation) {
-		        navigator.geolocation.getCurrentPosition((position) => {
-		            startLat = position.coords.latitude;
-		            startLng = position.coords.longitude;
-		            
-		            // Opdater kortets view til den faktiske position
-		            if (prepareMap) {
-		                prepareMap.setView([startLat, startLng], 14);
-		            }
-		        }, (error) => {
-		            console.warn("GPS adgang nægtet eller fejlet, bruger standard position.");
-		        }, {
-		            enableHighAccuracy: true,
-		            timeout: 5000,
-		            maximumAge: 0
-		        });
-		    }
-
-		    // Initialiser kortet efter HTML er indsat i DOM
-		    setTimeout(() => {
-		        prepareMap = L.map('prepare-map', {
-		            zoomControl: false,
-		            attributionControl: false,
-					minZoom: 14,
+			    // 2. Tjek om der findes et gemt offline-område
+			    const savedBoundsRaw = localStorage.getItem('wildly_offline_bounds');
+			    if (savedBoundsRaw) {
+			        try {
+			            const b = JSON.parse(savedBoundsRaw);
+			            // Vi sætter centeret til midten af det gemte område
+			            startLat = (b.north + b.south) / 2;
+			            startLng = (b.east + b.west) / 2;
+			            hasSetView = true;
+			            console.log("Starter ved gemt offline-område");
+			        } catch (e) {
+			            console.error("Kunne ikke læse gemte bounds", e);
+			        }
+			    }
+			
+			    // 3. Hvis intet kort er gemt, prøv GPS
+			    if (!hasSetView && navigator.geolocation) {
+			        navigator.geolocation.getCurrentPosition((position) => {
+			            startLat = position.coords.latitude;
+			            startLng = position.coords.longitude;
+			            
+			            if (prepareMap) {
+			                prepareMap.setView([startLat, startLng], 14);
+			            }
+			        }, null, { enableHighAccuracy: true, timeout: 5000 });
+			    }
+			
+			    // 4. Opret kortet
+			    prepareMap = L.map('prepare-map', {
+			        zoomControl: false,
+			        attributionControl: false,
+			        minZoom: 14,
 			        maxZoom: 18
-		        }).setView([startLat, startLng], 14);
-		
-		        prepareLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-		            useCache: true,
-		            crossOrigin: true,
-		            cacheName: 'wildly-prepare-trip-cache'
-		        }).addTo(prepareMap);
-
-				prepareMap.whenReady(() => {
+			    }).setView([startLat, startLng], 14);
+			
+			    prepareLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			        useCache: true,
+			        crossOrigin: true,
+			        cacheName: 'wildly-prepare-trip-cache', // Husk at matche de andre funktioner!
+			    }).addTo(prepareMap);
+			
+			    prepareMap.whenReady(() => {
 			        setTimeout(() => prepareMap.invalidateSize(), 100);
-			    });		
-		        updateCacheStatusUI();
-		    }, 50); // Lille delay sikrer at #prepare-map er klar
+			    });
+			
+			    updateCacheStatusUI();
+			}, 50);
 		}
 
 		async function handleNewDownload() {
