@@ -14,7 +14,9 @@
         "label": { "da": "Sjælland", "en": "Zealand", "de": "Seeland" }
       }
     },
-    "poison_phone": "Giftslinjen: 82 12 12 12"
+    "poison_phone": "Giftslinjen: 82 12 12 12",
+    "startLat": 55.6761,
+    "startLng": 12.5683
   },
   "UK": {
     "regions": {
@@ -23,6 +25,8 @@
         "label": { "da": "Hele Storbritannien", "en": "United Kingdom", "de": "Vereinigtes Königreich" }
       }
     },
-    "poison_phone": "NHS: 111"
+    "poison_phone": "NHS: 111",
+    "startLat": 55.6761,
+    "startLng": 12.5683
   }
 }
