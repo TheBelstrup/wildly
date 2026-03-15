@@ -2213,34 +2213,46 @@
 		}
 				
 		async function syncMissingMaps(targetUid = null) {
-			if (!userSettings.isPremium || !navigator.onLine) return;
+		    if (!userSettings.isPremium) return;
 		
-		    // Vi henter dine spots fra localStorage (hvor vi gemmer alt tekst-data)
 		    let allSpots = JSON.parse(localStorage.getItem('mySpots')) || [];
-			let pendingSpots = allSpots.filter(spot => {
+		    let pendingSpots = allSpots.filter(spot => {
 		        if (targetUid) return spot.uid === targetUid && spot.mapsSynced !== true;
 		        return spot.mapsSynced !== true;
 		    });
-
-			if (pendingSpots.length === 0) return;
-
+		
+		    if (pendingSpots.length === 0) return;
+		
+		    let hasChanges = false;
+		
 		    for (let spot of pendingSpots) {
-				try {
-					const overviewBase64 = await fetchStaticMap(spot.lat, spot.lng, 14);
-					const detailBase64 = await fetchStaticMap(spot.lat, spot.lng, 17);
-	
-					// Gem i IndexedDB
-					await mapStorage.save(spot.uid, 'overview', overviewBase64);
-					await mapStorage.save(spot.uid, 'detail', detailBase64);
-					
-					const originalSpot = allSpots.find(s => s.uid === spot.uid);
-					if (originalSpot) originalSpot.mapsSynced = true;
-				} catch (e) {
-					console.error("Fejl ved hentning af kort", e);
-				}
+		        const canGenerateOffline = isLocationInOfflineCache(spot.lat, spot.lng);
+		        
+		        if (navigator.onLine || canGenerateOffline) {
+		            try {
+		                const overviewBase64 = await fetchStaticMap(spot.lat, spot.lng, 14);
+		                const detailBase64 = await fetchStaticMap(spot.lat, spot.lng, 18); 
+		
+		                // Gem i IndexedDB
+		                await mapStorage.save(spot.uid, 'overview', overviewBase64);
+		                await mapStorage.save(spot.uid, 'detail', detailBase64);
+		                
+		                const originalSpot = allSpots.find(s => s.uid === spot.uid);
+		                if (originalSpot) {
+		                    originalSpot.mapsSynced = true;
+		                    hasChanges = true;
+		                }
+		            } catch (e) {
+		                console.error("Error fetch data for spot:", spot.uid, e);
+		            }
+		        } else {
+		            console.log(`Ignored ${spot.uid}: Offline and not in cache.`);
+		        }
 		    }
-
-			localStorage.setItem('mySpots', JSON.stringify(allSpots))
+		
+		    if (hasChanges) {
+		        localStorage.setItem('mySpots', JSON.stringify(allSpots));
+		    }
 		}
 
 		function canUseRadar() {
@@ -2309,15 +2321,24 @@
 		    return start + (delta * factor);
 		}
 		
-		async function startRadarLogic(spot) {			
+		async function startRadarLogic(spot) {            
 		    const marker = document.getElementById('radar-user-marker');
 		    const arrow = document.getElementById('radar-user-arrow');
 		    const distLabel = document.getElementById('radar-distance');
 		    const mapImg = document.getElementById('radar-map-img');
 		    const instruction = document.getElementById('radar-instruction');
 		    
+		    instruction.innerText = ui.radar_fetching_map;
+		    await syncMissingMaps(spot.uid);
+		
 		    radarMapDetail = await mapStorage.get(spot.uid, 'detail');
 		    radarMapOverview = await mapStorage.get(spot.uid, 'overview');
+		    
+		    if (!radarMapDetail || !radarMapOverview) {
+		        instruction.innerText = ui.radar_not_available_offline;
+		    } else {
+		        instruction.innerText = ui.radar_waiting_for_gps;
+		    }
 		    
 		    // --- JITTER FILTER SETUP ---
 		    isRadarRunning = true;
@@ -2327,33 +2348,26 @@
 		    let firstGps = true;
 		    let firstCompass = true;
 		
-		    // Browserens tegneloop (kører typisk 60 gange i sekundet)
+		    // Browserens tegneloop
 		    function animateRadar() {
-		        if (!isRadarRunning) return; // Stop animationen når radaren lukkes
+		        if (!isRadarRunning) return; 
 		
-		        // Smooth factor bestemmer hvor "træg" bevægelsen er (0.05 til 0.2 er bedst)
 		        const smoothFactor = 0.08; 
 		
-		        // 1. Opdater vinkel blødt
 		        currentHeading = lerpAngle(currentHeading, targetHeading, smoothFactor);
 		        arrow.style.transform = `rotate(${currentHeading}deg)`;
 		
-		        // 2. Opdater position blødt
 		        currentX = lerp(currentX, targetX, smoothFactor);
 		        currentY = lerp(currentY, targetY, smoothFactor);
 		        marker.style.left = `calc(50% + ${currentX}px)`;
 		        marker.style.top = `calc(50% + ${currentY}px)`;
 		
-		        // Bed browseren om at køre funktionen igen til næste billede
 		        requestAnimationFrame(animateRadar);
 		    }
 		    
-		    // Start animationen
 		    requestAnimationFrame(animateRadar);
 		
-		    // --- SENSOR LYTTERE (Sætter bare 'target' værdierne) ---
-		
-		    // 1. Lyt til telefonens kompas (Heading)
+		    // --- SENSOR LYTTERE ---
 		    if (window.DeviceOrientationEvent) {
 		        window.addEventListener('deviceorientationabsolute', (e) => {
 		            let heading = 0;
@@ -2365,7 +2379,6 @@
 		            
 		            targetHeading = heading;
 		
-		            // Første måling: "Snap" direkte til vinklen i stedet for at spinne rundt
 		            if (firstCompass) {
 		                currentHeading = targetHeading;
 		                firstCompass = false;
@@ -2373,51 +2386,40 @@
 		        }, true);
 		    }
 		
-		    // 2. Lyt til GPS (Position)
-			radarWatchId = navigator.geolocation.watchPosition((pos) => {
+		    radarWatchId = navigator.geolocation.watchPosition((pos) => {
 		        const userLat = pos.coords.latitude;
 		        const userLng = pos.coords.longitude;
 		        
 		        const dist = getDistance(userLat, userLng, spot.lat, spot.lng);
 		        const bearing = calculateBearing(userLat, userLng, spot.lat, spot.lng);
 		        
-		        // --- NY MAGISK MATEMATIK TIL SKALERING ---
-		        // 1. Leaflets formel: Hvor mange meter dækker 1 pixel ved zoom 14?
-		        // Vi bruger spottets breddegrad (spot.lat) for at få det præcist uanset hvor i verden vi er.
+		        // Bemærk: Leaflets formel forbliver uændret for basisskalering (zoom 14)
 		        const metersPerPxZ14 = (156543.03 * Math.cos(spot.lat * (Math.PI / 180))) / 16384; 
-		        
-		        // 2. Vores kortbillede er beskåret til at svare til 200 pixels fra midten til kanten
-		        const overviewRange = (metersPerPxZ14 * 200) / 1000; // Omregnet til km (ca. 1.07 km i Danmark)
-		        const detailRange = overviewRange / 8; // Zoom 17 er præcis 8 gange tættere på end zoom 14 (2^3)
+		        const overviewRange = (metersPerPxZ14 * 200) / 1000; //zoom 14
+		        const detailRange = overviewRange / 16; //zoom 18
 		
-		        // Opdater afstandstekst
 		        distLabel.innerText = dist < 1 ? Math.round(dist * 1000) + ' m' : dist.toFixed(1) + ' km';
 		
 		        let maxVisualRange;
 		
-		        // Skift kun til detaljekortet, når vi FAKTISK er inden for dets rækkevidde
 		        if (dist <= detailRange) { 
-		            if (mapImg.src !== radarMapDetail) mapImg.src = radarMapDetail;
-		            instruction.innerText = "Du er tæt på! Brug detaljekortet.";
+		            if (radarMapDetail && mapImg.src !== radarMapDetail) mapImg.src = radarMapDetail;
+		            instruction.innerText = ui.radar_close;
 		            maxVisualRange = detailRange;
 		        } else {
-		            if (mapImg.src !== radarMapOverview) mapImg.src = radarMapOverview;
-		            instruction.innerText = "Gå mod midten af radaren";
+		            if (radarMapOverview && mapImg.src !== radarMapOverview) mapImg.src = radarMapOverview;
+		            instruction.innerText = ui.radar_walk_towards_middle;
 		            maxVisualRange = overviewRange;
 		        }
 		
-		        const radarRadius = 144; // Cirklen er w-72 (288px i diameter)
-		        
+		        const radarRadius = 144; 
 		        let visualDist = (dist / maxVisualRange) * radarRadius;
 		        
-		        // Læg prikken fast på kanten, indtil brugeren træder ind på selve kortets område
 		        if (visualDist > radarRadius - 20) visualDist = radarRadius - 20;
 		
-		        // BEREGN DEN KORREKTE X/Y POSITION (Målet)
 		        targetX = -Math.sin(bearing * (Math.PI / 180)) * visualDist;
 		        targetY = Math.cos(bearing * (Math.PI / 180)) * visualDist;
 		
-		        // Første måling: "Snap" direkte til positionen for at undgå at den flyver ind fra siden
 		        if (firstGps) {
 		            currentX = targetX;
 		            currentY = targetY;
@@ -2425,10 +2427,10 @@
 		        }
 		
 		    }, (err) => {
-		        instruction.innerText = "GPS signal mistet";
+		        instruction.innerText = ui.radar_gps_signal_lost"GPS signal mistet";
 		    }, { enableHighAccuracy: true });
 		}
-
+		
 		function renderRadar(spot) {
 		    const container = document.getElementById('app-content');
 		    
