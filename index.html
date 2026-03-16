@@ -2163,35 +2163,37 @@
 		}
 
 		async function fetchStaticMap(lat, lng, zoom) {
-			return new Promise((resolve, reject) => {
-		        // 1. Opret et usynligt div-element til kortet
+		    return new Promise((resolve, reject) => {
+		        // 1. Opret skjult container
 		        const tempDiv = document.createElement('div');
 		        tempDiv.style.width = '600px';
 		        tempDiv.style.height = '400px';
 		        tempDiv.style.position = 'absolute';
-		        tempDiv.style.top = '-9999px'; // Gem det væk fra skærmen
+		        tempDiv.style.top = '-9999px'; 
 		        document.body.appendChild(tempDiv);
 		
-		        // 2. Initialisér et standard Leaflet kort i div'en
+		        // 2. Initialiser kortet
 		        const tempMap = L.map(tempDiv, {
 		            zoomControl: false,
 		            attributionControl: false,
-		            fadeAnimation: false
+		            fadeAnimation: false,
+		            zoomAnimation: false,
+		            markerZoomAnimation: false
 		        }).setView([lat, lng], zoom);
 		
-		        // 3. Brug de præcise OSM fliser, du kender
-				const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-					useCache: !!userSettings.isPremium, // AKTIVER CACHE
-					crossOrigin: true, // Kræves for at gemme tiles
-					cacheName: 'wildly-prepare-trip-cache' // Navnet på PouchDB databasen
-				});
-				baseLayer.addTo(tempMap);
-		
-		        // 4. Tilføj en markør i midten (valgfrit)
-		        L.marker([lat, lng]).addTo(tempMap);
-		
-		        // 5. Vent på at fliserne er indlæst og tag billedet
-		        tempMap.whenReady(() => {
+		        // 3. Opret tile layer
+		        const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		            useCache: !!userSettings.isPremium, 
+		            crossOrigin: true, 
+		            cacheName: 'wildly-prepare-trip-cache',
+		            useOnlyCache: !navigator.onLine
+		        });
+		        
+		        // 4. Den MAGISKE EVENT LYTTER: Vent på at "load" eventet affyres
+		        baseLayer.on('load', function() {
+		            // Nu ved vi 100%, at alle tiles (fra nettet eller cachen) er tegnet
+		            
+		            // Brug en lille ekstra timeout for at lade browserens render-engine følge med
 		            setTimeout(() => {
 		                leafletImage(tempMap, function(err, canvas) {
 		                    if (err) {
@@ -2200,15 +2202,25 @@
 		                        return;
 		                    }
 		                    
-		                    // Konvertér canvas til Base64 streng
+		                    // Få fat i den fulde, tunge Base64 streng
 		                    const base64Data = canvas.toDataURL('image/png');
 		                    
-		                    // Ryd op
 		                    document.body.removeChild(tempDiv);
 		                    resolve(base64Data);
 		                });
-		            }, 500); // En lille buffer for at undgå hvide områder
+		            }, 300); // 300ms buffer
 		        });
+		
+		        // 5. Tilføj laget til kortet (Dette starter loading-processen)
+		        baseLayer.addTo(tempMap);
+		        
+		        // Sikkerhedsnet: Hvis 'load' af en eller anden grund fejler eller hænger i mere end 5 sekunder
+		        setTimeout(() => {
+		            if (document.body.contains(tempDiv)) {
+		                document.body.removeChild(tempDiv);
+		                reject(new Error("Timeout ved generering af statisk kort"));
+		            }
+		        }, 5000);
 		    });
 		}
 				
