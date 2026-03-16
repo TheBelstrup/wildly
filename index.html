@@ -2175,7 +2175,79 @@
 		    }
 		}
 
-		async function fetchStaticMap(lat, lng, zoom) {
+async function fetchStaticMap(lat, lng, zoom) {
+    return new Promise((resolve, reject) => {
+        const tempDiv = document.createElement('div');
+        tempDiv.id = "DEBUG_MAP_CONTAINER"; // Nemmere at finde i DOM'en
+        tempDiv.style.width = '500px';
+        tempDiv.style.height = '300px';
+        
+        // DEBUG-INDSTILLINGER: Gør kortet synligt øverst på siden
+        tempDiv.style.position = 'fixed';
+        tempDiv.style.left = '10px'; 
+        tempDiv.style.top = '10px';
+        tempDiv.style.zIndex = '9999';
+        tempDiv.style.opacity = '1';
+        tempDiv.style.border = '5px solid red'; // Rød kant så du ikke overser det
+        document.body.appendChild(tempDiv);
+
+        const tempMap = L.map(tempDiv, {
+            zoomControl: false,
+            attributionControl: false,
+            fadeAnimation: false
+        }).setView([lat, lng], zoom);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            useCache: true,
+            crossOrigin: 'anonymous'
+        }).addTo(tempMap);
+
+        L.marker([lat, lng]).addTo(tempMap);
+
+        tempMap.invalidateSize();
+
+        let checkCounter = 0;
+        const checkInterval = setInterval(() => {
+            const tiles = Array.from(tempDiv.querySelectorAll('.leaflet-tile'));
+            const allLoaded = tiles.length > 0 && tiles.every(t => t.complete);
+
+            if (allLoaded || checkCounter > 50) {
+                clearInterval(checkInterval);
+                
+                console.log("Kortet melder 'allLoaded'. Gør klar til screenshot...");
+                
+                // --- PAUSEPUNKT START ---
+                // Åbn F12 Console før du kører dette. Koden stopper her!
+                console.warn("PAUSE: Inspicer 'Network' fanen og det røde kort nu.");
+                debugger; 
+                // --- PAUSEPUNKT SLUT ---
+
+                setTimeout(() => {
+                    tempMap.invalidateSize();
+                    leafletImage(tempMap, function(err, canvas) {
+                        if (err) {
+                            console.error("Leaflet-image fejl:", err);
+                            cleanup();
+                            reject(err);
+                            return;
+                        }
+                        const dataUrl = canvas.toDataURL('image/png');
+                        // cleanup(); // Kommenteret ud så du kan se resultatet efter fejlen
+                        resolve(dataUrl);
+                    });
+                }, 1000);
+            }
+            checkCounter++;
+        }, 100);
+
+        function cleanup() {
+            // tempMap.remove();
+            // if (tempDiv.parentNode) document.body.removeChild(tempDiv);
+        }
+    });
+}
+
+		async function fetchStaticMap1(lat, lng, zoom) {
 		    return new Promise((resolve, reject) => {
 		        const tempDiv = document.createElement('div');
 		        tempDiv.style.width = '500px';
