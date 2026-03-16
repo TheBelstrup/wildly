@@ -348,12 +348,6 @@
 		let prepareMap = null;
 		let prepareLayer = null;
 		let currentEditorAccuracy = 0;
-		delete L.Icon.Default.prototype._getIconUrl;
-		L.Icon.Default.mergeOptions({
-		    iconRetinaUrl: 'lib/leaflet/images/marker-icon-2x.png',
-		    iconUrl: 'lib/leaflet/images/marker-icon.png',
-		    shadowUrl: 'lib/leaflet/images/marker-shadow.png',
-		});
 		
 		const photoStorage = {
 		    dbName: "WildlyDB",
@@ -2174,10 +2168,13 @@
 		        const tempDiv = document.createElement('div');
 		        tempDiv.style.width = '500px';
 		        tempDiv.style.height = '300px';
+		        
+		        // LØSNING: Gør den synlig for browserens motor, men skjult for brugeren
 		        tempDiv.style.position = 'fixed';
-		        tempDiv.style.left = '-1000px';
+		        tempDiv.style.left = '0';
 		        tempDiv.style.top = '0';
 		        tempDiv.style.zIndex = '-1000';
+		        tempDiv.style.opacity = '0.01'; // Skal være over 0 for at tvinge rendering
 		        document.body.appendChild(tempDiv);
 		
 		        const tempMap = L.map(tempDiv, {
@@ -2187,58 +2184,66 @@
 		            zoomAnimation: false,
 		            markerZoomAnimation: false
 		        }).setView([lat, lng], zoom);
-				
+		
+		        // LØSNING: Manuel definition af ikonet for at undgå "?cache=..."
+		        const fixedIcon = L.icon({
+		            iconUrl: 'lib/leaflet/images/marker-icon.png',
+		            iconRetinaUrl: 'lib/leaflet/images/marker-icon-2x.png',
+		            shadowUrl: 'lib/leaflet/images/marker-shadow.png',
+		            iconSize: [25, 41],
+		            iconAnchor: [12, 41],
+		            popupAnchor: [1, -34],
+		            shadowSize: [41, 41]
+		        });
+		
+		        // Tving layout på plads
+		        tempMap.invalidateSize();
+		
 		        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		            useCache: true,
-		            crossOrigin: 'anonymous' 
+		            crossOrigin: true 
 		        }).addTo(tempMap);
 		
-		        L.marker([lat, lng]).addTo(tempMap);
-		        tempMap.invalidateSize();
+		        // Brug det låste ikon her
+		        L.marker([lat, lng], { icon: fixedIcon }).addTo(tempMap);
 		
 		        let checkCounter = 0;
 		        const checkInterval = setInterval(() => {
-		            const tiles = Array.from(tempDiv.querySelectorAll('.leaflet-tile'));
-		            
-		            const allLoaded = tiles.length > 0 && tiles.every(tile => tile.complete);
+		            const tiles = tempDiv.querySelectorAll('.leaflet-tile');
+		            const allLoaded = tiles.length > 0 && Array.from(tiles).every(tile => tile.complete);
 		
 		            checkCounter++;
 		
 		            if (allLoaded || checkCounter > 50) {
 		                clearInterval(checkInterval);
-		
+		                
+		                // Giv den 500ms til at færdiggøre dekodning af Blobs (vigtigt ved cache-brug)
 		                setTimeout(() => {
+		                    tempMap.invalidateSize(); // Sidste tjek af størrelse
+		                    
 		                    leafletImage(tempMap, function(err, canvas) {
 		                        if (err) {
+		                            console.error("Leaflet-image fejl:", err);
 		                            cleanup();
 		                            reject(err);
 		                            return;
 		                        }
 		                        
 		                        const dataUrl = canvas.toDataURL('image/png');
-		                        
-		                        // Sikkerhedstjek: Er billedet for lille (typisk tegn på gennemsigtighed)?
-		                        if (dataUrl.length < 2000) {
-		                            console.warn("Billedet ser tomt ud, prøver igen om lidt...");
-		                            // Man kunne lave et retry her, hvis nødvendigt.
-		                        }
-		                        
 		                        cleanup();
 		                        resolve(dataUrl);
 		                    });
-		                }, 600);
+		                }, 500);
 		            }
 		        }, 100);
 		
 		        function cleanup() {
 		            tempMap.remove();
-		            if (tempDiv.parentNode) {
-		                document.body.removeChild(tempDiv);
-		            }
+		            if (tempDiv.parentNode) document.body.removeChild(tempDiv);
 		        }
 		    });
 		}
-				
+
 		async function syncMissingMaps(targetUid = null) {
 		    if (!userSettings.isPremium) return;
 		
