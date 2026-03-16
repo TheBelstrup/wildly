@@ -2164,7 +2164,6 @@
 
 		async function fetchStaticMap(lat, lng, zoom) {
 		    return new Promise((resolve, reject) => {
-		        // 1. Opret skjult container
 		        const tempDiv = document.createElement('div');
 		        tempDiv.style.width = '600px';
 		        tempDiv.style.height = '400px';
@@ -2172,7 +2171,6 @@
 		        tempDiv.style.top = '-9999px'; 
 		        document.body.appendChild(tempDiv);
 		
-		        // 2. Initialiser kortet
 		        const tempMap = L.map(tempDiv, {
 		            zoomControl: false,
 		            attributionControl: false,
@@ -2181,48 +2179,75 @@
 		            markerZoomAnimation: false
 		        }).setView([lat, lng], zoom);
 		
-		        // 3. Opret tile layer
 		        const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		            useCache: !!userSettings.isPremium, 
 		            crossOrigin: true, 
 		            cacheName: 'wildly-prepare-trip-cache',
 		            useOnlyCache: !navigator.onLine
-		        });
-		        
-		        // 4. Den MAGISKE EVENT LYTTER: Vent på at "load" eventet affyres
-		        baseLayer.on('load', function() {
-		            // Nu ved vi 100%, at alle tiles (fra nettet eller cachen) er tegnet
-		            
-		            // Brug en lille ekstra timeout for at lade browserens render-engine følge med
-		            setTimeout(() => {
-		                leafletImage(tempMap, function(err, canvas) {
-		                    if (err) {
-		                        document.body.removeChild(tempDiv);
-		                        reject(err);
-		                        return;
-		                    }
-		                    
-		                    // Få fat i den fulde, tunge Base64 streng
-		                    const base64Data = canvas.toDataURL('image/png');
-		                    
-		                    document.body.removeChild(tempDiv);
-		                    resolve(base64Data);
-		                });
-		            }, 300); // 300ms buffer
-		        });
+		        }).addTo(tempMap);
 		
-		        // 5. Tilføj laget til kortet (Dette starter loading-processen)
-		        baseLayer.addTo(tempMap);
-		        
-		        // Sikkerhedsnet: Hvis 'load' af en eller anden grund fejler eller hænger i mere end 5 sekunder
-		        setTimeout(() => {
-		            if (document.body.contains(tempDiv)) {
-		                document.body.removeChild(tempDiv);
-		                reject(new Error("Timeout ved generering af statisk kort"));
+		        // Vi tæller fejl for at opdage, hvis området slet ikke findes i cachen
+		        let errorCount = 0;
+		        baseLayer.on('tileerror', () => { errorCount++; });
+		
+		        // Den intelligente scanner: Tjekker kortet hvert 100. ms
+		        const checkInterval = setInterval(() => {
+		            const tiles = tempDiv.querySelectorAll('.leaflet-tile');
+		            
+		            // Hvis Leaflet slet ikke har genereret <img> tags endnu
+		            if (tiles.length === 0) return; 
+		
+		            let allLoaded = true;
+		            let validTiles = 0;
+		
+		            tiles.forEach(tile => {
+		                // Hvis kilden er tom, ELLER billedet ikke er færdigt med at rendere
+		                if (!tile.src || !tile.complete) {
+		                    allLoaded = false;
+		                } 
+		                // Hvis det har en gyldig kilde (fra nettet eller blob fra PouchDB)
+		                else if (tile.src.startsWith('blob:') || tile.src.startsWith('http') || tile.src.startsWith('data:')) {
+		                    validTiles++;
+		                }
+		            });
+		
+		            // SCENARIE 1: Alle billeder er loaded fra cachen (eller nettet)
+		            if (allLoaded && validTiles > 0) {
+		                clearInterval(checkInterval);
+		                clearTimeout(fallbackTimeout);
+		
+		                // Giv browseren 200ms ekstra til at male billedet rent visuelt, før screenshot
+		                setTimeout(() => {
+		                    leafletImage(tempMap, function(err, canvas) {
+		                        if (err) {
+		                            if (document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
+		                            reject(err);
+		                            return;
+		                        }
+		                        const base64Data = canvas.toDataURL('image/png');
+		                        if (document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
+		                        resolve(base64Data);
+		                    });
+		                }, 200);
+		            } 
+		            // SCENARIE 2: Området findes SLET IKKE i cachen for dette zoom niveau
+		            else if (errorCount >= tiles.length && tiles.length > 0) {
+		                clearInterval(checkInterval);
+		                clearTimeout(fallbackTimeout);
+		                if (document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
+		                reject(new Error("Kort ikke fundet i cache. Har du husket at downloade dette specifikke zoom-niveau?"));
 		            }
+		        }, 100);
+		
+		        // Sikkerhedsnet: Giv op efter 5 sekunder, så appen ikke fryser
+		        const fallbackTimeout = setTimeout(() => {
+		            clearInterval(checkInterval);
+		            if (document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
+		            reject(new Error("Timeout ved generering af statisk kort"));
 		        }, 5000);
 		    });
 		}
+
 				
 		async function syncMissingMaps(targetUid = null) {
 		    if (!userSettings.isPremium) return;
