@@ -52,6 +52,10 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+	if (event.request.url.includes('?cache=')) {
+	    return; // Lad PouchDB plugin'et om at styre denne anmodning
+	}
+	
 	// Tjek om anmodningen handler om Leaflet-ikonerne
     if (requestUrl.pathname.includes('marker-icon') || requestUrl.pathname.includes('marker-shadow')) {
         const cleanUrl = requestUrl.origin + requestUrl.pathname;
