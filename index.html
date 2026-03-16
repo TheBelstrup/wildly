@@ -1301,8 +1301,10 @@
 		                
 						<div class="absolute inset-0 flex items-center justify-center pointer-events-none z-[1000]">
 						    <div class="flex flex-col items-center"> 
-						        <div class="bg-stone-900 text-white text-[11px] font-bold px-2 py-1 rounded mb-2 uppercase tracking-widest">${ui.spot_location}</div>
-						        <img src="lib/leaflet/images/marker-icon-2x.png" 
+								<div class="absolute bottom-full mb-2 whitespace-nowrap bg-stone-900 text-white text-[11px] font-bold px-2 py-1 rounded uppercase tracking-widest">
+						            ${ui.spot_location}
+						        </div>
+								<img src="lib/leaflet/images/marker-icon-2x.png" 
 						             class="h-12 w-auto drop-shadow-2xl translate-y-[-50%]" 
 						             alt="Map pin">
 						    </div>
@@ -2177,6 +2179,7 @@
 
 		async function fetchStaticMap(lat, lng, zoom) {
 		    return new Promise((resolve, reject) => {
+		        // 1. Opret containeren (skjult for brugeren, men synlig for browseren)
 		        const tempDiv = document.createElement('div');
 		        tempDiv.style.width = '500px';
 		        tempDiv.style.height = '300px';
@@ -2187,6 +2190,7 @@
 		        tempDiv.style.opacity = '0.01';
 		        document.body.appendChild(tempDiv);
 		
+		        // 2. Initialiser kortet uden animationer (vigtigt for screenshots)
 		        const tempMap = L.map(tempDiv, {
 		            zoomControl: false,
 		            attributionControl: false,
@@ -2195,43 +2199,63 @@
 		            markerZoomAnimation: false
 		        }).setView([lat, lng], zoom);
 		
+		        // 3. Konfigurer flise-laget
 		        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		            useCache: true,
-		            crossOrigin: 'anonymous'
+		            crossOrigin: 'anonymous',
+		            keepBuffer: 99,
+		            updateWhenIdle: false
 		        }).addTo(tempMap);
 		
+		        // 4. Tilføj markøren (bruger det rettede ankerpunkt via global CSS/Icon def)
 		        L.marker([lat, lng]).addTo(tempMap);
 		
-		        tempMap.invalidateSize();
+		        // 5. Tving layout-beregning
+		        tempMap.invalidateSize({ animate: false });
 		
 		        let checkCounter = 0;
 		        const checkInterval = setInterval(() => {
 		            const tiles = Array.from(tempDiv.querySelectorAll('.leaflet-tile'));
-		            const allLoaded = tiles.length > 0 && tiles.every(t => t.complete);
+		            
+		            // Tjekker om alle fliser er fuldt indlæst og har indhold (naturalWidth > 0)
+		            const allLoaded = tiles.length > 0 && tiles.every(t => t.complete && t.naturalWidth > 0);
 		
-		            if (allLoaded || checkCounter > 50) {
+		            if (allLoaded || checkCounter > 60) { // Timeout efter 6 sekunder
 		                clearInterval(checkInterval);
 		                
+		                // Giv PouchDB/GPU'en et øjeblik til at færdiggøre "painting"
 		                setTimeout(() => {
+		                    // En sidste opdatering af størrelsen for en sikkerheds skyld
+		                    tempMap.invalidateSize({ animate: false });
+		
 		                    leafletImage(tempMap, function(err, canvas) {
 		                        if (err) {
+		                            console.error("Fejl ved generering af kort-billede:", err);
 		                            cleanup();
 		                            reject(err);
 		                            return;
 		                        }
 		                        
-		                        const dataUrl = canvas.toDataURL('image/png');
-		                        cleanup();
-		                        resolve(dataUrl);
+		                        try {
+		                            const dataUrl = canvas.toDataURL('image/png');
+		                            cleanup();
+		                            resolve(dataUrl);
+		                        } catch (e) {
+		                            cleanup();
+		                            reject(e);
+		                        }
 		                    });
-		                }, 500);
+		                }, 1000); // 1 sekunds sikkerhedspause før screenshot
 		            }
 		            checkCounter++;
 		        }, 100);
 		
+		        // 6. Oprydning: Fjern kortet fra hukommelse og DOM
 		        function cleanup() {
-		            tempMap.remove();
-		            if (tempDiv.parentNode) {
+		            if (tempMap) {
+		                tempMap.remove();
+		            }
+		            if (tempDiv && tempDiv.parentNode) {
 		                document.body.removeChild(tempDiv);
 		            }
 		        }
