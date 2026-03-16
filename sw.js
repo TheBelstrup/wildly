@@ -51,10 +51,6 @@ self.addEventListener('fetch', (event) => {
     if (requestUrl.hostname.includes('tile.openstreetmap.org') || requestUrl.hostname.includes('ipapi.co')) {
         return;
     }
-
-	if (event.request.url.includes('?cache=')) {
-	    return; // Lad PouchDB plugin'et om at styre denne anmodning
-	}
 	
 	// Tjek om anmodningen handler om Leaflet-ikonerne
     if (requestUrl.pathname.includes('marker-icon') || requestUrl.pathname.includes('marker-shadow')) {
