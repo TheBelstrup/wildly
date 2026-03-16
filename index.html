@@ -2164,28 +2164,15 @@
 		}
 
 		async function fetchStaticMap(lat, lng, zoom) {
-		    // 1. LØSNING: Vi henter den fysiske billedfil og laver den til en lokal Blob.
-		    // Dette fjerner behovet for klamme Base64 strenge i koden.
-		    // Blob-URL'er er fuldstændig immune overfor "?cache=" forurening.
-		    let iconUrl = '';
-		    try {
-		        const iconRes = await fetch('lib/leaflet/images/marker-icon.png');
-		        const iconBlob = await iconRes.blob();
-		        iconUrl = URL.createObjectURL(iconBlob);
-		    } catch (err) {
-		        console.error("Kunne ikke hente marker-ikonet lokalt:", err);
-		        // Fallback hvis alt fejler
-		    }
-		
 		    return new Promise((resolve, reject) => {
 		        const tempDiv = document.createElement('div');
 		        tempDiv.style.width = '500px';
 		        tempDiv.style.height = '300px';
 		        tempDiv.style.position = 'fixed';
-		        tempDiv.style.left = '0';
+		        tempDiv.style.left = '-1000px'; 
 		        tempDiv.style.top = '0';
 		        tempDiv.style.zIndex = '-1000';
-		        tempDiv.style.opacity = '0.01'; 
+		        tempDiv.style.opacity = '0.01';
 		        document.body.appendChild(tempDiv);
 		
 		        const tempMap = L.map(tempDiv, {
@@ -2196,21 +2183,12 @@
 		            markerZoomAnimation: false
 		        }).setView([lat, lng], zoom);
 		
-		        // 2. Brug den genererede sikre blob-URL til dit ikon
-		        const safeIcon = L.icon({
-		            iconUrl: iconUrl,
-		            iconSize: [25, 41],
-		            iconAnchor: [12, 41]
-		        });
-		
-		        // 3. Tilføj markøren med vores sikre ikon
-		        L.marker([lat, lng], { icon: safeIcon }).addTo(tempMap);
-		
-		        // Hent fliserne (her må cache-pluginet gerne blande sig)
 		        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		            useCache: true,
 		            crossOrigin: 'anonymous'
 		        }).addTo(tempMap);
+		
+		        L.marker([lat, lng], { icon: standardIcon }).addTo(tempMap);
 		
 		        tempMap.invalidateSize();
 		
@@ -2222,30 +2200,28 @@
 		            if (allLoaded || checkCounter > 50) {
 		                clearInterval(checkInterval);
 		                
-		                // Solid buffer (700ms) til at tegne fra cache/blob til canvas
 		                setTimeout(() => {
-		                    tempMap.invalidateSize();
 		                    leafletImage(tempMap, function(err, canvas) {
-		                        // Ryd op i browserens hukommelse
-		                        if (iconUrl) URL.revokeObjectURL(iconUrl);
-		
 		                        if (err) {
 		                            cleanup();
 		                            reject(err);
 		                            return;
 		                        }
+		                        
 		                        const dataUrl = canvas.toDataURL('image/png');
 		                        cleanup();
 		                        resolve(dataUrl);
 		                    });
-		                }, 700);
+		                }, 500);
 		            }
 		            checkCounter++;
 		        }, 100);
 		
 		        function cleanup() {
 		            tempMap.remove();
-		            if (tempDiv.parentNode) document.body.removeChild(tempDiv);
+		            if (tempDiv.parentNode) {
+		                document.body.removeChild(tempDiv);
+		            }
 		        }
 		    });
 		}
