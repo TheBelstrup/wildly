@@ -52,6 +52,33 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+	// Tjek om anmodningen handler om Leaflet-ikonerne
+    if (url.pathname.includes('marker-icon') || url.pathname.includes('marker-shadow')) {
+        const cleanUrl = url.origin + url.pathname;
+        const cleanRequest = new Request(cleanUrl, {
+            method: event.request.method,
+            headers: event.request.headers,
+            mode: 'cors', // Vigtigt for canvas/leaflet-image
+            credentials: event.request.credentials,
+            redirect: event.request.redirect
+        });
+
+        event.respondWith(
+            // Tjek først om vi allerede har den rene fil i cachen
+            caches.match(cleanRequest).then((cachedResponse) => {
+                if (cachedResponse) {
+                    return cachedResponse;
+                }
+                // Hvis ikke, hent den rene URL fra netværket og (valgfrit) gem den i cachen
+                return fetch(cleanRequest).then((networkResponse) => {
+                    return networkResponse;
+                });
+            })
+        );
+        
+        return; 
+    }
+	
     if (requestUrl.pathname.endsWith('.json')) {
         event.respondWith(
             fetch(event.request)
