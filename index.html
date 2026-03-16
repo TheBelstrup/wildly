@@ -2172,14 +2172,12 @@
 		async function fetchStaticMap(lat, lng, zoom) {
 		    return new Promise((resolve, reject) => {
 		        const tempDiv = document.createElement('div');
-		        tempDiv.style.width = '600px';
-		        tempDiv.style.height = '400px';
+		        tempDiv.style.width = '500px';
+		        tempDiv.style.height = '300px';
 		        tempDiv.style.position = 'fixed';
-		        tempDiv.style.left = '0';
+		        tempDiv.style.left = '-1000px';
 		        tempDiv.style.top = '0';
 		        tempDiv.style.zIndex = '-1000';
-		        tempDiv.style.opacity = '0.01';
-		        tempDiv.style.pointerEvents = 'none';
 		        document.body.appendChild(tempDiv);
 		
 		        const tempMap = L.map(tempDiv, {
@@ -2190,52 +2188,62 @@
 		            markerZoomAnimation: false
 		        }).setView([lat, lng], zoom);
 		
-		        tempMap.invalidateSize();
+		        const cleanIcon = L.icon({
+		            iconUrl: 'lib/leaflet/images/marker-icon.png',
+		            iconRetinaUrl: 'lib/leaflet/images/marker-icon-2x.png',
+		            shadowUrl: 'lib/leaflet/images/marker-shadow.png',
+		            iconSize: [25, 41],
+		            iconAnchor: [12, 41]
+		        });
 		
 		        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		            useCache: true,
-		            crossOrigin: true
+		            crossOrigin: 'anonymous' 
 		        }).addTo(tempMap);
 		
-		        L.marker([lat, lng]).addTo(tempMap);
+		        L.marker([lat, lng], { icon: cleanIcon }).addTo(tempMap);
+		        tempMap.invalidateSize();
 		
 		        let checkCounter = 0;
 		        const checkInterval = setInterval(() => {
-		            const tiles = tempDiv.querySelectorAll('.leaflet-tile');
+		            const tiles = Array.from(tempDiv.querySelectorAll('.leaflet-tile'));
 		            
-		            const allLoaded = tiles.length > 0 && Array.from(tiles).every(tile => 
-		                tile.complete && (tile.src.startsWith('blob:') || tile.src.startsWith('http'))
-		            );
+		            const allLoaded = tiles.length > 0 && tiles.every(tile => tile.complete);
 		
 		            checkCounter++;
 		
 		            if (allLoaded || checkCounter > 50) {
 		                clearInterval(checkInterval);
 		
-		                tempMap.invalidateSize();
 		                setTimeout(() => {
 		                    leafletImage(tempMap, function(err, canvas) {
 		                        if (err) {
-		                            console.error("Leaflet-image fejl:", err);
-		                            document.body.removeChild(tempDiv);
+		                            cleanup();
 		                            reject(err);
 		                            return;
 		                        }
 		                        
-		                        const dataUrl = canvas.toDataURL();
+		                        const dataUrl = canvas.toDataURL('image/png');
 		                        
-		                        tempMap.remove();
-		                        document.body.removeChild(tempDiv);
-		                        
-		                        if (dataUrl.length < 1000) {
-		                            console.warn("Warning: Generated map looks empty.");
+		                        // Sikkerhedstjek: Er billedet for lille (typisk tegn på gennemsigtighed)?
+		                        if (dataUrl.length < 2000) {
+		                            console.warn("Billedet ser tomt ud, prøver igen om lidt...");
+		                            // Man kunne lave et retry her, hvis nødvendigt.
 		                        }
 		                        
+		                        cleanup();
 		                        resolve(dataUrl);
 		                    });
-		                }, 500); 
+		                }, 600);
 		            }
 		        }, 100);
+		
+		        function cleanup() {
+		            tempMap.remove();
+		            if (tempDiv.parentNode) {
+		                document.body.removeChild(tempDiv);
+		            }
+		        }
 		    });
 		}
 				
