@@ -2185,7 +2185,8 @@
 		            cacheName: 'wildly-prepare-trip-cache',
 		            useOnlyCache: !navigator.onLine
 		        }).addTo(tempMap);
-		
+				L.marker([lat, lng]).addTo(tempMap);
+				
 		        // Vi tæller fejl for at opdage, hvis området slet ikke findes i cachen
 		        let errorCount = 0;
 		        baseLayer.on('tileerror', () => { errorCount++; });
