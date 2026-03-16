@@ -2164,10 +2164,20 @@
 		}
 
 		async function fetchStaticMap(lat, lng, zoom) {
-		    return new Promise((resolve, reject) => {
-		        const originalCacheSetting = L.TileLayer.prototype.options.useCache;
-		        L.TileLayer.prototype.options.useCache = false;
+		    // 1. LØSNING: Vi henter den fysiske billedfil og laver den til en lokal Blob.
+		    // Dette fjerner behovet for klamme Base64 strenge i koden.
+		    // Blob-URL'er er fuldstændig immune overfor "?cache=" forurening.
+		    let iconUrl = '';
+		    try {
+		        const iconRes = await fetch('lib/leaflet/images/marker-icon.png');
+		        const iconBlob = await iconRes.blob();
+		        iconUrl = URL.createObjectURL(iconBlob);
+		    } catch (err) {
+		        console.error("Kunne ikke hente marker-ikonet lokalt:", err);
+		        // Fallback hvis alt fejler
+		    }
 		
+		    return new Promise((resolve, reject) => {
 		        const tempDiv = document.createElement('div');
 		        tempDiv.style.width = '500px';
 		        tempDiv.style.height = '300px';
@@ -2186,37 +2196,39 @@
 		            markerZoomAnimation: false
 		        }).setView([lat, lng], zoom);
 		
-		        const staticIcon = L.icon({
-		            iconUrl: 'lib/leaflet/images/marker-icon.png',
-		            iconRetinaUrl: 'lib/leaflet/images/marker-icon-2x.png',
-		            shadowUrl: 'lib/leaflet/images/marker-shadow.png',
+		        // 2. Brug den genererede sikre blob-URL til dit ikon
+		        const safeIcon = L.icon({
+		            iconUrl: iconUrl,
 		            iconSize: [25, 41],
 		            iconAnchor: [12, 41]
 		        });
 		
-		        const marker = L.marker([lat, lng], { icon: staticIcon }).addTo(tempMap);
+		        // 3. Tilføj markøren med vores sikre ikon
+		        L.marker([lat, lng], { icon: safeIcon }).addTo(tempMap);
 		
-		        const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		        // Hent fliserne (her må cache-pluginet gerne blande sig)
+		        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		            useCache: true,
 		            crossOrigin: 'anonymous'
 		        }).addTo(tempMap);
-		
-		        L.TileLayer.prototype.options.useCache = originalCacheSetting;
 		
 		        tempMap.invalidateSize();
 		
 		        let checkCounter = 0;
 		        const checkInterval = setInterval(() => {
-		            const tileElements = tempDiv.querySelectorAll('.leaflet-tile');
-		            const allLoaded = tileElements.length > 0 && Array.from(tileElements).every(t => t.complete);
+		            const tiles = Array.from(tempDiv.querySelectorAll('.leaflet-tile'));
+		            const allLoaded = tiles.length > 0 && tiles.every(t => t.complete);
 		
-		            if (allLoaded || checkCounter > 60) {
+		            if (allLoaded || checkCounter > 50) {
 		                clearInterval(checkInterval);
 		                
+		                // Solid buffer (700ms) til at tegne fra cache/blob til canvas
 		                setTimeout(() => {
 		                    tempMap.invalidateSize();
-		                    
 		                    leafletImage(tempMap, function(err, canvas) {
+		                        // Ryd op i browserens hukommelse
+		                        if (iconUrl) URL.revokeObjectURL(iconUrl);
+		
 		                        if (err) {
 		                            cleanup();
 		                            reject(err);
@@ -2226,7 +2238,7 @@
 		                        cleanup();
 		                        resolve(dataUrl);
 		                    });
-		                }, 500);
+		                }, 700);
 		            }
 		            checkCounter++;
 		        }, 100);
@@ -2237,7 +2249,7 @@
 		        }
 		    });
 		}
-
+		
 		async function syncMissingMaps(targetUid = null) {
 		    if (!userSettings.isPremium) return;
 		
