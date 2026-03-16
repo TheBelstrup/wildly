@@ -2187,21 +2187,13 @@
 		            zoomAnimation: false,
 		            markerZoomAnimation: false
 		        }).setView([lat, lng], zoom);
-		
-		        const cleanIcon = L.icon({
-		            iconUrl: 'lib/leaflet/images/marker-icon.png',
-		            iconRetinaUrl: 'lib/leaflet/images/marker-icon-2x.png',
-		            shadowUrl: 'lib/leaflet/images/marker-shadow.png',
-		            iconSize: [25, 41],
-		            iconAnchor: [12, 41]
-		        });
-		
+				
 		        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		            useCache: true,
 		            crossOrigin: 'anonymous' 
 		        }).addTo(tempMap);
 		
-		        L.marker([lat, lng], { icon: cleanIcon }).addTo(tempMap);
+		        L.marker([lat, lng]).addTo(tempMap);
 		        tempMap.invalidateSize();
 		
 		        let checkCounter = 0;
