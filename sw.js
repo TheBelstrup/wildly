@@ -53,8 +53,8 @@ self.addEventListener('fetch', (event) => {
     }
 
 	// Tjek om anmodningen handler om Leaflet-ikonerne
-    if (url.pathname.includes('marker-icon') || url.pathname.includes('marker-shadow')) {
-        const cleanUrl = url.origin + url.pathname;
+    if (requestUrl.pathname.includes('marker-icon') || requestUrl.pathname.includes('marker-shadow')) {
+        const cleanUrl = requestUrl.origin + requestUrl.pathname;
         const cleanRequest = new Request(cleanUrl, {
             method: event.request.method,
             headers: event.request.headers,
