@@ -1133,12 +1133,12 @@
 		        if (mapContainer != null) mapContainer._leaflet_id = null;
 		
 		        const overviewMap = L.map('overview-map', { zoomControl: false, attributionControl: false });
-		        const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-		            useCache: !!userSettings.isPremium,
-		            crossOrigin: true,
-		            cacheName: 'wildly-prepare-trip-cache',
-		            useOnlyCache: !navigator.onLine // Tvinger den til ikke at prøve at hente nye tiles hvis offline
-		        });
+				const baseLayer = L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				    useCache: !!userSettings.isPremium,
+				    crossOrigin: 'anonymous',
+				    cacheName: 'wildly-prepare-trip-cache',
+				    useOnlyCache: !navigator.onLine
+				});
 		        baseLayer.addTo(overviewMap);
 		
 		        activeMarkers = {}; 
@@ -1372,12 +1372,12 @@
 		        } else {
 		            // Online ELLER i cache: Start Leaflet
 		            map = L.map('map-container').setView([loc.lat, loc.lng], 18); 
-		            const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-		                useCache: !!userSettings.isPremium,
-		                crossOrigin: true, 
-		                cacheName: 'wildly-prepare-trip-cache',
-		                useOnlyCache: !navigator.onLine
-		            });
+					const baseLayer = L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+					    useCache: !!userSettings.isPremium,
+					    crossOrigin: 'anonymous',
+					    cacheName: 'wildly-prepare-trip-cache',
+					    useOnlyCache: !navigator.onLine
+					});
 		            baseLayer.addTo(map);
 					
 					map.whenReady(() => {
@@ -1957,13 +1957,13 @@
 		                const spotMap = L.map('spot-map', {
 		                    dragging: false, scrollWheelZoom: false, doubleClickZoom: false, touchZoom: false, boxZoom: false, keyboard: false, tap: false, zoomControl: false, attributionControl: false
 		                }).setView([spot.lat, spot.lng], 16);
-		
-		                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-		                    useCache: !!userSettings.isPremium, 
-		                    crossOrigin: true, 
-		                    cacheName: 'wildly-prepare-trip-cache',
-		                    useOnlyCache: !navigator.onLine
-		                }).addTo(spotMap);
+
+						L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+							useCache: !!userSettings.isPremium,
+							crossOrigin: 'anonymous',
+							cacheName: 'wildly-prepare-trip-cache',
+							useOnlyCache: !navigator.onLine
+						});
 		
 		                L.marker([spot.lat, spot.lng]).addTo(spotMap);
 		                setTimeout(() => spotMap.invalidateSize(), 200);
@@ -2201,13 +2201,15 @@
 		        }).setView([lat, lng], zoom);
 		
 		        // 3. Konfigurer flise-laget
-		        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-		            useCache: true,
-		            crossOrigin: 'anonymous',
-		            keepBuffer: 99,
-		            updateWhenIdle: false
-		        }).addTo(tempMap);
-		
+				L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				    useCache: true,
+				    crossOrigin: 'anonymous',
+				    cacheName: 'wildly-prepare-trip-cache',
+				    useOnlyCache: !navigator.onLine,
+				    keepBuffer: 99,
+				    updateWhenIdle: false
+				}).addTo(tempMap);	
+
 		        // 4. Tilføj markøren (bruger det rettede ankerpunkt via global CSS/Icon def)
 		        L.marker([lat, lng]).addTo(tempMap);
 		
@@ -2649,11 +2651,12 @@
 			        maxZoom: 18
 			    }).setView([startLat, startLng], 14);
 			
-			    prepareLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			        useCache: true,
-			        crossOrigin: true,
-			        cacheName: 'wildly-prepare-trip-cache', // Husk at matche de andre funktioner!
-			    }).addTo(prepareMap);
+				prepareLayer = L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+					useCache: !!userSettings.isPremium,
+					crossOrigin: 'anonymous',
+					cacheName: 'wildly-prepare-trip-cache',
+					useOnlyCache: !navigator.onLine
+				});
 			
 			    prepareMap.whenReady(() => {
 			        setTimeout(() => prepareMap.invalidateSize(), 100);
@@ -2692,12 +2695,13 @@
 		        await db.destroy();
 		
 		        // 3. Opret laget på ny, så det er klar til det nye download
-		        prepareLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-		            useCache: true,
-		            crossOrigin: true,
-		            cacheName: 'wildly-prepare-trip-cache'
-		        }).addTo(prepareMap);
-		
+		        prepareLayer = L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+					useCache: !!userSettings.isPremium,
+					crossOrigin: 'anonymous',
+					cacheName: 'wildly-prepare-trip-cache',
+					useOnlyCache: !navigator.onLine
+				});
+				
 		    } catch (err) {
 		        console.error("Kunne ikke slette cache:", err);
 		    }
