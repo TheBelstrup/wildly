@@ -2283,7 +2283,7 @@
 		        
 		        if (navigator.onLine || canGenerateOffline) {
 		            try {
-		                const overviewBase64 = await fetchStaticMap(spot.lat, spot.lng, 14);
+		                const overviewBase64 = await fetchStaticMap(spot.lat, spot.lng, 16);
 		                const detailBase64 = await fetchStaticMap(spot.lat, spot.lng, 18); 
 		
 		                await mapStorage.save(spot.uid, 'overview', overviewBase64);
@@ -2445,7 +2445,7 @@
 		        const dist = getDistance(userLat, userLng, spot.lat, spot.lng);
 		        const bearing = calculateBearing(userLat, userLng, spot.lat, spot.lng);
 		        
-		        // Bemærk: Leaflets formel forbliver uændret for basisskalering (zoom 14)
+		        // Bemærk: Leaflets formel forbliver uændret for basisskalering (zoom 16)
 		        const metersPerPxZ14 = (156543.03 * Math.cos(spot.lat * (Math.PI / 180))) / 16384; 
 		        const overviewRange = (metersPerPxZ14 * 200) / 1000; //zoom 14
 		        const detailRange = overviewRange / 16; //zoom 18
@@ -2638,7 +2638,7 @@
 			            startLng = position.coords.longitude;
 			            
 			            if (prepareMap) {
-			                prepareMap.setView([startLat, startLng], 14);
+			                prepareMap.setView([startLat, startLng], 16);
 			            }
 			        }, null, { enableHighAccuracy: true, timeout: 5000 });
 			    }
@@ -2647,16 +2647,16 @@
 			    prepareMap = L.map('prepare-map', {
 			        zoomControl: false,
 			        attributionControl: false,
-			        minZoom: 14,
+			        minZoom: 16,
 			        maxZoom: 18
-			    }).setView([startLat, startLng], 14);
+			    }).setView([startLat, startLng], 16);
 			
 				prepareLayer = L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-					useCache: !!userSettings.isPremium,
-					crossOrigin: 'anonymous',
-					cacheName: 'wildly-prepare-trip-cache',
-					useOnlyCache: !navigator.onLine
-				});
+				    useCache: true,
+				    crossOrigin: 'anonymous',
+				    cacheName: 'wildly-prepare-trip-cache',
+				    useOnlyCache: !navigator.onLine
+				}).addTo(prepareMap);				
 			
 			    prepareMap.whenReady(() => {
 			        setTimeout(() => prepareMap.invalidateSize(), 100);
@@ -2767,7 +2767,7 @@
 		        });
 		
 		        // Start seeding
-		        prepareLayer.seed(bounds, 14, 18);
+		        prepareLayer.seed(bounds, 16, 18);
 		
 		    } catch (e) {
 		        overlay.classList.add('hidden');
