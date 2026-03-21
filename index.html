@@ -2647,9 +2647,9 @@
 			    prepareMap = L.map('prepare-map', {
 			        zoomControl: false,
 			        attributionControl: false,
-			        minZoom: 16,
+			        minZoom: 14,
 			        maxZoom: 18
-			    }).setView([startLat, startLng], 16);
+			    }).setView([startLat, startLng], 14);
 			
 				prepareLayer = L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 				    useCache: true,
@@ -2708,69 +2708,73 @@
 		}
 		
 		async function startAreaDownload() {
-		    const bounds = prepareMap.getBounds();
-		    const overlay = document.getElementById('offline-download-overlay');
-		    const progressBar = document.getElementById('download-progress-bar');
-		    const progressText = document.getElementById('download-progress-text');
-		
-		    overlay.classList.remove('hidden');
-		    progressBar.style.width = '0%';
-		    progressText.innerText = '0%';
-		
 		    try {
-		        await clearOfflineMapCache();
+		        // 1. Beregn området baseret på zoom 15 (uanset hvad brugeren ser)
+		        const center = prepareMap.getCenter();
+		        const targetZoomArea = 15; // Vi tager et "zoom 15" stort område
+		        const size = prepareMap.getSize(); // Størrelsen på kort-containeren i pixels
+		        
+		        // Beregn de geografiske hjørner som om vi var i zoom 15
+		        const swPoint = prepareMap.project(center, targetZoomArea).subtract(size.divideBy(2));
+		        const nePoint = prepareMap.project(center, targetZoomArea).add(size.divideBy(2));
+		        
+		        const bounds = L.latLngBounds(
+		            prepareMap.unproject(swPoint, targetZoomArea),
+		            prepareMap.unproject(nePoint, targetZoomArea)
+		        );
 		
-		        // Vi bruger 'seedprogress' eventet og dine specifikke objekt-nøgler
-		        prepareLayer.on('seedprogress', function(e) {
-		            // Baseret på dit objekt: {queueLength: 350, remainingLength: 346}
-		            const total = e.queueLength || 0;
-		            const remaining = e.remainingLength || 0;
-		            
-		            if (total > 0) {
-		                const processed = total - remaining;
-		                const percent = Math.round((processed / total) * 100);
-		                const safePercent = Math.max(0, Math.min(percent, 100));
+		        const overlay = document.getElementById('offline-download-overlay');
+		        const progressBar = document.getElementById('download-progress-bar');
+		        const progressText = document.getElementById('download-progress-text');
 		
-		                requestAnimationFrame(() => {
-		                    if (progressBar) progressBar.style.width = safePercent + '%';
-		                    if (progressText) progressText.innerText = safePercent + '%';
-		                });
-		            }
+		        overlay.classList.remove('hidden');
+		        progressBar.style.width = '0%';
+		        progressText.innerText = '0%';
+		
+		        // 2. Progress-lytter med korrekt matematik
+		        prepareLayer.on('seedprogress', function(seedData) {
+		            const total = seedData.downloaded + seedData.remaining;
+		            const percent = Math.floor((seedData.downloaded / total) * 100);
+		            progressBar.style.width = percent + '%';
+		            progressText.innerText = percent + '%';
 		        });
 		
 		        prepareLayer.on('seedend', function() {
+		            // Gem de faktiske grænser for det downloadede område
+		            const cacheBounds = {
+		                north: bounds.getNorth(),
+		                south: bounds.getSouth(),
+		                east: bounds.getEast(),
+		                west: bounds.getWest()
+		            };
+		            localStorage.setItem('wildly_offline_bounds', JSON.stringify(cacheBounds));
+		            localStorage.setItem('wildly_has_offline_map', 'true');
+		            
 		            progressBar.style.width = '100%';
 		            progressText.innerText = '100%';
 		
 		            setTimeout(() => {
-						const currentBounds = prepareMap.getBounds();
-		                const cacheBounds = {
-		                    north: currentBounds.getNorth(),
-		                    south: currentBounds.getSouth(),
-		                    east: currentBounds.getEast(),
-		                    west: currentBounds.getWest()
-		                };
-		                localStorage.setItem('wildly_offline_bounds', JSON.stringify(cacheBounds));
-						localStorage.setItem('wildly_has_offline_map', 'true');
 		                overlay.classList.add('hidden');
 		                updateCacheStatusUI();
-		                alert("Kortet er gemt!");
-		                
+		                alert("Kortet er gemt! Området er nu tilgængeligt offline.");
 		                prepareLayer.off('seedprogress seedend seederror');
 		            }, 500);
 		        });
 		
 		        prepareLayer.on('seederror', function(err) {
 		            overlay.classList.add('hidden');
-		            alert("Der opstod en fejl under download.");
+		            alert("Fejl ved download. Prøv igen.");
 		            prepareLayer.off('seedprogress seedend seederror');
 		        });
 		
-		        // Start seeding
-		        prepareLayer.seed(bounds, 16, 18);
+		        // 3. Start download: Vi tvinger den til KUN at hente zoom 16
+		        // Dette er lynhurtigt og forhindrer at kortet "hænger"
+		        prepareLayer.seed(bounds, 16, 16); 
 		
 		    } catch (e) {
-		        overlay.classList.add('hidden');
+		        if(document.getElementById('offline-download-overlay')) {
+		            document.getElementById('offline-download-overlay').classList.add('hidden');
+		        }
 		        console.error("Download fejl:", e);
 		    }
 		}
