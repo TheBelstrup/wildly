@@ -347,6 +347,7 @@
 		let radarMapOverview = null;
 		let prepareMap = null;
 		let prepareLayer = null;
+		let downloadAreaMarker;
 		let currentEditorAccuracy = 0;
 		delete L.Icon.Default.prototype._getIconUrl;
 		L.Icon.Default.mergeOptions({
@@ -397,7 +398,7 @@
 		const mapStorage = {
 		    dbName: "WildlyDB",
 		    storeName: "maps", // En separat skuffe til kort		
-		    // Gem kort (type er enten 'overview' eller 'detail')
+		    // Gem kort (type er enten 'overview', 'detail' eller 'offline17')
 		    async save(spotUid, type, base64Data) {
 				const db = await getDB();
 		        return new Promise((resolve, reject) => {
@@ -2283,11 +2284,19 @@
 		        
 		        if (navigator.onLine || canGenerateOffline) {
 		            try {
-		                const overviewBase64 = await fetchStaticMap(spot.lat, spot.lng, 16);
-		                const detailBase64 = await fetchStaticMap(spot.lat, spot.lng, 18); 
-		
-		                await mapStorage.save(spot.uid, 'overview', overviewBase64);
-		                await mapStorage.save(spot.uid, 'detail', detailBase64);
+						if (navigator.onLine) {
+				            // ONLINE: Hent den fulde radar-pakke (16 og 18)
+				            if (!spot.overviewMap || !spot.detailMap) {
+								const overviewBase64 = await fetchStaticMap(spot.lat, spot.lng, 16);
+				                const detailBase64 = await fetchStaticMap(spot.lat, spot.lng, 18); 
+				                await mapStorage.save(spot.uid, 'overview', overviewBase64);
+				                await mapStorage.save(spot.uid, 'detail', detailBase64);
+				            }
+				        } else {
+				                const offline17Base64 = await fetchStaticMap(spot.lat, spot.lng, 17); 
+				                await mapStorage.save(spot.uid, 'offline17', offline17Base64);
+				            }
+				        }
 		                
 		                const originalSpot = allSpots.find(s => s.uid === spot.uid);
 		                if (originalSpot) {
@@ -2373,26 +2382,36 @@
 		    return start + (delta * factor);
 		}
 		
-		async function startRadarLogic(spot) {            
+		async function startRadarLogic(spot) {
 		    const marker = document.getElementById('radar-user-marker');
 		    const arrow = document.getElementById('radar-user-arrow');
 		    const distLabel = document.getElementById('radar-distance');
 		    const mapImg = document.getElementById('radar-map-img');
 		    const instruction = document.getElementById('radar-instruction');
-		    
-		    instruction.innerText = ui.radar_fetching_map;
-		    await syncMissingMaps(spot.uid);
 		
-		    radarMapDetail = await mapStorage.get(spot.uid, 'detail');
-		    radarMapOverview = await mapStorage.get(spot.uid, 'overview');
-		    
-		    if (!radarMapDetail || !radarMapOverview) {
+		    instruction.innerText = ui.radar_fetching_map;
+		
+		    // 1. Forsøg at synkronisere/hente manglende kort (hvis online)
+			if (navigator.onLine) {
+			    await syncMissingMaps(spot.uid);
+			}
+				
+		    // 2. Hent korttyperne fra din storage
+		    const map18 = await mapStorage.get(spot.uid, 'detail'); 
+		    const map16 = await mapStorage.get(spot.uid, 'overview');
+		    const map17 = await mapStorage.get(spot.uid, 'offline17');
+		
+		    // Tjek hvilken "mode" vi kører i
+		    const hasFullSet = map18 && map16;
+		    const hasOfflineFallback = !!map17;
+		
+		    if (!hasFullSet && !hasOfflineFallback) {
 		        instruction.innerText = ui.radar_not_available_offline;
 		    } else {
 		        instruction.innerText = ui.radar_waiting_for_gps;
 		    }
-		    
-		    // --- JITTER FILTER SETUP ---
+		
+		    // --- JITTER FILTER SETUP (SMOOTHING) ---
 		    isRadarRunning = true;
 		    let currentX = 0, targetX = 0;
 		    let currentY = 0, targetY = 0;
@@ -2400,11 +2419,10 @@
 		    let firstGps = true;
 		    let firstCompass = true;
 		
-		    // Browserens tegneloop
 		    function animateRadar() {
-		        if (!isRadarRunning) return; 
+		        if (!isRadarRunning) return;
 		
-		        const smoothFactor = 0.08; 
+		        const smoothFactor = 0.08; // Juster for mere/mindre "forsinkelse"
 		
 		        currentHeading = lerpAngle(currentHeading, targetHeading, smoothFactor);
 		        arrow.style.transform = `rotate(${currentHeading}deg)`;
@@ -2416,57 +2434,68 @@
 		
 		        requestAnimationFrame(animateRadar);
 		    }
-		    
 		    requestAnimationFrame(animateRadar);
 		
-		    // --- SENSOR LYTTERE ---
+		    // --- KOMPAS / ORIENTERING ---
 		    if (window.DeviceOrientationEvent) {
-		        window.addEventListener('deviceorientationabsolute', (e) => {
+		        const handleOrientation = (e) => {
 		            let heading = 0;
 		            if (e.webkitCompassHeading !== undefined) {
 		                heading = e.webkitCompassHeading;
 		            } else if (e.alpha !== null) {
-		                heading = 360 - e.alpha; 
+		                heading = 360 - e.alpha;
 		            }
-		            
 		            targetHeading = heading;
-		
 		            if (firstCompass) {
 		                currentHeading = targetHeading;
 		                firstCompass = false;
 		            }
-		        }, true);
+		        };
+		        window.addEventListener('deviceorientationabsolute', handleOrientation, true);
 		    }
 		
+		    // --- GPS LOGIK ---
 		    radarWatchId = navigator.geolocation.watchPosition((pos) => {
 		        const userLat = pos.coords.latitude;
 		        const userLng = pos.coords.longitude;
-		        
+		
 		        const dist = getDistance(userLat, userLng, spot.lat, spot.lng);
 		        const bearing = calculateBearing(userLat, userLng, spot.lat, spot.lng);
-		        
-		        // Bemærk: Leaflets formel forbliver uændret for basisskalering (zoom 16)
-				const metersPerPxZ16 = (156543.03 * Math.cos(spot.lat * (Math.PI / 180))) / 65536; 
-				const overviewRange = (metersPerPxZ16 * 200) / 1000;
-				const detailRange = overviewRange / 4;
-				
+		
+		        // --- BEREGN RANGES (AFSTANDE PÅ KORTET) ---
+		        const metersPerPxZ16 = (156543.03 * Math.cos(spot.lat * (Math.PI / 180))) / 65536;
+		        const range16 = (metersPerPxZ16 * 200) / 1000; // Zoom 16 rækkevidde i km
+		        const range18 = range16 / 4;                  // Zoom 18 er 4x tættere på
+		        const range17 = range16 / 2;                  // Zoom 17 er 2x tættere på
+		
 		        distLabel.innerText = dist < 1 ? Math.round(dist * 1000) + ' m' : dist.toFixed(1) + ' km';
 		
 		        let maxVisualRange;
 		
-		        if (dist <= detailRange) { 
-		            if (radarMapDetail && mapImg.src !== radarMapDetail) mapImg.src = radarMapDetail;
-		            instruction.innerText = ui.radar_close;
-		            maxVisualRange = detailRange;
-		        } else {
-		            if (radarMapOverview && mapImg.src !== radarMapOverview) mapImg.src = radarMapOverview;
-		            instruction.innerText = ui.radar_walk_towards_middle;
-		            maxVisualRange = overviewRange;
+		        // --- KORT-VALG LOGIK ---
+		        if (hasFullSet) {
+		            // Standard mode: Skift mellem 16 og 18
+		            if (dist <= range18) {
+		                if (mapImg.src !== map18) mapImg.src = map18;
+		                instruction.innerText = ui.radar_close;
+		                maxVisualRange = range18;
+		            } else {
+		                if (mapImg.src !== map16) mapImg.src = map16;
+		                instruction.innerText = ui.radar_walk_towards_middle;
+		                maxVisualRange = range16;
+		            }
+		        } else if (hasOfflineFallback) {
+		            // Offline mode: Brug kun Zoom 17
+		            if (mapImg.src !== map17) mapImg.src = map17;
+		            instruction.innerText = dist <= range17 ? ui.radar_close : ui.radar_walk_towards_middle;
+		            maxVisualRange = range17;
 		        }
 		
-		        const radarRadius = 144; 
+		        // --- POSITIONERING PÅ RADAR-CIRKLEN ---
+		        const radarRadius = 144; // Pixels fra midten til kanten af radaren
 		        let visualDist = (dist / maxVisualRange) * radarRadius;
-		        
+		
+		        // Hold markøren inden for radaren (med 20px buffer til kanten)
 		        if (visualDist > radarRadius - 20) visualDist = radarRadius - 20;
 		
 		        targetX = -Math.sin(bearing * (Math.PI / 180)) * visualDist;
@@ -2563,6 +2592,36 @@
 		    document.body.insertAdjacentHTML('beforeend', overlayHTML);
 		}
 
+		function updateDownloadArea() {
+		    if (!prepareMap) return;
+		    
+		    const center = prepareMap.getCenter();
+		    const mapSize = prepareMap.getSize(); // Henter containerens størrelse i pixels
+		    
+		    // Beregn hjørnerne for et zoom 15 område baseret på nuværende center
+		    const zoom15 = 15;
+		    const centerPoint = prepareMap.project(center, zoom15);
+		    const swPoint = centerPoint.subtract(mapSize.divideBy(2));
+		    const nePoint = centerPoint.add(mapSize.divideBy(2));
+		    
+		    const bounds = L.latLngBounds(
+		        prepareMap.unproject(swPoint, zoom15),
+		        prepareMap.unproject(nePoint, zoom15)
+		    );
+		
+		    if (!downloadAreaMarker) {
+		        downloadAreaMarker = L.rectangle(bounds, {
+		            color: "#10b981",
+		            weight: 2,
+		            fillOpacity: 0.1,
+		            interactive: false
+		        }).addTo(prepareMap);
+		    } else {
+		        downloadAreaMarker.setBounds(bounds);
+		    }
+		    return bounds;
+		}
+
 		async function renderPrepareTrip() {
 		    ensureOfflineOverlay(); // Sikrer at vi kan vise progress bar
 			const container = document.getElementById('app-content');
@@ -2650,14 +2709,17 @@
 			        minZoom: 14,
 			        maxZoom: 18
 			    }).setView([startLat, startLng], 14);
-			
+
 				prepareLayer = L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 				    useCache: true,
 				    crossOrigin: 'anonymous',
 				    cacheName: 'wildly-prepare-trip-cache',
 				    useOnlyCache: !navigator.onLine
 				}).addTo(prepareMap);				
-			
+
+				prepareMap.on('move zoom', updateDownloadArea);
+				updateDownloadArea();
+								
 			    prepareMap.whenReady(() => {
 			        setTimeout(() => prepareMap.invalidateSize(), 100);
 			    });
@@ -2710,19 +2772,7 @@
 		async function startAreaDownload() {
 		    try {
 		        // 1. Beregn området baseret på zoom 15 (uanset hvad brugeren ser)
-		        const center = prepareMap.getCenter();
-		        const targetZoomArea = 15; // Vi tager et "zoom 15" stort område
-		        const size = prepareMap.getSize(); // Størrelsen på kort-containeren i pixels
-		        
-		        // Beregn de geografiske hjørner som om vi var i zoom 15
-		        const swPoint = prepareMap.project(center, targetZoomArea).subtract(size.divideBy(2));
-		        const nePoint = prepareMap.project(center, targetZoomArea).add(size.divideBy(2));
-		        
-		        const bounds = L.latLngBounds(
-		            prepareMap.unproject(swPoint, targetZoomArea),
-		            prepareMap.unproject(nePoint, targetZoomArea)
-		        );
-		
+		        const bounds = updateDownloadArea();
 		        const overlay = document.getElementById('offline-download-overlay');
 		        const progressBar = document.getElementById('download-progress-bar');
 		        const progressText = document.getElementById('download-progress-text');
@@ -2769,8 +2819,7 @@
 		
 		        // 3. Start download: Vi tvinger den til KUN at hente zoom 16
 		        // Dette er lynhurtigt og forhindrer at kortet "hænger"
-		        prepareLayer.seed(bounds, 16, 16); 
-		
+		        prepareLayer.seed(bounds, 17, 17); 		
 		    } catch (e) {
 		        if(document.getElementById('offline-download-overlay')) {
 		            document.getElementById('offline-download-overlay').classList.add('hidden');
