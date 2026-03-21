@@ -2446,10 +2446,10 @@
 		        const bearing = calculateBearing(userLat, userLng, spot.lat, spot.lng);
 		        
 		        // Bemærk: Leaflets formel forbliver uændret for basisskalering (zoom 16)
-		        const metersPerPxZ14 = (156543.03 * Math.cos(spot.lat * (Math.PI / 180))) / 16384; 
-		        const overviewRange = (metersPerPxZ14 * 200) / 1000; //zoom 14
-		        const detailRange = overviewRange / 16; //zoom 18
-		
+				const metersPerPxZ16 = (156543.03 * Math.cos(spot.lat * (Math.PI / 180))) / 65536; 
+				const overviewRange = (metersPerPxZ16 * 200) / 1000;
+				const detailRange = overviewRange / 4;
+				
 		        distLabel.innerText = dist < 1 ? Math.round(dist * 1000) + ' m' : dist.toFixed(1) + ' km';
 		
 		        let maxVisualRange;
