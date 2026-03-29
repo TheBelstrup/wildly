@@ -2303,7 +2303,7 @@
 				
 				            if (!has16 && !has18 && !has17) {
 				                const img17 = await fetchStaticMap(spot.lat, spot.lng, 17);
-				                if (img17) await mapStorage.save(spotUid, 'offline17', img17);
+				                if (img17) await mapStorage.save(spot.uid, 'offline17', img17);
 				            }
 				        }
 		                
@@ -2497,8 +2497,8 @@
 		            // Offline mode: Brug kun Zoom 17
 		            if (mapImg.src !== map17) mapImg.src = map17;
 		            instruction.innerText = dist <= range17 ? ui.radar_close : ui.radar_walk_towards_middle;
-		            maxVisualRange = range17;
-		        }
+		            maxVisualRange = range17;					
+				}
 		
 		        // --- POSITIONERING PÅ RADAR-CIRKLEN ---
 		        const radarRadius = 144; // Pixels fra midten til kanten af radaren
@@ -2726,13 +2726,17 @@
 				    cacheName: 'wildly-prepare-trip-cache',
 				    useOnlyCache: !navigator.onLine
 				}).addTo(prepareMap);				
-
-				prepareMap.on('move zoom', updateDownloadArea);
-				updateDownloadArea();
+				downloadAreaMarker = null;
 				
-			    prepareMap.whenReady(() => {
-			        setTimeout(() => prepareMap.invalidateSize(), 100);
+				prepareMap.on('move zoom', () => {
+			        updateDownloadArea();
 			    });
+			
+			    // Giv Leaflet et øjeblik til at beregne størrelsen før vi tegner firkanten første gang
+			    setTimeout(() => {
+			        prepareMap.invalidateSize();
+			        updateDownloadArea();
+			    }, 200);
 			
 			    updateCacheStatusUI();
 			}, 50);
