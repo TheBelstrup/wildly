@@ -2293,8 +2293,13 @@
 				                await mapStorage.save(spot.uid, 'detail', detailBase64);
 				            }
 				        } else {
-				                const offline17Base64 = await fetchStaticMap(spot.lat, spot.lng, 17); 
-				                await mapStorage.save(spot.uid, 'offline17', offline17Base64);
+							const has16 = await mapStorage.get(spotUid, 'overview');
+				            const has18 = await mapStorage.get(spotUid, 'detail');
+				            const has17 = await mapStorage.get(spotUid, 'offline17');
+				
+				            if (!has16 && !has18 && !has17) {
+				                const img17 = await fetchStaticMap(spot.lat, spot.lng, 17);
+				                if (img17) await mapStorage.save(spotUid, 'offline17', img17);
 				            }
 				        }
 		                
@@ -2597,10 +2602,11 @@
 		    
 		    const center = prepareMap.getCenter();
 		    const mapSize = prepareMap.getSize(); // Henter containerens størrelse i pixels
-		    
+		    const targetZoom = 15; // Vi simulerer altid et Zoom 15 område
+
 		    // Beregn hjørnerne for et zoom 15 område baseret på nuværende center
 		    const zoom15 = 15;
-		    const centerPoint = prepareMap.project(center, zoom15);
+		    const centerPoint = prepareMap.project(center, targetZoom);
 		    const swPoint = centerPoint.subtract(mapSize.divideBy(2));
 		    const nePoint = centerPoint.add(mapSize.divideBy(2));
 		    
@@ -2608,7 +2614,7 @@
 		        prepareMap.unproject(swPoint, zoom15),
 		        prepareMap.unproject(nePoint, zoom15)
 		    );
-		
+			
 		    if (!downloadAreaMarker) {
 		        downloadAreaMarker = L.rectangle(bounds, {
 		            color: "#10b981",
@@ -2719,7 +2725,7 @@
 
 				prepareMap.on('move zoom', updateDownloadArea);
 				updateDownloadArea();
-								
+				
 			    prepareMap.whenReady(() => {
 			        setTimeout(() => prepareMap.invalidateSize(), 100);
 			    });
