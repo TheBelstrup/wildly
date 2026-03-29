@@ -1840,8 +1840,14 @@
 		
 		    let staticMapBase64 = null;
 		    if (userSettings.isPremium) {
-		        staticMapBase64 = await mapStorage.get(spotUid, 'detail');
-		    }
+				staticMapBase64 = await mapStorage.get(spotUid, 'detail');
+		        if (!staticMapBase64) {
+		            staticMapBase64 = await mapStorage.get(spotUid, 'offline17');
+		        }
+		        if (!staticMapBase64) {
+		            staticMapBase64 = await mapStorage.get(spotUid, 'overview');
+		        }
+			}
 		
 		    // --- NY KORT OG KNAP LOGIK ---
 		    const isMapAvailable = isLocationInOfflineCache(lat, lng);
@@ -2286,16 +2292,14 @@
 		            try {
 						if (navigator.onLine) {
 				            // ONLINE: Hent den fulde radar-pakke (16 og 18)
-				            if (!spot.overviewMap || !spot.detailMap) {
-								const overviewBase64 = await fetchStaticMap(spot.lat, spot.lng, 16);
-				                const detailBase64 = await fetchStaticMap(spot.lat, spot.lng, 18); 
-				                await mapStorage.save(spot.uid, 'overview', overviewBase64);
-				                await mapStorage.save(spot.uid, 'detail', detailBase64);
-				            }
+							const overviewBase64 = await fetchStaticMap(spot.lat, spot.lng, 16);
+							const detailBase64 = await fetchStaticMap(spot.lat, spot.lng, 18); 
+							await mapStorage.save(spot.uid, 'overview', overviewBase64);
+							await mapStorage.save(spot.uid, 'detail', detailBase64);
 				        } else {
-							const has16 = await mapStorage.get(spotUid, 'overview');
-				            const has18 = await mapStorage.get(spotUid, 'detail');
-				            const has17 = await mapStorage.get(spotUid, 'offline17');
+							const has16 = await mapStorage.get(spot.uid, 'overview');
+				            const has18 = await mapStorage.get(spot.uid, 'detail');
+				            const has17 = await mapStorage.get(spot.uid, 'offline17');
 				
 				            if (!has16 && !has18 && !has17) {
 				                const img17 = await fetchStaticMap(spot.lat, spot.lng, 17);
