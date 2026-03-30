@@ -2275,9 +2275,7 @@
 		    });
 		}
 		
-		async function await mapStorage.delete(spotUid, 'overview');
-            await mapStorage.delete(spotUid, 'detail');
-            await mapStorage.delete(spotUid, 'offline17');(targetUid = null) {
+		async function syncMissingMaps(targetUid = null) {
 		    if (!userSettings.isPremium) return;
 		
 		    let allSpots = JSON.parse(localStorage.getItem('mySpots')) || [];
