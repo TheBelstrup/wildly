@@ -2593,33 +2593,43 @@
 		    if (!prepareMap) return;
 		    
 		    const center = prepareMap.getCenter();
-		    const mapSize = prepareMap.getSize(); // Henter containerens størrelse i pixels
-		    const targetZoom = 14; // Vi simulerer altid et Zoom 15 område
-
-		    // Beregn hjørnerne for et zoom 15 område baseret på nuværende center
-		    const zoom15 = 15;
-		    const centerPoint = prepareMap.project(center, targetZoom);
-		    const swPoint = centerPoint.subtract(mapSize.divideBy(2));
-		    const nePoint = centerPoint.add(mapSize.divideBy(2));
+		    const mapSize = prepareMap.getSize(); 
+		    const currentZoom = prepareMap.getZoom(); // Find ud af hvor brugeren er nu
+		    const downloadZoomLevel = 14; // Det område vi ønsker at dække (Zoom 14)
+		
+		    // 1. Find ud af hvor mange pixels skærmen svarer til i "download-skalaen" (Zoom 14)
+		    // Vi bruger forholdet mellem nuværende zoom og target zoom (2^forskel)
+		    const scaleFactor = Math.pow(2, downloadZoomLevel - currentZoom);
+		    
+		    const targetWidth = mapSize.x * scaleFactor;
+		    const targetHeight = mapSize.y * scaleFactor;
+		
+		    // 2. Beregn bounds i nuværende zoom-skala, så firkanten skalerer med kortet
+		    const centerPoint = prepareMap.project(center, currentZoom);
+		    const swPoint = centerPoint.subtract([targetWidth / 2, targetHeight / 2]);
+		    const nePoint = centerPoint.add([targetWidth / 2, targetHeight / 2]);
 		    
 		    const bounds = L.latLngBounds(
-		        prepareMap.unproject(swPoint, zoom15),
-		        prepareMap.unproject(nePoint, zoom15)
+		        prepareMap.unproject(swPoint, currentZoom),
+		        prepareMap.unproject(nePoint, currentZoom)
 		    );
-			
+		    
+		    // 3. Tegn eller opdater firkanten
 		    if (!downloadAreaMarker) {
 		        downloadAreaMarker = L.rectangle(bounds, {
 		            color: "#10b981",
 		            weight: 2,
 		            fillOpacity: 0.1,
+		            dashArray: "5, 10",
 		            interactive: false
 		        }).addTo(prepareMap);
 		    } else {
 		        downloadAreaMarker.setBounds(bounds);
 		    }
+		    
 		    return bounds;
 		}
-
+		
 		async function renderPrepareTrip() {
 		    ensureOfflineOverlay(); // Sikrer at vi kan vise progress bar
 			const container = document.getElementById('app-content');
@@ -2704,7 +2714,7 @@
 			    prepareMap = L.map('prepare-map', {
 			        zoomControl: false,
 			        attributionControl: false,
-			        minZoom: 13,
+			        minZoom: 12,
 			        maxZoom: 18
 			    }).setView([startLat, startLng], 14);
 
