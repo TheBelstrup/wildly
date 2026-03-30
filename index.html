@@ -2598,9 +2598,8 @@
 		    const downloadZoomLevel = 14; // Det område vi ønsker at dække (Zoom 14)
 		
 		    // 1. Find ud af hvor mange pixels skærmen svarer til i "download-skalaen" (Zoom 14)
-		    // Vi bruger forholdet mellem nuværende zoom og target zoom (2^forskel)
-		    const scaleFactor = Math.pow(2, downloadZoomLevel - currentZoom);
-		    
+			const scaleFactor = Math.pow(2, currentZoom - downloadAreaZoom);
+			
 		    const targetWidth = mapSize.x * scaleFactor;
 		    const targetHeight = mapSize.y * scaleFactor;
 		
@@ -2651,11 +2650,6 @@
 		
 		                <div class="relative flex-grow bg-gray-200">
 		                    <div id="prepare-map" class="w-full h-full"></div>
-		                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-[1000]">
-		                        <div class="w-64 h-64 border-2 border-green-500 rounded-3xl bg-green-500/5 shadow-[0_0_0_9999px_rgba(0,0,0,0.3)]">
-		                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 border border-green-500 rounded-full"></div>
-		                        </div>
-		                    </div>
 		                </div>
 		
 		                <div class="bg-white p-6 pb-safe border-t z-10">
