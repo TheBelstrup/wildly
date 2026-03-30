@@ -2594,7 +2594,7 @@
 		    
 		    const center = prepareMap.getCenter();
 		    const mapSize = prepareMap.getSize(); // Henter containerens størrelse i pixels
-		    const targetZoom = 15; // Vi simulerer altid et Zoom 15 område
+		    const targetZoom = 14; // Vi simulerer altid et Zoom 15 område
 
 		    // Beregn hjørnerne for et zoom 15 område baseret på nuværende center
 		    const zoom15 = 15;
@@ -2773,7 +2773,7 @@
 		
 		async function startAreaDownload() {
 		    try {
-		        // 1. Beregn området baseret på zoom 15 (uanset hvad brugeren ser)
+		        // 1. Beregn området baseret på zoom 14 (uanset hvad brugeren ser)
 		        const bounds = updateDownloadArea();
 		        const overlay = document.getElementById('offline-download-overlay');
 		        const progressBar = document.getElementById('download-progress-bar');
