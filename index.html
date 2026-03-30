@@ -430,6 +430,7 @@
 			    // Slet begge billedtyper tilknyttet dette spot
 			    store.delete(`overview_${spotUid}`);
 			    store.delete(`detail_${spotUid}`);
+			    store.delete(`offline17_${spotUid}`);
 			
 			    return new Promise((resolve, reject) => {
 			        tx.oncomplete = () => {
@@ -1519,9 +1520,7 @@
 		            spots[index].lng = finalLng;
 		            spots[index].mapsSynced = false;
 		        }
-				await mapStorage.delete(spotUid, 'overview');
-	            await mapStorage.delete(spotUid, 'detail');
-	            await mapStorage.delete(spotUid, 'offline17');				
+				await mapStorage.delete(spotUid);
 				window.editingSpotUid = null; 
 		    } else {
 		        spotUid = `spot_${crypto.randomUUID()}`;
