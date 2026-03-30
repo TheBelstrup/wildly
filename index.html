@@ -1514,7 +1514,10 @@
 		            spots[index].lng = finalLng;
 		            spots[index].mapsSynced = false;
 		        }
-		        window.editingSpotUid = null; 
+				await mapStorage.delete(spotUid, 'overview');
+	            await mapStorage.delete(spotUid, 'detail');
+	            await mapStorage.delete(spotUid, 'offline17');				
+				window.editingSpotUid = null; 
 		    } else {
 		        spotUid = `spot_${crypto.randomUUID()}`;
 		        const newDiscovery = { 
@@ -2272,7 +2275,9 @@
 		    });
 		}
 		
-		async function syncMissingMaps(targetUid = null) {
+		async function await mapStorage.delete(spotUid, 'overview');
+            await mapStorage.delete(spotUid, 'detail');
+            await mapStorage.delete(spotUid, 'offline17');(targetUid = null) {
 		    if (!userSettings.isPremium) return;
 		
 		    let allSpots = JSON.parse(localStorage.getItem('mySpots')) || [];
@@ -2527,7 +2532,7 @@
 		    container.innerHTML = `
 		        <div class="flex flex-col items-center justify-between min-h-[80vh] p-6 fade-in">
 		            <div class="text-center w-full">
-		                <h2 class="text-2xl font-black text-stone-900 uppercase italic tracking-tighter mt-12">${spot.name}</h2>
+		                <h2 class="text-2xl font-black text-stone-900 uppercase italic tracking-tighter mt-12">${database[spot.resId].name}</h2>
 		                <p class="text-[10px] text-emerald-600 font-bold uppercase tracking-widest">Radar Navigering</p>
 		            </div>
 		
