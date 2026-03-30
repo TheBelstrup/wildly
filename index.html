@@ -2801,8 +2801,16 @@
 		
 		        // 2. Progress-lytter med korrekt matematik
 		        prepareLayer.on('seedprogress', function(seedData) {
-		            const total = seedData.downloaded + seedData.remaining;
-		            const percent = Math.floor((seedData.downloaded / total) * 100);
+					const downloaded = seedData.downloaded || 0;
+			        const remaining = seedData.remaining || 0;
+			        const total = downloaded + remaining;
+
+					if (total > 0) {
+			            const percent = Math.floor((downloaded / total) * 100);
+			        } else {
+			            const percent = 0;
+			        }
+					
 		            progressBar.style.width = percent + '%';
 		            progressText.innerText = percent + '%';
 		        });
