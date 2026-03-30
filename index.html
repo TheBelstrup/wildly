@@ -2196,14 +2196,13 @@
 		    return new Promise((resolve, reject) => {
 		        // 1. Opret containeren (skjult for brugeren, men synlig for browseren)
 		        const tempDiv = document.createElement('div');
-		        tempDiv.style.width = '500px';
+				tempDiv.style.width = '500px';
 		        tempDiv.style.height = '300px';
-		        tempDiv.style.position = 'fixed';
-		        tempDiv.style.left = '-1000px'; 
+		        tempDiv.style.position = 'absolute'; 
+		        tempDiv.style.left = '0'; 
 		        tempDiv.style.top = '0';
-		        tempDiv.style.zIndex = '-1000';
-		        tempDiv.style.opacity = '0.01';
-		        document.body.appendChild(tempDiv);
+		        tempDiv.style.zIndex = '-9999';
+				document.body.appendChild(tempDiv);
 		
 		        // 2. Initialiser kortet uden animationer (vigtigt for screenshots)
 		        const tempMap = L.map(tempDiv, {
@@ -2229,46 +2228,58 @@
 		
 		        // 5. Tving layout-beregning
 		        tempMap.invalidateSize({ animate: false });
+				let isLayerLoaded = false;
+		        let isMapReady = false;
 		
-		        let checkCounter = 0;
-		        const checkInterval = setInterval(() => {
-		            const tiles = Array.from(tempDiv.querySelectorAll('.leaflet-tile'));
-		            
-		            // Tjekker om alle fliser er fuldt indlæst og har indhold (naturalWidth > 0)
-		            const allLoaded = tiles.length > 0 && tiles.every(t => t.complete && t.naturalWidth > 0);
+		        function attemptScreenshot() {
+		            if (!isLayerLoaded || !isMapReady) return;
 		
-		            if (allLoaded || checkCounter > 60) { // Timeout efter 6 sekunder
-		                clearInterval(checkInterval);
-		                
-		                // Giv PouchDB/GPU'en et øjeblik til at færdiggøre "painting"
-		                setTimeout(() => {
-		                    // En sidste opdatering af størrelsen for en sikkerheds skyld
-		                    tempMap.invalidateSize({ animate: false });
+		            // Giv browserens rendering engine et øjeblik til at male base64-billederne fysisk
+		            setTimeout(() => {
+		                tempMap.invalidateSize({ animate: false });
 		
-		                    leafletImage(tempMap, function(err, canvas) {
-		                        if (err) {
-		                            console.error("Fejl ved generering af kort-billede:", err);
-		                            cleanup();
-		                            reject(err);
-		                            return;
-		                        }
-		                        
-		                        try {
-		                            const dataUrl = canvas.toDataURL('image/png');
-		                            cleanup();
-		                            resolve(dataUrl);
-		                        } catch (e) {
-		                            cleanup();
-		                            reject(e);
-		                        }
-		                    });
-		                }, 1000); // 1 sekunds sikkerhedspause før screenshot
-		            }
-		            checkCounter++;
-		        }, 100);
+		                leafletImage(tempMap, function(err, canvas) {
+		                    if (err) {
+		                        console.error("Fejl ved generering af kort-billede:", err);
+		                        cleanup();
+		                        reject(err);
+		                        return;
+		                    }
+		                    
+		                    try {
+		                        const dataUrl = canvas.toDataURL('image/png');
+		                        cleanup();
+		                        resolve(dataUrl);
+		                    } catch (e) {
+		                        cleanup();
+		                        reject(e);
+		                    }
+		                });
+		            }, 800); // 800ms buffer til at lade blob/canvas tegne færdig
+		        }
+
+				tempMap.whenReady(() => {
+		            isMapReady = true;
+		            attemptScreenshot();
+		        });
 		
-		        // 6. Oprydning: Fjern kortet fra hukommelse og DOM
+		        // Lyt på tile-layerets indbyggede "load" event (når alle tile-blobs er hentet ind)
+		        tileLayer.on('load', () => {
+		            isLayerLoaded = true;
+		            attemptScreenshot();
+		        });
+		
+		        // Fallback: Hvis det er 100% offline, og kortet _ikke_ var i cachen alligevel, 
+		        // vil 'load' måske aldrig affyre. Vi tvinger den efter 5 sekunder.
+		        const fallbackTimeout = setTimeout(() => {
+		            isMapReady = true;
+		            isLayerLoaded = true;
+		            attemptScreenshot();
+		        }, 5000);
+		
+		        // 7. Oprydning
 		        function cleanup() {
+		            clearTimeout(fallbackTimeout);
 		            if (tempMap) {
 		                tempMap.remove();
 		            }
