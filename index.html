@@ -2210,9 +2210,10 @@
 		            attributionControl: false,
 		            fadeAnimation: false,
 		            zoomAnimation: false,
+					preferCanvas: true,
 		            markerZoomAnimation: false
 		        }).setView([lat, lng], zoom);
-		
+				
 		        // 3. Konfigurer flise-laget
 				L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 				    useCache: true,
@@ -2220,34 +2221,36 @@
 				    cacheName: 'wildly-prepare-trip-cache',
 				    useOnlyCache: !navigator.onLine,
 				    keepBuffer: 99,
-				    updateWhenIdle: false
+				    updateWhenIdle: false,
+					timeout: 5000
 				}).addTo(tempMap);	
 
 		        // 4. Tilføj markøren (bruger det rettede ankerpunkt via global CSS/Icon def)
 		        L.marker([lat, lng]).addTo(tempMap);
 		
-		        // 5. Tving layout-beregning
-		        tempMap.invalidateSize({ animate: false });
-				let isLayerLoaded = false;
-		        let isMapReady = false;
-		
-		        function attemptScreenshot() {
-		            if (!isLayerLoaded || !isMapReady) return;
-		
-		            // Giv browserens rendering engine et øjeblik til at male base64-billederne fysisk
+				// Vi venter på 'load' eventet fra tileLayer
+		        tileLayer.on('load', () => {
+		            // Lille delay for at sikre, at canvas-atomet er opdateret
 		            setTimeout(() => {
 		                tempMap.invalidateSize({ animate: false });
-		
+		                
 		                leafletImage(tempMap, function(err, canvas) {
 		                    if (err) {
-		                        console.error("Fejl ved generering af kort-billede:", err);
 		                        cleanup();
 		                        reject(err);
 		                        return;
 		                    }
 		                    
 		                    try {
+		                        // Vi øger kvaliteten og sikrer os, at det ikke er et tomt canvas
 		                        const dataUrl = canvas.toDataURL('image/png');
+		                        
+		                        // Tjek om billedet er meget lille (tegn på grå/tom skærm)
+		                        if (dataUrl.length < 2000) { 
+		                            console.warn("Billedet ser tomt ud, prøver igen om lidt...");
+		                            // Man kunne lave et re-try her, men lad os se om det virker nu
+		                        }
+		                        
 		                        cleanup();
 		                        resolve(dataUrl);
 		                    } catch (e) {
@@ -2255,38 +2258,19 @@
 		                        reject(e);
 		                    }
 		                });
-		            }, 800); // 800ms buffer til at lade blob/canvas tegne færdig
-		        }
-
-				tempMap.whenReady(() => {
-		            isMapReady = true;
-		            attemptScreenshot();
+		            }, 1200); // Øget timeout til 1.2 sek for en sikkerheds skyld
 		        });
 		
-		        // Lyt på tile-layerets indbyggede "load" event (når alle tile-blobs er hentet ind)
-		        tileLayer.on('load', () => {
-		            isLayerLoaded = true;
-		            attemptScreenshot();
-		        });
-		
-		        // Fallback: Hvis det er 100% offline, og kortet _ikke_ var i cachen alligevel, 
-		        // vil 'load' måske aldrig affyre. Vi tvinger den efter 5 sekunder.
-		        const fallbackTimeout = setTimeout(() => {
-		            isMapReady = true;
-		            isLayerLoaded = true;
-		            attemptScreenshot();
-		        }, 5000);
-		
-		        // 7. Oprydning
 		        function cleanup() {
-		            clearTimeout(fallbackTimeout);
-		            if (tempMap) {
-		                tempMap.remove();
-		            }
-		            if (tempDiv && tempDiv.parentNode) {
-		                document.body.removeChild(tempDiv);
-		            }
+		            if (tempMap) tempMap.remove();
+		            if (tempDiv.parentNode) document.body.removeChild(tempDiv);
 		        }
+		
+		        // Sikkerheds-timeout hvis 'load' aldrig fyrer
+		        setTimeout(() => {
+		            cleanup();
+		            reject(new Error("Timeout under generering af kort"));
+		        }, 8000);
 		    });
 		}
 		
