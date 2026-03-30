@@ -2607,7 +2607,7 @@
 		    const center = prepareMap.getCenter();
 		    const mapSize = prepareMap.getSize(); 
 		    const currentZoom = prepareMap.getZoom(); // Find ud af hvor brugeren er nu
-		    const downloadZoom = 14; // Det område vi ønsker at dække (Zoom 14)
+		    const downloadAreaZoom = 14; // Det område vi ønsker at dække (Zoom 14)
 		
 		    // 1. Find ud af hvor mange pixels skærmen svarer til i "download-skalaen" (Zoom 14)
 			const scaleFactor = Math.pow(2, currentZoom - downloadAreaZoom);
