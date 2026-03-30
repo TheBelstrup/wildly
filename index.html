@@ -1372,7 +1372,12 @@
 					`;
 		        } else {
 		            // Online ELLER i cache: Start Leaflet
-		            map = L.map('map-container').setView([loc.lat, loc.lng], 18); 
+					if (navigator.onLine) {
+						map = L.map('map-container').setView([loc.lat, loc.lng], 18); 
+					}
+					else {
+						map = L.map('map-container').setView([loc.lat, loc.lng], 17); 
+					}
 					const baseLayer = L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 					    useCache: !!userSettings.isPremium,
 					    crossOrigin: 'anonymous',
