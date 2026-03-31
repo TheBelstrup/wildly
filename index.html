@@ -2205,7 +2205,7 @@
 				document.body.appendChild(tempDiv);
 		
 		        // 2. Initialiser kortet uden animationer (vigtigt for screenshots)
-		        const tempMap = L.map(tempDiv, {
+		        let tempMap = L.map(tempDiv, {
 		            zoomControl: false,
 		            attributionControl: false,
 		            fadeAnimation: false,
@@ -2215,7 +2215,7 @@
 		        }).setView([lat, lng], zoom);
 				
 		        // 3. Konfigurer flise-laget
-				const tileLayer = L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				let tileLayer = L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 				    useCache: true,
 				    crossOrigin: 'anonymous',
 				    cacheName: 'wildly-prepare-trip-cache',
