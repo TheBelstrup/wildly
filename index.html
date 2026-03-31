@@ -2802,6 +2802,7 @@
 		        const overlay = document.getElementById('offline-download-overlay');
 		        const progressBar = document.getElementById('download-progress-bar');
 		        const progressText = document.getElementById('download-progress-text');
+				const percent = 0;
 		
 		        overlay.classList.remove('hidden');
 		        progressBar.style.width = '0%';
@@ -2814,9 +2815,7 @@
 			        const total = downloaded + remaining;
 
 					if (total > 0) {
-			            const percent = Math.floor((downloaded / total) * 100);
-			        } else {
-			            const percent = 0;
+			            percent = Math.floor((downloaded / total) * 100);
 			        }
 					
 		            progressBar.style.width = percent + '%';
