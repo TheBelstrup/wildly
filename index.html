@@ -1000,7 +1000,7 @@
 
             appContent.innerHTML = `
                 <div class="fade-in space-y-4">
-                    <h2 class="text-3xl font-black text-stone-900 italic uppercase tracking-tighter sans mb-4">${ui.menu_library}</h2>
+                    <h2 class="text-3xl font-black text-stone-900 italic uppercase tracking-tighter sans mb-4">${ui.start_library}</h2>
                     <div class="relative mb-6">
                         <input type="text" id="search-input" placeholder="${ui.search_placeholder}" 
                             class="w-full p-4 pl-12 rounded-2xl border-none bg-stone-100 sans font-bold text-stone-900 focus:ring-2 focus:ring-green-800 outline-none transition-all">
@@ -2228,6 +2228,17 @@
 		        // 4. Tilføj markøren (bruger det rettede ankerpunkt via global CSS/Icon def)
 		        L.marker([lat, lng]).addTo(tempMap);
 		
+				function cleanup() {
+		            if (tempMap) {
+		                tempMap.remove();
+		            }
+		            if (tempDiv && tempDiv.parentNode) {
+		                document.body.removeChild(tempDiv);
+		            }
+		            if (tempMap) tempMap.remove();
+		            if (tempDiv.parentNode) document.body.removeChild(tempDiv);
+		        }
+
 				// Vi venter på 'load' eventet fra tileLayer
 		        tileLayer.on('load', () => {
 		            // Lille delay for at sikre, at canvas-atomet er opdateret
@@ -2260,12 +2271,7 @@
 		                });
 		            }, 1200); // Øget timeout til 1.2 sek for en sikkerheds skyld
 		        });
-		
-		        function cleanup() {
-		            if (tempMap) tempMap.remove();
-		            if (tempDiv.parentNode) document.body.removeChild(tempDiv);
-		        }
-		
+						
 		        // Sikkerheds-timeout hvis 'load' aldrig fyrer
 		        setTimeout(() => {
 		            cleanup();
