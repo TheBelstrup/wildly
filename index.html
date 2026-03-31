@@ -2215,7 +2215,7 @@
 		        }).setView([lat, lng], zoom);
 				
 		        // 3. Konfigurer flise-laget
-				L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				const tileLayer = L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 				    useCache: true,
 				    crossOrigin: 'anonymous',
 				    cacheName: 'wildly-prepare-trip-cache',
