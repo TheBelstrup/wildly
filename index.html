@@ -2517,11 +2517,21 @@
 		
 		        // --- POSITIONERING PÅ RADAR-CIRKLEN ---
 		        const radarRadius = 144; // Pixels fra midten til kanten af radaren
-		        let visualDist = (dist / maxVisualRange) * radarRadius;
-		
-		        // Hold markøren inden for radaren (med 20px buffer til kanten)
-		        if (visualDist > radarRadius - 20) visualDist = radarRadius - 20;
-		
+				let visualDist;
+				
+				if (dist > maxVisualRange) {
+				    // BRUGER ER UDEN FOR KORTET:
+				    // Placer pilen ude på en "bane" uden for selve kortet
+				    visualDist = radarRadius + 16;
+				} else {
+				    // BRUGER ER INDE PÅ KORTET:
+				    // Beregn normal placering relativt til centrum
+				    visualDist = (dist / maxVisualRange) * radarRadius;
+				    
+				    // Sikr at den ikke rammer helt ud i den hvide ramme, når de lige akkurat er inde
+				    if (visualDist > radarRadius - 15) visualDist = radarRadius - 15;
+				}
+
 		        targetX = -Math.sin(bearing * (Math.PI / 180)) * visualDist;
 		        targetY = Math.cos(bearing * (Math.PI / 180)) * visualDist;
 		
@@ -2546,27 +2556,28 @@
 		                <p class="text-[10px] text-emerald-600 font-bold uppercase tracking-widest">Radar Navigering</p>
 		            </div>
 		
-		            <div class="relative w-72 h-72 rounded-full border-[6px] border-white shadow-2xl overflow-hidden bg-stone-200" id="radar-boundary">
-		                
-		                <img id="radar-map-img" src="" class="absolute inset-0 w-full h-full object-cover opacity-80 transition-opacity duration-500">
-		                
-		                <div class="absolute inset-0 border border-black/5 rounded-full pointer-events-none"></div>
-		                <div class="absolute top-1/2 left-0 w-full h-[1px] bg-black/5"></div>
-		                <div class="absolute left-1/2 top-0 w-[1px] h-full bg-black/5"></div>
-		
-		                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-		                    <div class="relative">
-		                        <div class="absolute -inset-2 bg-emerald-500/20 animate-ping rounded-full"></div>
-		                    </div>
-		                </div>
-		
-		                <div id="radar-user-marker" class="absolute w-10 h-10 -ml-5 -mt-5 z-30 transition-all duration-700 ease-out">
-		                    <div id="radar-user-arrow" class="relative w-full h-full flex items-center justify-center">
-		                        <div class="absolute bottom-1/2 w-4 h-8 bg-blue-500/20 blur-sm rounded-t-full origin-bottom"></div>
-		                        <div class="text-blue-600 text-2xl drop-shadow-sm">▲</div>
-		                    </div>
-		                </div>
-		            </div>
+					<div class="relative w-72 h-72" id="radar-wrapper">
+					    <div class="absolute inset-0 rounded-full border-[6px] border-white shadow-2xl overflow-hidden bg-stone-200" id="radar-boundary">
+					        <img id="radar-map-img" src="" class="absolute inset-0 w-full h-full object-cover opacity-80 transition-opacity duration-500">
+					        
+					        <div class="absolute inset-0 border border-black/5 rounded-full pointer-events-none"></div>
+					        <div class="absolute top-1/2 left-0 w-full h-[1px] bg-black/5"></div>
+					        <div class="absolute left-1/2 top-0 w-[1px] h-full bg-black/5"></div>
+					
+					        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+					            <div class="relative">
+					                <div class="absolute -inset-2 bg-emerald-500/20 animate-ping rounded-full"></div>
+					            </div>
+					        </div>
+					    </div>
+					
+					    <div id="radar-user-marker" class="absolute top-1/2 left-1/2 w-10 h-10 -ml-5 -mt-5 z-30 transition-all duration-700 ease-out">
+					        <div id="radar-user-arrow" class="relative w-full h-full flex items-center justify-center">
+					            <div class="absolute bottom-1/2 w-4 h-8 bg-blue-500/20 blur-sm rounded-t-full origin-bottom"></div>
+					            <div class="text-blue-600 text-2xl drop-shadow-sm">▲</div>
+					        </div>
+					    </div>
+					</div>
 		
 		            <div class="text-center bg-white p-6 rounded-3xl shadow-sm w-full border border-stone-100">
 		                <div id="radar-distance" class="text-4xl font-black text-stone-900 tabular-nums">--- m</div>
