@@ -2293,9 +2293,12 @@
 		    if (!userSettings.isPremium) return;
 		
 		    let allSpots = JSON.parse(localStorage.getItem('mySpots')) || [];
-		    let pendingSpots = allSpots.filter(spot => {
-		        if (targetUid) return spot.uid === targetUid && spot.mapsSynced !== true;
-		        return spot.mapsSynced !== true;
+			let pendingSpots = allSpots.filter(spot => {
+		        const needsStatic = !spot.hasStaticMaps;
+		        const needsOffline = !spot.hasOfflineMap;
+		        
+		        if (targetUid) return spot.uid === targetUid && (needsStatic || needsOffline);
+		        return (needsStatic || needsOffline);
 		    });
 		
 		    if (pendingSpots.length === 0) return;
@@ -2304,37 +2307,32 @@
 		
 		    for (let spot of pendingSpots) {
 		        const canGenerateOffline = isLocationInOfflineCache(spot.lat, spot.lng);
-		        
-		        if (navigator.onLine || canGenerateOffline) {
-		            try {
-						if (navigator.onLine) {
-				            // ONLINE: Hent den fulde radar-pakke (16 og 18)
-							const overviewBase64 = await fetchStaticMap(spot.lat, spot.lng, 16);
-							const detailBase64 = await fetchStaticMap(spot.lat, spot.lng, 18); 
-							await mapStorage.save(spot.uid, 'overview', overviewBase64);
-							await mapStorage.save(spot.uid, 'detail', detailBase64);
-				        } else {
-							const has16 = await mapStorage.get(spot.uid, 'overview');
-				            const has18 = await mapStorage.get(spot.uid, 'detail');
-				            const has17 = await mapStorage.get(spot.uid, 'offline17');
+				const originalSpot = allSpots.find(s => s.uid === spot.uid);
+		        if (!originalSpot) continue;
 				
-				            if (!has16 && !has18 && !has17) {
-				                const img17 = await fetchStaticMap(spot.lat, spot.lng, 17);
-				                if (img17) await mapStorage.save(spot.uid, 'offline17', img17);
-				            }
-				        }
-		                
-		                const originalSpot = allSpots.find(s => s.uid === spot.uid);
-		                if (originalSpot) {
-		                    originalSpot.mapsSynced = true;
-		                    hasChanges = true;
-		                }
-		            } catch (e) {
-		                console.error("Error fetch data for spot:", spot.uid, e);
-		            }
-		        } else {
-		            console.log(`Ignored ${spot.uid}: Offline and not in cache.`);
-		        }
+				try {
+					if (navigator.onLine && !originalSpot.hasStaticMaps) {
+						// ONLINE: Hent den fulde radar-pakke (16 og 18)
+						const overviewBase64 = await fetchStaticMap(spot.lat, spot.lng, 16);
+						const detailBase64 = await fetchStaticMap(spot.lat, spot.lng, 18); 
+						await mapStorage.save(spot.uid, 'overview', overviewBase64);
+						await mapStorage.save(spot.uid, 'detail', detailBase64);
+						
+						originalSpot.hasStaticMaps = true;
+						hasChanges = true;
+					}
+					
+					if (!originalSpot.hasStaticMaps && canGenerateOffline && !originalSpot.hasOfflineMap && !originalSpot.hasStaticMaps) {
+						const img17 = await fetchStaticMap(spot.lat, spot.lng, 17);
+						if (img17) {
+							await mapStorage.save(spot.uid, 'offline17', img17);
+							originalSpot.hasOfflineMap = true;
+							hasChanges = true;
+						}
+					}
+				} catch (e) {
+					console.error("Error fetch data for spot:", spot.uid, e);
+				}
 		    }
 		
 		    if (hasChanges) {
