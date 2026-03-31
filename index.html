@@ -2227,18 +2227,27 @@
 
 		        // 4. Tilføj markøren (bruger det rettede ankerpunkt via global CSS/Icon def)
 		        L.marker([lat, lng]).addTo(tempMap);
-		
+						
 				function cleanup() {
-		            if (tempMap) {
-		                tempMap.remove();
-		            }
-		            if (tempDiv && tempDiv.parentNode) {
-		                document.body.removeChild(tempDiv);
-		            }
-		            if (tempMap) tempMap.remove();
-		            if (tempDiv.parentNode) document.body.removeChild(tempDiv);
-		        }
-
+				    if (tempMap) {
+				        try {
+				            tempMap.off();
+				            tempMap.remove();
+				            tempMap = null;
+				        } catch (e) {
+				            console.warn("Leaflet cleanup warning:", e);
+				        }
+				    }
+				
+				    if (tempDiv && tempDiv.parentNode) {
+				        try {
+				            tempDiv.parentNode.removeChild(tempDiv);
+				        } catch (e) {
+				            console.warn("DOM cleanup warning:", e);
+				        }
+				    }
+				}
+				
 				// Vi venter på 'load' eventet fra tileLayer
 		        tileLayer.on('load', () => {
 		            // Lille delay for at sikre, at canvas-atomet er opdateret
