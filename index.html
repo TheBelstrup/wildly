@@ -1518,7 +1518,8 @@
 		        if (index !== -1) {
 		            spots[index].lat = finalLat;
 		            spots[index].lng = finalLng;
-		            spots[index].mapsSynced = false;
+					spots[index].hasStaticMaps = false;
+					spots[index].hasOfflineMap = false;
 		        }
 				await mapStorage.delete(spotUid);
 				window.editingSpotUid = null; 
@@ -1531,7 +1532,8 @@
 		            lng: finalLng, 
 		            acc: currentEditorAccuracy,
 		            timestamp: new Date().toISOString(),
-		            mapsSynced: false,
+		            hasStaticMaps: false,
+					hasOfflineMap = false,
 		            photos: []              
 		        };
 		        spots.push(newDiscovery);
