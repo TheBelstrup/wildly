@@ -357,6 +357,7 @@
 		    return navigator.onLine; // Normal opførsel
 		}
 		let tapTimer = null;
+		let tapCount = 0;
 		function setupSecretOfflineToggle() {
 		    const secretBtn = document.getElementById('secret-offline-button') || document.body; 
 		
