@@ -197,7 +197,7 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
             </button>
 			
-            <h1 class="text-2xl font-black tracking-tighter uppercase italic sans">Wild<span class="text-green-800">ly</span></h1>																												 
+            <h1 id="secret-offline-button" class="text-2xl font-black tracking-tighter uppercase italic sans">Wild<span class="text-green-800">ly</span></h1>																												 
         </div>
     </header>
 
@@ -349,6 +349,42 @@
 		let prepareLayer = null;
 		let downloadAreaMarker;
 		let currentEditorAccuracy = 0;
+		window.DEBUG_FORCE_OFFLINE = false;
+		function isAppOnline() {
+		    if (window.DEBUG_FORCE_OFFLINE) {
+		        return false; // Vi simulerer at nettet er nede
+		    }
+		    return navigator.onLine; // Normal opførsel
+		}
+		let tapTimer = null;
+		function setupSecretOfflineToggle() {
+		    const secretBtn = document.getElementById('secret-offline-button') || document.body; 
+		
+		    secretBtn.addEventListener('click', () => {
+		        tapCount++;
+		        
+		        clearTimeout(tapTimer);
+		        tapTimer = setTimeout(() => { tapCount = 0; }, 1000); // Nulstil hvis der går for lang tid
+		
+		        if (tapCount >= 5) {
+		            tapCount = 0;
+		            toggleOfflineSimulation();
+		        }
+		    });
+		}
+		function toggleOfflineSimulation() {
+		    window.DEBUG_FORCE_OFFLINE = !window.DEBUG_FORCE_OFFLINE;
+		    
+		    // Vi narrer resten af appen ved at affyre de rigtige browser-events!
+		    const eventName = window.DEBUG_FORCE_OFFLINE ? 'offline' : 'online';
+		    window.dispatchEvent(new Event(eventName));
+		
+		    // Vis en lille besked til dig selv, så du ved det virker
+		    alert(`📡 Developer-mode: App simulates ${window.DEBUG_FORCE_OFFLINE ? '🔴 OFFLINE' : '🟢 ONLINE'}`);
+		}		
+		document.addEventListener('DOMContentLoaded', setupSecretOfflineToggle);
+		
+		
 		delete L.Icon.Default.prototype._getIconUrl;
 		L.Icon.Default.mergeOptions({
 		    iconRetinaUrl: 'lib/leaflet/images/marker-icon-2x.png',
@@ -1114,7 +1150,7 @@
 		
 		        // Tjek om vi enten har net ELLER har downloadet et kort
 		        const hasOfflineMap = localStorage.getItem('wildly_has_offline_map') === 'true';
-		        const canShowMap = navigator.onLine || hasOfflineMap;
+		        const canShowMap = isAppOnline() || hasOfflineMap;
 		
 		        if (!canShowMap) {
 		            container.innerHTML = `
@@ -1139,7 +1175,7 @@
 				    useCache: !!userSettings.isPremium,
 				    crossOrigin: 'anonymous',
 				    cacheName: 'wildly-prepare-trip-cache',
-				    useOnlyCache: !navigator.onLine
+				    useOnlyCache: !isAppOnline()
 				});
 		        baseLayer.addTo(overviewMap);
 		
@@ -1373,7 +1409,7 @@
 					`;
 		        } else {
 		            // Online ELLER i cache: Start Leaflet
-					if (navigator.onLine) {
+					if (isAppOnline()) {
 						map = L.map('map-container').setView([loc.lat, loc.lng], 18); 
 					}
 					else {
@@ -1383,7 +1419,7 @@
 					    useCache: !!userSettings.isPremium,
 					    crossOrigin: 'anonymous',
 					    cacheName: 'wildly-prepare-trip-cache',
-					    useOnlyCache: !navigator.onLine
+					    useOnlyCache: !isAppOnline()
 					});
 		            baseLayer.addTo(map);
 					
@@ -1978,8 +2014,8 @@
 							useCache: !!userSettings.isPremium,
 							crossOrigin: 'anonymous',
 							cacheName: 'wildly-prepare-trip-cache',
-							useOnlyCache: !navigator.onLine
-						});
+							useOnlyCache: !isAppOnline()
+						}).addTo(spotMap);
 		
 		                L.marker([spot.lat, spot.lng]).addTo(spotMap);
 		                setTimeout(() => spotMap.invalidateSize(), 200);
@@ -2221,7 +2257,7 @@
 				    useCache: true,
 				    crossOrigin: 'anonymous',
 				    cacheName: 'wildly-prepare-trip-cache',
-				    useOnlyCache: !navigator.onLine,
+				    useOnlyCache: !isAppOnline(),
 				    keepBuffer: 99,
 				    updateWhenIdle: false,
 					timeout: 5000
@@ -2313,7 +2349,7 @@
 		        if (!originalSpot) continue;
 				
 				try {
-					if (navigator.onLine && !originalSpot.hasStaticMaps) {
+					if (isAppOnline() && !originalSpot.hasStaticMaps) {
 						// ONLINE: Hent den fulde radar-pakke (16 og 18)
 						const overviewBase64 = await fetchStaticMap(spot.lat, spot.lng, 16);
 						const detailBase64 = await fetchStaticMap(spot.lat, spot.lng, 18); 
@@ -2418,7 +2454,7 @@
 		    instruction.innerText = ui.radar_fetching_map;
 		
 		    // 1. Forsøg at synkronisere/hente manglende kort (hvis online)
-			if (navigator.onLine) {
+			if (isAppOnline()) {
 			    await syncMissingMaps(spot.uid);
 			}
 				
@@ -2598,7 +2634,7 @@
 
 		/* Forbered tur funktion */ 
 		function isLocationInOfflineCache(lat, lng) {
-		    if (navigator.onLine) return true; // Altid adgang hvis vi er online
+		    if (isAppOnline()) return true;
 		    
 		    const boundsRaw = localStorage.getItem('wildly_offline_bounds');
 		    if (!boundsRaw) return false;
@@ -2756,7 +2792,7 @@
 				    useCache: true,
 				    crossOrigin: 'anonymous',
 				    cacheName: 'wildly-prepare-trip-cache',
-				    useOnlyCache: !navigator.onLine
+				    useOnlyCache: !isAppOnline()
 				}).addTo(prepareMap);				
 				downloadAreaMarker = null;
 				
@@ -2779,7 +2815,7 @@
 		        showPaywall(); 
 		        return;
 		    }
-		    if (!navigator.onLine) {
+		    if (!isAppOnline()) {
 		        alert("Du skal være online for at gemme nye kort.");
 		        return;
 		    }
@@ -2807,7 +2843,7 @@
 					useCache: !!userSettings.isPremium,
 					crossOrigin: 'anonymous',
 					cacheName: 'wildly-prepare-trip-cache',
-					useOnlyCache: !navigator.onLine
+					useOnlyCache: !isAppOnline()
 				});
 				
 		    } catch (err) {
