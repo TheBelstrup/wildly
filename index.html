@@ -2235,11 +2235,13 @@
 		    return new Promise((resolve, reject) => {
 		        // 1. Opret containeren (skjult for brugeren, men synlig for browseren)
 		        const tempDiv = document.createElement('div');
-				tempDiv.style.width = '500px';
-		        tempDiv.style.height = '300px';
-		        tempDiv.style.position = 'absolute'; 
-		        tempDiv.style.left = '0'; 
+				tempDiv.style.width = '400px';
+		        tempDiv.style.height = '400px';
+				tempDiv.style.position = 'fixed'; // Fixed så den ikke påvirker scroll
+		        tempDiv.style.left = '-5000px';   // Flyt den langt uden for skærmen
 		        tempDiv.style.top = '0';
+		        tempDiv.style.opacity = '0';      // Gør den gennemsigtig
+		        tempDiv.style.pointerEvents = 'none'; // Sørg for at man ikke kan klikke på den
 		        tempDiv.style.zIndex = '-9999';
 				document.body.appendChild(tempDiv);
 		
@@ -2351,10 +2353,12 @@
 				
 				try {
 					if (isAppOnline() && !originalSpot.hasStaticMaps) {
-						// ONLINE: Hent den fulde radar-pakke (16 og 18)
+						// ONLINE: Hent den fulde radar-pakke (15, 17 og 18)
 						const overviewBase64 = await fetchStaticMap(spot.lat, spot.lng, 15);
+						const img17 = await fetchStaticMap(spot.lat, spot.lng, 17); 
 						const detailBase64 = await fetchStaticMap(spot.lat, spot.lng, 18); 
 						await mapStorage.save(spot.uid, 'overview', overviewBase64);
+						await mapStorage.save(spot.uid, 'offline17', img17);
 						await mapStorage.save(spot.uid, 'detail', detailBase64);
 						
 						originalSpot.hasStaticMaps = true;
@@ -2462,11 +2466,11 @@
 		    // 2. Hent korttyperne fra din storage
 		    const mapDetail = await mapStorage.get(spot.uid, 'detail'); 
 		    const mapOverview = await mapStorage.get(spot.uid, 'overview');
-		    const mapCached = await mapStorage.get(spot.uid, 'offline17');
+		    const mapMiddle = await mapStorage.get(spot.uid, 'offline17');
 		
 		    // Tjek hvilken "mode" vi kører i
 		    const hasFullSet = mapDetail && mapOverview;
-		    const hasOfflineFallback = !!mapCached;
+		    const hasOfflineFallback = !!mapMiddle;
 		
 		    if (!hasFullSet && !hasOfflineFallback) {
 		        instruction.innerText = ui.radar_not_available_offline;
@@ -2542,14 +2546,18 @@
 		                if (mapImg.src !== mapDetail) mapImg.src = mapDetail;
 		                instruction.innerText = ui.radar_close;
 		                maxVisualRange = range18;
-		            } else {
-		                if (mapImg.src !== mapOverview) mapImg.src = mapOverview;
-		                instruction.innerText = ui.radar_walk_towards_middle;
-		                maxVisualRange = range15;
+					else if (dist <= range17) {
+					    if (mapImg.src !== mapMiddle) mapImg.src = mapMiddle;
+					    instruction.innerText = ui.radar_close;
+					    maxVisualRange = range17;
+					} else {
+			                if (mapImg.src !== mapOverview) mapImg.src = mapOverview;
+			                instruction.innerText = ui.radar_walk_towards_middle;
+			                maxVisualRange = range15;
 		            }
 		        } else if (hasOfflineFallback) {
 		            // Offline mode: Brug kun Zoom 17
-		            if (mapImg.src !== mapCached) mapImg.src = mapCached;
+		            if (mapImg.src !== mapMiddle) mapImg.src = mapMiddle;
 		            instruction.innerText = dist <= range17 ? ui.radar_close : ui.radar_walk_towards_middle;
 		            maxVisualRange = range17;					
 				}
