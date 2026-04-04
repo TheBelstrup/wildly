@@ -2646,7 +2646,12 @@
 		                <div id="radar-distance" class="text-4xl font-black text-stone-900 tabular-nums">--- m</div>
 		                <p id="radar-instruction" class="text-stone-400 text-[10px] font-bold uppercase tracking-widest mt-1 italic">Venter på GPS...</p>
 		            </div>
-		        </div>
+
+					<button onclick="navigate('start')" class="w-full bg-stone-800 text-white font-bold py-4 rounded-2xl shadow-xl active:scale-[0.97] transition-all flex items-center justify-center gap-3">
+						<svg id="download-btn-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+						<span>Luk</span>
+					</button>
+				</div>
 		    `;
 		
 		    startRadarLogic(spot);
