@@ -2479,13 +2479,14 @@
 		    }
 		
 		    // --- JITTER FILTER SETUP (SMOOTHING) ---
-		    isRadarRunning = true;
+			isRadarRunning = true;
 		    let currentX = 0, targetX = 0;
 		    let currentY = 0, targetY = 0;
 		    let currentHeading = 0, targetHeading = 0;
 		    let firstGps = true;
 		    let firstCompass = true;
-		
+			let currentActiveMapRange = null;
+					
 		    function animateRadar() {
 		        if (!isRadarRunning) return;
 		
@@ -2518,6 +2519,7 @@
 		                firstCompass = false;
 		            }
 		        };
+				window.addEventListener('deviceorientation', handleOrientation, true);
 		        window.addEventListener('deviceorientationabsolute', handleOrientation, true);
 		    }
 		
@@ -2538,26 +2540,39 @@
 		        distLabel.innerText = dist < 1 ? Math.round(dist * 1000) + ' m' : dist.toFixed(1) + ' km';
 		
 		        let maxVisualRange;
-		
+				let mapChangedThisTick = false;
+				
 		        // --- KORT-VALG LOGIK ---
 		        if (hasFullSet) {
 		            // Standard mode: Skift mellem 16 og 18
-		            if (dist <= range18) {
-		                if (mapImg.src !== mapDetail) mapImg.src = mapDetail;
+		            if (dist < range18) {
+						if (!mapImg.src.includes(mapDetail)) {
+		                    mapImg.src = mapDetail;
+		                    mapChangedThisTick = true;
+		                }
 		                instruction.innerText = ui.radar_close;
 		                maxVisualRange = range18;
-					} else if (dist <= range17) {
-					    if (mapImg.src !== mapMiddle) mapImg.src = mapMiddle;
+					} else if (dist < range17) {
+					    if (!mapImg.src.includes(mapMiddle)) {
+		                    mapImg.src = mapMiddle;
+		                    mapChangedThisTick = true;
+		                }
 					    instruction.innerText = ui.radar_close;
 					    maxVisualRange = range17;
 					} else {
-			                if (mapImg.src !== mapOverview) mapImg.src = mapOverview;
+			                if (!mapImg.src.includes(mapOverview)) {
+			                    mapImg.src = mapOverview;
+			                    mapChangedThisTick = true;
+			                }
 			                instruction.innerText = ui.radar_walk_towards_middle;
 			                maxVisualRange = range15;
 		            }
 		        } else if (hasOfflineFallback) {
 		            // Offline mode: Brug kun Zoom 17
-		            if (mapImg.src !== mapMiddle) mapImg.src = mapMiddle;
+					if (!mapImg.src.includes(mapMiddle)) {
+						mapImg.src = mapMiddle;
+						mapChangedThisTick = true;
+					}
 		            instruction.innerText = dist <= range17 ? ui.radar_close : ui.radar_walk_towards_middle;
 		            maxVisualRange = range17;					
 				}
@@ -2582,10 +2597,11 @@
 		        targetX = -Math.sin(bearing * (Math.PI / 180)) * visualDist;
 		        targetY = Math.cos(bearing * (Math.PI / 180)) * visualDist;
 		
-		        if (firstGps) {
+		        if (firstGps || mapChangedThisTick) {
 		            currentX = targetX;
 		            currentY = targetY;
 		            firstGps = false;
+					mapChangedThisTick = false;
 		        }
 		
 		    }, (err) => {
