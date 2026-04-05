@@ -1,358 +1,358 @@
 {
   "res_hyben": {
-    "type": "bær",
+    "type": "berry",
     "latin": "Rosa rugosa"
   },
   "res_jordbaer": {
-    "type": "bær",
+    "type": "berry",
     "latin": "Fragaria vesca"
   },
   "res_gran": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Picea abies"
   },
   "res_birk": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Betula pendula"
   },
   "res_doevnaelde": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Lamium album"
   },
   "res_kirsebaer": {
-    "type": "bær",
+    "type": "berry",
     "latin": "Prunus avium"
   },
   "res_karljohan": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Boletus edulis"
   },
   "res_kantarel": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Cantharellus cibarius"
   },
   "res_tragt": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Craterellus tubaeformis"
   },
   "res_ramsloeg": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Allium ursinum"
   },
   "res_soedskaerm": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Myrrhis odorata"
   },
   "res_skvalder": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Aegopodium podagraria"
   },
   "res_skovsyre": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Oxalis acetosella"
   },
   "res_hassel": {
-    "type": "nød",
+    "type": "nut",
     "latin": "Corylus avellana"
   },
   "res_boegeblade": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Fagus sylvatica"
   },
   "res_havtorn": {
-    "type": "bær",
+    "type": "berry",
     "latin": "Hippophaë rhamnoides"
   },
   "res_strandkaal": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Crambe maritima"
   },
   "res_strandsennep": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Cakile maritima"
   },
   "res_strandarve": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Honckenya peploides"
   },
   "res_strandtrehage": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Triglochin maritima"
   },
   "res_fuglegraes": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Stellaria media"
   },
   "res_maelkeboette": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Taraxacum"
   },
   "res_braendenaelde": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Urtica dioica"
   },
   "res_vejbred": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Plantago"
   },
   "res_hyld": {
-    "type": "bær",
+    "type": "berry",
     "latin": "Sambucus nigra"
   },
   "res_brombaer": {
-    "type": "bær",
+    "type": "berry",
     "latin": "Rubus"
   },
   "res_slaaen": {
-    "type": "bær",
+    "type": "berry",
     "latin": "Prunus spinosa"
   },
   "res_hvidloegsennep": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Alliaria petiolata"
   },
   "res_roedkloever": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Trifolium pratense"
   },
   "res_engkarse": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Cardamine pratensis"
   },
   "res_champignon": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Agaricus campestris"
   },
   "res_gaasefod": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Chenopodium album"
   },
   "res_strandasters": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Tripolium vulgare"
   },
   "res_skivekamille": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Matricaria matricarioides"
   },
   "res_hvidtjoern": {
-    "type": "bær",
+    "type": "berry",
     "latin": "Crataegus laevigata"
   },
   "res_merian": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Origanum vulgare"
   },
   "res_vandmynte": {
-    "type": "plante",
+    "type": "plant",
     "latin": "Mentha aquatica"
   },
   "res_brunstokket": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Imleria badia"
   },
   "res_bleg_kantarel": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Cantharellus pallens"
   },
   "res_sort_trompetsvamp": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Craterellus cornucopioides"
   },
   "res_liden_kantarel": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Craterellus undulatus"
   },
   "res_gylden_kantarel": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Craterellus lutescens"
   },
   "res_abrikos_kantarel": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Cantharellus friesii"
   },
   "res_svaertende_kantarel": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Craterellus melanoxeros"
   },
   "res_graa_kantarel": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Cantharellus cinereus"
   },
   "res_ametyst_kantarel": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Cantharellus amethysteus"
   },
   "res_spiselig_morkel": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Morchella esculenta"
   },
   "res_klor_baegermorkel": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Disciotis venosa"
   },
   "res_klokkemorkel": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Verpa bohemica"
   },
   "res_glat_klokkemorkel": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Verpa conica"
   },
   "res_kegle_morkel": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Morchella conica"
   },
   "res_haette_morkel": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Morchella semilibera"
   },
   "res_indigo": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Neoboletus luridiformis"
   },
   "res_laerke": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Suillus grevillei"
   },
   "res_birkeskael": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Leccinum scabrum"
   },
   "res_sommer_karljohan": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Boletus reticulatus"
   },
   "res_roedbrun_karljohan": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Boletus pinophilus"
   },
   "res_aspe_skael": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Leccinum albostipitatum"
   },
   "res_orange_skael": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Leccinum versipelle"
   },
   "res_rustroed_skaelroerhat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Leccinum quercinum"
   },
   "res_brungul_slimroerhat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Suillus luteus"
   },
   "res_roedsprukken_roerhat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Xerocomellus chrysenteron"
   },
   "res_dugget_roerhat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Xerocomellus pruinatus"
   },
   "res_netstokket_indigo": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Suillellus luridus"
   },
   "res_poppel_skaelroerhat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Leccinum duriusculum"
   },
   "res_tenstokket_roerhat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Butyriboletus appendiculatus"
   },
   "res_hvidsprukken_roerhat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Xerocomellus porosporus"
   },
   "res_sump_roerhat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Xerocomellus ripariellus"
   },
   "res_glatstokket_indigo": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Suillellus queletii"
   },
   "res_blodroed_roerhat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Hortiboletus rubellus"
   },
   "res_sortblaanende_roerhat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Cyanoboletus pulverulentus"
   },
   "res_hulstokket_slimroerhat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Suillus cavipes"
   },
   "res_flammet_skaelroerhat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Leccinum variicolor"
   },
   "res_filtet_roerhat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Xerocomus subtomentosus"
   },
   "res_peber_roerhat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Chalciporus piperatus"
   },
   "res_almindelig_pigsvamp": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Hydnum repandum"
   },
   "res_navle_pigsvamp": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Hydnum umbilicatum"
   },
   "res_roedgul_pigsvamp": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Hydnum rufescens"
   },
   "res_krystal_stoevbold": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Lycoperdon perlatum"
   },
   "res_paere_stoevbold": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Lycoperdon pyriforme"
   },
   "res_kaampestoevbold": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Langermannia gigantea"
   },
   "res_hoejstokket_stoevbold": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Handkea excipuliformis"
   },
   "res_skaallet_stoevbold": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Handkea utriformis"
   },
   "res_almindelig_oestershat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Pleurotus ostreatus"
   },
   "res_sommer_oestershat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Pleurotus pulmonarius"
   },
   "res_porcelaenshat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Mucidula mucida"
   },
   "res_svovlporesvamp": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Laetiporus sulphureus"
   },
   "res_judasoere": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Auricularia auricula-judae"
   },
   "res_parykhat": {
-    "type": "svamp",
+    "type": "mushroom",
     "latin": "Coprinus comatus"
   }
 }
