@@ -3054,7 +3054,7 @@
 			const allSpots = JSON.parse(localStorage.getItem('mySpots')) || [];
 		    const mySpotsOfThisPlant = allSpots.filter(s => s.resId === id);
 		    const hasExistingSpots = mySpotsOfThisPlant.length > 0;
-			const identGuideHtml = renderIdentificationGuide(spot.speciesId) : '';
+			const identGuideHtml = renderIdentificationGuide(spot.speciesId);
 			
 		    // Lav HTML til "Se mine fund" linket
 		    const mySpotsLink = mySpotsOfThisPlant.length > 0 ? `
