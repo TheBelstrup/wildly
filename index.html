@@ -3204,6 +3204,10 @@
 				            ` : ''}
 				        </div>
 				    </details>
+
+					<div class="my-4">
+				        <button onclick="window.open('https://www.google.com/search?tbm=isch&q=${encodeURIComponent(res.name + ' ' + res.latin)}', '_blank')" class="w-full p-6 bg-stone-900 text-white rounded-[24px] font-black text-[11px] uppercase tracking-widest text-center btn-active sans shadow-lg">${ui.detail_google_photos} ${ui.of} ${res.name}</button>
+				    </div>
 				    
 				    ${res.twin ? `
 				    <div class="p-8 rounded-[32px] ${res.twin.toxic ? 'bg-red-50 border-red-200' : 'bg-orange-50 border-orange-200'} border-2 shadow-sm my-4">
@@ -3215,17 +3219,11 @@
 				                <div class="text-[9px] font-black uppercase sans">${ui.detail_lookalike}</div>
 				                <div class="text-xl font-black text-stone-900 uppercase italic tracking-tighter sans">${res.twin.name}</div>
 				            </div>
-				        </div>
+							<button onclick="window.open('https://www.google.com/search?tbm=isch&q=${encodeURIComponent(res.twin.name + ' ${ui.detail_lookalike_identification}')}', '_blank')" class="w-full p-6 border-2 ${res.twin.toxic ? 'bg-red-200 border-red-700 text-red-700' : 'bg-orange-200 border-orange-700 text-orange-700'}  rounded-[24px] font-black text-[11px] uppercase tracking-widest text-center btn-active sans shadow-lg">${ui.detail_google_lookalike_photos}</button>				        </div>
 				        <p class="text-base font-medium text-stone-800 italic leading-relaxed">${res.twin.diff}</p>
 				    </div>
 				    ` : ''}
 				
-				    <div class="grid grid-cols-1 gap-3">
-				        <button onclick="window.open('https://www.google.com/search?tbm=isch&q=${encodeURIComponent(res.name + ' ' + res.latin)}', '_blank')" class="w-full p-6 bg-stone-900 text-white rounded-[24px] font-black text-[11px] uppercase tracking-widest text-center btn-active sans shadow-lg">${ui.detail_google_photos} ${ui.of} ${res.name}</button>
-				        ${hasTwin ? `
-				            <button onclick="window.open('https://www.google.com/search?tbm=isch&q=${encodeURIComponent(res.twin.name + ' ${ui.detail_lookalike_identification}')}', '_blank')" class="w-full p-6 border-2 border-red-700 text-red-700 rounded-[24px] font-black text-[11px] uppercase tracking-widest text-center btn-active sans shadow-lg">${ui.detail_google_lookalike_photos}</button>
-				        ` : ''}
-				    </div>
 				
 				    ${renderNaturbasenLink(res.naturbasen)}
 				</div>
