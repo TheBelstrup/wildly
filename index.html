@@ -2773,7 +2773,11 @@
 		                        <svg id="download-btn-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
 		                        <span id="download-btn-text">Gem dette område</span>
 		                    </button>
-		                </div>
+							<button onclick="navigate('start')" class="w-full bg-stone-800 text-white font-bold py-4 rounded-2xl shadow-xl active:scale-[0.97] transition-all flex items-center justify-center gap-3">
+								<svg id="download-btn-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+								<span>Luk</span>
+							</button>
+						</div>
 		            </div>
 		        </div>
 		    `;
@@ -2952,11 +2956,7 @@
 		    const statusStyle = document.getElementById('cache-status-style');
 		    const statusText = document.getElementById('cache-status-text');
 		    const statusPing = document.getElementById('cache-status-ping');
-		    
-		    const actionBtn = document.getElementById('download-action-btn');
-		    const btnText = document.getElementById('download-btn-text');
-		    const btnIcon = document.getElementById('download-btn-icon');
-		
+		    		
 		    if (!statusBox) return;
 		
 		    // Gør boksen synlig når vi har en besked (udover default som tjekker localStorage)
@@ -2968,14 +2968,6 @@
 		        statusStyle.className = 'flex items-center gap-2 text-[10px] font-black text-green-800 bg-green-100 px-3 py-1.5 rounded-full w-fit uppercase tracking-widest';
 		        statusText.innerText = 'Kortet er gemt succesfuldt!';
 		        statusPing.classList.remove('hidden');
-		        
-		        // Ændr knappen til LUK -> går til 'start'
-		        if (actionBtn) {
-		            actionBtn.setAttribute('onclick', "navigate('start')");
-		            actionBtn.className = 'w-full bg-stone-800 text-white font-bold py-4 rounded-2xl shadow-xl active:scale-[0.97] transition-all flex items-center justify-center gap-3';
-		            btnText.innerText = 'Luk';
-		            btnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>'; // X ikon
-		        }
 		    } 
 		    else if (statusType === 'error') {
 		        statusStyle.className = 'flex items-center gap-2 text-[10px] font-black text-red-700 bg-red-100 px-3 py-1.5 rounded-full w-fit uppercase tracking-widest';
