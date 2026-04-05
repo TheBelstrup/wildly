@@ -1025,8 +1025,9 @@
 
             const renderList = (filterText = "") => {
                 const filtered = list.filter(([id, data]) => {
+					const translatedType = ui["type_" + data.type];
                     const matchesSearch = data.name.toLowerCase().includes(filterText.toLowerCase()) || 
-                                        data.type.toLowerCase().includes(filterText.toLowerCase());
+                                        translatedType.toLowerCase().includes(filterText.toLowerCase());
                     const matchesSeason = activeSeason === 'all' || (data.months && data.months.includes(activeSeason));
                     return matchesSearch && matchesSeason;
                 });
