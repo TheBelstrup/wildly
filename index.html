@@ -2992,12 +2992,69 @@
 		        }
 		    }
 		}
+
+		function findWizardPath(node, targetSpeciesId, path = []) {
+		    if (node.result === targetSpeciesId) {
+		        return path;
+		    }
+		
+		    // Hvis noden har svarmuligheder (options)
+		    if (node.choices) {
+		        for (const choice of node.choices) {
+		            // Vi gemmer spørgsmålet og det valgte svar i stien
+		            const newPath = [...path, { 
+		                question: node.prompt, 
+		                answer: option.match
+		            }];
+		            
+		            const result = findWizardPath(option.next, targetSpeciesId, newPath);
+		            if (result) return result;
+		        }
+		    }
+		    return null;
+		}
+		
+		function renderIdentificationGuide(speciesId) {
+		    const path = findWizardPath(wizardMushroomData, speciesId);
+		    
+		    if (!path) return '';
+		
+		    return `
+		    <div class="mt-8 bg-stone-900 rounded-3xl p-6 text-white shadow-xl">
+		        <div class="flex items-center gap-2 mb-4">
+		            <h3 class="text-xs font-black uppercase tracking-widest text-emerald-400">Sikker Identifikation</h3>
+		        </div>
+		        
+		        <p class="text-[11px] text-stone-400 mb-6 leading-relaxed italic">
+		            For positiv identifikation, skal du kunne bekræfte følgende:
+		        </p>
+		
+		        <div class="space-y-4">
+		            ${path.map((step, index) => `
+		                <div class="flex items-start gap-4">
+		                    <div class="flex flex-col items-center">
+		                        <div class="w-8 h-8 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center text-sm">
+		                            ${(index + 1)}
+		                        </div>
+		                        ${index !== path.length - 1 ? '<div class="w-0.5 h-6 bg-stone-800 my-1"></div>' : ''}
+		                    </div>
+		                    <div class="pt-1">
+		                        <p class="text-[10px] font-bold uppercase text-stone-500 tracking-tighter">${step.question}</p>
+		                        <p class="text-sm font-black text-emerald-50">${step.answer}</p>
+		                    </div>
+		                </div>
+		            `).join('')}
+		        </div>
+		    </div>
+		    `;
+		}
 		
         function renderResult(id) {
             const res = database[id];
 			const allSpots = JSON.parse(localStorage.getItem('mySpots')) || [];
 		    const mySpotsOfThisPlant = allSpots.filter(s => s.resId === id);
 		    const hasExistingSpots = mySpotsOfThisPlant.length > 0;
+			const identGuideHtml = renderIdentificationGuide(spot.speciesId) : '';
 			
 		    // Lav HTML til "Se mine fund" linket
 		    const mySpotsLink = mySpotsOfThisPlant.length > 0 ? `
@@ -3068,6 +3125,7 @@
                     <div class="card p-8 border-l-[12px] border-green-800 shadow-md">
                         <div class="id-label">${ui.detail_traits}</div>
 						<p class="text-lg font-medium text-stone-900 italic leading-relaxed mb-6">${res.extended_traits || res.traits || ""}</p>
+						${identGuideHtml}
 						${notThisIf}
 						${res.extended_habitat ? `
                         <div class="id-label">${ui.detail_growing_location}</div>
@@ -3392,45 +3450,4 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
