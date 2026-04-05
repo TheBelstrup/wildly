@@ -1861,7 +1861,7 @@
 		        // 2. Ryd IndexedDB (alle billedfiler)
 		        try {
 					const db = await getDB(); // Bruger den fælles manager
-		            const tx = db.transaction("photos", "readwrite");
+		            const tx = db.transaction(["photos", "maps"], "readwrite");
 		            const store_photos = tx.objectStore("photos");
 		            const request_photos = store_photos.clear();
 		            const store_maps = tx.objectStore("maps");
