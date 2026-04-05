@@ -221,7 +221,7 @@
 	    </div>
 	</div>
 	
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-stone-100 safe-area-bottom z-50">
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-stone-100 safe-area-bottom z-1001">
         <div class="grid grid-cols-5 h-16">
 			<button onclick="navigate('start')" class="flex flex-col items-center justify-center gap-1 btn-active">
 				<svg width="20" height="20" viewBox="0 0 1487.4724 1520.4724">
@@ -2762,10 +2762,10 @@
 		                    </p>
 		                </div>
 		
-		                <div class="relative flex-grow bg-gray-200">
-		                    <div id="prepare-map" class="w-full h-full"></div>
-		                </div>
-		
+						<div class="relative w-full aspect-square bg-gray-200 overflow-hidden shadow-inner">
+						    <div id="prepare-map" class="w-full h-full"></div>
+						</div>
+
 		                <div class="bg-white p-6 pb-safe border-t z-10">
 		                    <div id="current-cache-status" class="mb-4 hidden">
 		                        <div id="cache-status-style" class="flex items-center gap-2 text-[10px] font-black text-green-700 bg-green-100 px-3 py-1.5 rounded-full w-fit uppercase tracking-widest">
