@@ -111,6 +111,10 @@
 		    pointer-events: none; 
 		}
 
+		body.editor-open nav.fixed.bottom-0 {
+		    display: none;
+		}
+
 		/* Save spot button */
 		.floating-save-btn {
 		    pointer-events: auto;
@@ -1395,6 +1399,7 @@
 		            </div>
 		        </div>
 		    `;
+			document.body.classList.add('editor-open');
 		    document.body.insertAdjacentHTML('beforeend', modalHtml);
 		
 		    setTimeout(() => {
@@ -1624,7 +1629,8 @@
 		    }
 			
 		    const editor = document.getElementById('location-editor');
-		    if(editor) editor.remove();
+			document.body.classList.remove('editor-open');
+			if(editor) editor.remove();
 
 			window.editingSpotUid = null;
 			window.lastKnownLocation = null;
