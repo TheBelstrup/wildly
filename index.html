@@ -166,6 +166,14 @@
 		    color: #9ca3af;
 		}
 
+		.leaflet-top, .leaflet-bottom {
+		    z-index: 400 !important;
+		}
+		
+		#prepare-map, #radar-map {
+		    z-index: 1; /* Laveste niveau */
+		}
+		
 		/* Radar */
 		
 		#radar-user-marker {
@@ -191,7 +199,7 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-stone-100 px-6 py-4 flex items-center justify-between">
+    <header class="sticky top-0 z-1000 bg-white/95 backdrop-blur-md border-b border-stone-100 px-6 py-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
             <button id="back-btn" onclick="goBack()" class="hidden w-10 h-10 flex items-center justify-center bg-stone-100 rounded-full btn-active">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
@@ -1341,7 +1349,7 @@
 						<div class="absolute inset-0 flex items-center justify-center pointer-events-none z-[1000]">
 						    <div class="flex flex-col items-center"> 
 								<div class="absolute whitespace-nowrap bg-stone-900 text-white text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest shadow-lg"
-						             style="top: -45px; transform: translateY(0);">
+						             style="top: 5px; transform: translateY(0);">
 						            ${ui.spot_location}
 						        </div>
 								<img src="lib/leaflet/images/marker-icon-2x.png" 
@@ -2742,7 +2750,7 @@
 		    // HTML Template som streng
 		    container.innerHTML = `
 				<div class="h-screen w-full flex flex-col bg-gray-50 overflow-hidden">
-		            <header class="bg-white border-b px-4 py-3 flex items-center justify-between z-20">
+		            <header class="bg-white border-b px-4 py-3 flex items-center justify-between z-1001">
 		                <h1 class="text-lg font-bold text-gray-800 tracking-tight">Forbered Tur</h1>
 		                <div class="w-10"></div>
 		            </header>
