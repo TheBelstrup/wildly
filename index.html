@@ -35,10 +35,10 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .type-badge { font-family: sans-serif; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 10px; border-radius: 12px; }
-        .badge-svamp { background: #fef3c7; color: #92400e; }
-        .badge-bær { background: #fee2e2; color: #991b1b; }
-        .badge-plante { background: #dcfce7; color: #166534; }
-        .badge-nød { background: #f3f4f6; color: #374151; }
+        .badge-mushroom { background: #fef3c7; color: #92400e; }
+        .badge-berry { background: #fee2e2; color: #991b1b; }
+        .badge-plant { background: #dcfce7; color: #166534; }
+        .badge-nut { background: #f3f4f6; color: #374151; }
         
         .id-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #064e3b; margin-bottom: 2px; font-family: sans-serif; }
         .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
@@ -946,14 +946,14 @@
 								<button onclick="navigate('view_forest_type')" class="p-6 card flex flex-col items-center justify-center gap-2 btn-active">
 									<span class="font-black text-stone-900 uppercase italic sans text-lg">${label}</span>
 									<span class="text-[11px] font-bold text-green-700 uppercase sans font-black text-center">
-										${ui.start_forest_type || 'Vælg skovtype'} →
+										${ui.start_forest_type} →
 									</span>
 								</button>
 							` : `
 								<button onclick="navigate('view_${id}')" class="p-6 card flex flex-col items-center justify-center gap-2 btn-active">
 									<span class="font-black text-stone-900 uppercase italic sans text-lg">${label}</span>
 									<span class="text-[11px] font-bold text-stone-600 uppercase sans">
-										${ui.start_explore || 'Udforsk'}
+										${ui.start_explore}
 									</span>
 								</button>
 							`;
@@ -1036,9 +1036,9 @@
                         <div class="flex items-center justify-between w-full mb-2">
                             <div>
                                 <div class="font-black text-stone-900 text-lg sans uppercase italic tracking-tighter leading-none">${data.name}</div>
-                                <div class="text-[10px] font-bold text-stone-600 uppercase sans mt-1">${data.type} • ${data.habitats.map(h => ui[`hab_${h}`] || h).join('/')}</div>
+                                <div class="text-[10px] font-bold text-stone-600 uppercase sans mt-1">${ui["type_" + data.type]} • ${data.habitats.map(h => ui[`hab_${h}`] || h).join('/')}</div>
                             </div>
-                            <span class="type-badge badge-${data.type}">${data.type[0]}</span>
+                            <span class="type-badge badge-${data.type}">${ui["type_" + data.type[0]]}</span>
                         </div>
                         <div class="text-xs font-medium text-stone-600 italic line-clamp-1">${data.traits}</div>
                     </button>
@@ -1100,7 +1100,7 @@
 		            <div class="font-black text-stone-900 text-l uppercase italic tracking-tighter sans leading-none">
 		                ${data.name}
 		            </div>
-		            <span class="type-badge badge-${data.type}">${data.type}</span>
+		            <span class="type-badge badge-${data.type}">${ui["type_" + data.type]}</span>
 		        </div>
 		        <div class="text-sm font-medium text-stone-600 italic">
 		            ${data.traits}
@@ -3101,7 +3101,7 @@
 
 				<div class="fade-in space-y-8 pb-10">
                     <div class="text-center">
-                        <span class="type-badge badge-${res.type} mb-3 inline-block">${res.type}</span>
+                        <span class="type-badge badge-${res.type} mb-3 inline-block">${ui["type_" + res.type]}</span>
                         <h2 class="text-4xl font-black text-stone-900 uppercase italic tracking-tighter sans leading-none">${res.name}</h2>
                         <p class="text-stone-600 font-bold italic text-base mt-2">${res.latin}</p>
                     </div>
