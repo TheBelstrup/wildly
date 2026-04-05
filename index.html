@@ -1037,9 +1037,9 @@
                         <div class="flex items-center justify-between w-full mb-2">
                             <div>
                                 <div class="font-black text-stone-900 text-lg sans uppercase italic tracking-tighter leading-none">${data.name}</div>
-                                <div class="text-[10px] font-bold text-stone-600 uppercase sans mt-1">${ui["type_" + data.type]} • ${data.habitats.map(h => ui[`hab_${h}`] || h).join('/')}</div>
+                                <div class="text-[10px] font-bold text-stone-600 uppercase sans mt-1">${data.habitats.map(h => ui[`hab_${h}`] || h).join('/')}</div>
                             </div>
-                            <span class="type-badge badge-${data.type}">${ui["type_" + data.type[0]]}</span>
+                            <span class="type-badge badge-${data.type}">${ui["type_" + data.type]}</span>
                         </div>
                         <div class="text-xs font-medium text-stone-600 italic line-clamp-1">${data.traits}</div>
                     </button>
