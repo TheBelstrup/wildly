@@ -849,7 +849,7 @@
 		    closeMenuIfOpen();
 		    
 		    // Vi gør emnet og teksten lidt mere generel
-		    const subject = encodeURIComponent("${ui.feedback_subject}");
+		    const subject = encodeURIComponent(`${ui.feedback_subject}`);
 			const body = encodeURIComponent(`${ui.feedback_content} (${ui.menu_language}: ${userSettings.lang}, ${ui.menu_country}: ${userSettings.country})`);
 		    
 		    window.location.href = `mailto:support@wild.ly?subject=${subject}&body=${body}`;
