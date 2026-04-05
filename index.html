@@ -2995,7 +2995,7 @@
 		}
 
 		function findWizardPath(node, targetSpeciesId, path = []) {
-		    if (node.result === targetSpeciesId) {
+		    if (node.id && node.id === targetSpeciesId) {
 		        return path;
 		    }
 		
