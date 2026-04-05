@@ -3005,10 +3005,10 @@
 		            // Vi gemmer spørgsmålet og det valgte svar i stien
 		            const newPath = [...path, { 
 		                question: node.prompt, 
-		                answer: option.match
+		                answer: choice.match
 		            }];
 		            
-		            const result = findWizardPath(option.next, targetSpeciesId, newPath);
+		            const result = findWizardPath(choice.next, targetSpeciesId, newPath);
 		            if (result) return result;
 		        }
 		    }
