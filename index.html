@@ -1887,6 +1887,111 @@
 		    }
 		}
 
+		function getPhotoGuideHtml(res_type) {
+			const typeMapping = {
+			    'berry': 'nut_berry',
+			    'nut': 'nut_berry'
+			};
+			
+			const finalType = typeMapping[res_type] || res_type;
+			
+		    const photoGuides = {
+		        universal: {
+		            step1: { 
+		                label: "Hvor bor den?", 
+		                desc: "Tag et billede af voksestedet. Er det under et egetræ, i dybt mos eller på en åben mark?" 
+		            }
+		        },
+		        mushroom: {
+		            step2: { 
+		                label: "Hatten fra oven", 
+		                desc: "Vis hele overfladen. Er den tør, slimet eller har den små skæl/prikker?" 
+		            },
+		            step3: { 
+		                label: "Kig under skørtet", 
+		                desc: "Gå helt tæt på undersiden. Det er her, vi ser om det er lameller, rør eller pigge." 
+		            },
+		            step4: { 
+		                label: "Profil & Profil", 
+		                desc: "Vis hele stokken. Skær den gerne over for at vise farven på kødet indeni." 
+		            }
+		        },
+		        plant: {
+		            step2: { 
+		                label: "Bladets detaljer", 
+		                desc: "Tag et skarpt billede af ét blad. Er kanten savtakket, glat eller måske håret?" 
+		            },
+		            step3: { 
+		                label: "Blomst eller frugt", 
+		                desc: "Hvis der er blomster eller bær, er de det absolut bedste kendetegn. Gå tæt på!" 
+		            },
+		            step4: { 
+		                label: "Stænglen", 
+		                desc: "Vis hvordan bladene sidder fast. Sidder de parvis overfor hinanden eller skiftevis?" 
+		            }
+		        },
+		        nut_berry: {
+		            step2: { 
+		                label: "Grene & Bark", 
+		                desc: "Tag et billede af barken eller en gren. Er der torne, eller har barken et særligt mønster?" 
+		            },
+		            step3: { 
+		                label: "Løv & Blade", 
+		                desc: "Vis et typisk blad. Det hjælper os med at se formen og de små nerver i bladet." 
+		            },
+		            step4: { 
+		                label: "Klaser & Frugter", 
+		                desc: "Vis hvordan bær eller nødder hænger. Sidder de i klaser eller enkeltvis?" 
+		            }
+		        },
+		        tree: {
+		            step2: { 
+		                label: "Grene & Bark", 
+		                desc: "Tag et billede af barken eller en gren. Er der torne, eller har barken et særligt mønster?" 
+		            },
+		            step3: { 
+		                label: "Løv & Blade", 
+		                desc: "Vis et typisk blad. Det hjælper os med at se formen og de små nerver i bladet." 
+		            },
+		        }
+		    };
+		
+		    const steps = { 
+		        ...photoGuides.universal, 
+		        ...(photoGuides[finalType] || {}) 
+		    };
+		
+		    const guideItems = Object.entries(steps).map(([key, step]) => `
+		        <div class="flex items-start gap-4 py-3 border-b border-emerald-100/40 last:border-0">
+		            <div class="mt-1 flex-shrink-0">
+		                <div class="w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 shadow-sm">
+		                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+		                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+		                    </svg>
+		                </div>
+		            </div>
+		            <div class="space-y-0.5">
+		                <p class="text-[11px] font-black uppercase tracking-wider text-emerald-900 leading-none">${step.label}</p>
+		                <p class="text-sm text-emerald-800/80 font-medium leading-relaxed italic">${step.desc}</p>
+		            </div>
+		        </div>
+		    `).join('');
+		
+		    return `
+		        <div id="photo_guide" class="p-5 bg-white border-x border-b border-emerald-100 rounded-b-3xl shadow-inner">
+		            <div class="space-y-1">
+		                ${guideItems}
+		            </div>
+		            <div class="mt-5 flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 rounded-xl">
+		                <span class="text-lg">💡</span>
+		                <p class="text-[10px] text-emerald-800 font-bold uppercase tracking-tight">
+		                    Gode billeder = Sikker identifikation
+		                </p>
+		            </div>
+		        </div>
+		    `;
+		}
+
 		async function renderSpot(spotUid) {
 		    const allSpots = JSON.parse(localStorage.getItem('mySpots')) || [];
 		    const statusHtml =  renderPremiumSpotUpgrade();
@@ -1997,7 +2102,24 @@
 		                        </label>
 		                    </div>
 		                </div>
-		
+						<div class="mt-6 space-y-3">
+						    <details class="group border border-emerald-200 rounded-[28px] bg-white overflow-hidden transition-all shadow-sm">
+						        <summary class="list-none cursor-pointer p-5 flex justify-between items-center bg-white group-open:bg-emerald-50 transition-colors">
+						            <div class="flex items-center gap-3">
+						                <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+						                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+						                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+						                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
+						                    </svg>
+						                </div>
+						                <span class="text-[11px] font-black uppercase tracking-widest text-emerald-900 sans">${ui.detail_photo_guide_title || 'Guide til gode billeder'}</span>
+						            </div>
+						            <span class="text-emerald-400 group-open:rotate-180 transition-transform text-[10px]">▼</span>
+						        </summary>
+						        ${getPhotoGuideHtml(res.type)}
+						    </details>
+						</div>
+
 		                <div class="grid grid-cols-3 gap-2" id="photo-grid">
 		                    ${photoGridHtml}
 		                </div>
