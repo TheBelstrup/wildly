@@ -2088,36 +2088,34 @@
 		            ${(lat && lng) ? radarButton : ''}
 		            ${editLocationButton}
 		
-		            <div>
-		                <div class="flex justify-between items-end mb-3">
-		                    <h2 class="text-sm font-bold text-stone-600 uppercase tracking-wider">${ui.spot_images}</h2>
-		                    <div class="flex gap-3">
-		                        <label class="flex items-center justify-center w-10 h-10 bg-emerald-100 text-emerald-950 border-2 border-emerald-600/20 rounded-full cursor-pointer active:scale-90 transition-transform shadow-sm">
-		                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-		                            <input type="file" accept="image/*" capture="environment" class="hidden" onchange="addPhotoToSpot('${spotUid}', this)">
-		                        </label>
-		                        <label class="flex items-center justify-center w-10 h-10 bg-stone-100 text-stone-600 rounded-full cursor-pointer active:scale-90 transition-transform shadow-sm">
-		                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-		                            <input type="file" accept="image/*" class="hidden" onchange="addPhotoToSpot('${spotUid}', this)">
-		                        </label>
-		                    </div>
-		                </div>
-						<details class="group mb-4">
-							<summary class="list-none cursor-pointer flex items-center gap-2 text-emerald-700/70 hover:text-emerald-700 transition-colors">
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-									<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-								</svg>
-								<span class="text-[10px] font-black uppercase tracking-widest sans">Tips til gode billeder</span>
-								<span class="text-[8px] group-open:rotate-180 transition-transform opacity-50">▼</span>
-							</summary>
-	
-							${getPhotoGuideHtml(plantInfo.type)}
-						</details>
-
-		                <div class="grid grid-cols-3 gap-2" id="photo-grid">
-		                    ${photoGridHtml}
-		                </div>
-		            </div>
+					<div class="mt-8">
+						<div class="flex justify-between items-center mb-4">
+							<div class="flex flex-col">
+								<h2 class="text-sm font-bold text-stone-600 uppercase tracking-wider">Billeder</h2>
+					            <details class="group">
+					                <summary class="list-none cursor-pointer flex items-center gap-1.5 text-emerald-700/60 hover:text-emerald-700 transition-colors">
+					                    <span class="text-[10px] font-black uppercase tracking-widest sans">Se fotoguide</span>
+					                    <span class="text-[8px] group-open:rotate-180 transition-transform opacity-50">▼</span>
+					                </summary>
+					                <div class="absolute left-0 right-0 z-10 mx-4 mt-2 p-4 bg-white border border-emerald-100 rounded-2xl shadow-xl">
+					                     ${getPhotoGuideHtml(res.type)}
+					                </div>
+					            </details>
+							</div>
+							<div class="flex gap-2">
+					            <label class="flex items-center justify-center w-10 h-10 bg-emerald-100 text-emerald-950 border border-emerald-600/20 rounded-full cursor-pointer active:scale-90 transition-transform">
+					                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+					                <input type="file" accept="image/*" capture="environment" class="hidden" onchange="addPhotoToSpot('${id}', this)">
+					            </label>
+					            <label class="flex items-center justify-center w-10 h-10 bg-stone-100 text-stone-600 rounded-full cursor-pointer active:scale-90 transition-transform">
+					                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+					                <input type="file" accept="image/*" class="hidden" onchange="addPhotoToSpot('${id}', this)">
+					            </label>
+					        </div>
+						</div>
+						<div class="grid grid-cols-3 gap-2" id="photo-grid">
+				        </div>
+					</div>
 		
 		            <div class="pt-6 space-y-3">
 		                <button onclick="navigate('${spot.resId}')" class="w-full bg-emerald-800 text-white py-4 rounded-xl font-bold shadow-lg active:scale-[0.98] transition-transform">
