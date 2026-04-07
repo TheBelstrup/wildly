@@ -1898,60 +1898,60 @@
 		    const photoGuides = {
 		        universal: {
 		            step1: { 
-		                label: "Hvor bor den?", 
-		                desc: "Tag et billede af voksestedet. Er det under et egetræ, i dybt mos eller på en åben mark?" 
+		                label: ui.guide_growing_spot, 
+		                desc: ui.guide_text_growing_spot 
 		            }
 		        },
 		        mushroom: {
 		            step2: { 
-		                label: "Hatten fra oven", 
-		                desc: "Vis hele overfladen. Er den tør, slimet eller har den små skæl/prikker?" 
+		                label: ui.guide_label_cap, 
+		                desc: ui.guide_text_cap
 		            },
 		            step3: { 
-		                label: "Kig under skørtet", 
-		                desc: "Gå helt tæt på undersiden. Det er her, vi ser om det er lameller, rør eller pigge." 
+		                label: ui.guide_label_under, 
+		                desc: ui.guide_text_under 
 		            },
 		            step4: { 
-		                label: "Profil & Profil", 
-		                desc: "Vis hele stokken. Skær den gerne over for at vise farven på kødet indeni." 
+		                label: ui.guide_label_stem, 
+		                desc: ui.guide_text_stem 
 		            }
 		        },
 		        plant: {
 		            step2: { 
-		                label: "Bladets detaljer", 
-		                desc: "Tag et skarpt billede af ét blad. Er kanten savtakket, glat eller måske håret?" 
+		                label: ui.guide_label_leaf, 
+		                desc: ui.guide_text_leaf 
 		            },
 		            step3: { 
-		                label: "Blomst eller frugt", 
-		                desc: "Hvis der er blomster eller bær, er de det absolut bedste kendetegn. Gå tæt på!" 
+		                label: ui.guide_label_flower_fruit, 
+		                desc: ui.guide_text_flower_fruit
 		            },
 		            step4: { 
-		                label: "Stænglen", 
-		                desc: "Vis hvordan bladene sidder fast. Sidder de parvis overfor hinanden eller skiftevis?" 
+		                label: ui.guide_label_plant_stem, 
+		                desc: ui.guide_text_plant_stem
 		            }
 		        },
 		        nut_berry: {
 		            step2: { 
-		                label: "Grene & Bark", 
-		                desc: "Tag et billede af barken eller en gren. Er der torne, eller har barken et særligt mønster?" 
+		                label: ui.guide_label_branch_bark, 
+		                desc: ui.guide_text_branch_bark 
 		            },
 		            step3: { 
-		                label: "Løv & Blade", 
-		                desc: "Vis et typisk blad. Det hjælper os med at se formen og de små nerver i bladet." 
+		                label: ui.guide_label_leaf, 
+		                desc: ui.guide_text_leaf 
 		            },
 		            step4: { 
-		                label: "Klaser & Frugter", 
-		                desc: "Vis hvordan bær eller nødder hænger. Sidder de i klaser eller enkeltvis?" 
+		                label: ui.guide_label_clusters_fruits, 
+		                desc: ui.guide_text_clusters_fruits 
 		            }
 		        },
 		        tree: {
 		            step2: { 
-		                label: "Grene & Bark", 
-		                desc: "Tag et billede af barken eller en gren. Er der torne, eller har barken et særligt mønster?" 
+		                label: ui.guide_label_branch_bark, 
+		                desc: ui.guide_text_branch_bark
 		            },
 		            step3: { 
-		                label: "Løv & Blade", 
-		                desc: "Vis et typisk blad. Det hjælper os med at se formen og de små nerver i bladet." 
+		                label: ui.guide_label_leaf, 
+		                desc: ui.guide_text_leaf 
 		            },
 		        }
 		    };
@@ -1985,7 +1985,7 @@
 		            <div class="mt-5 flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 rounded-xl">
 		                <span class="text-lg">💡</span>
 		                <p class="text-[10px] text-emerald-800 font-bold uppercase tracking-tight">
-		                    Gode billeder = Sikker identifikation
+		                    ${ui.guide_better_identification}
 		                </p>
 		            </div>
 		        </div>
@@ -2015,7 +2015,6 @@
 		        }
 			}
 		
-		    // --- NY KORT OG KNAP LOGIK ---
 		    const isMapAvailable = isLocationInOfflineCache(lat, lng);
 		    let mapContainerHtml = '';
 		    
