@@ -2437,6 +2437,7 @@
 		                    }
 		                    
 		                    try {
+								const dataUrl = canvas.toDataURL('image/png');
 		                        cleanup();
 		                        resolve(dataUrl);
 		                    } catch (e) {
