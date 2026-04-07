@@ -2042,12 +2042,11 @@
 		            </span>
 		        </button>
 		    ` : '';
-		    // -----------------------------
 		
 		    let photoGridHtml = '';
 		    if (photos.length === 0) {
 		        photoGridHtml = `
-		            <div class="col-span-3 bg-stone-50 rounded-xl border border-dashed border-stone-300 p-8 flex flex-col items-center justify-center text-stone-600 gap-2">
+		            <div class="col-span-3 bg-stone-50 rounded-xl border border-stone-300 p-8 flex flex-col items-center justify-center text-stone-600 gap-2">
 		                <svg class="w-8 h-8 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
 		                <span class="text-xs font-medium">${ui.spot_no_images}</span>
 		            </div>`;
@@ -2075,7 +2074,7 @@
 		    ` : ``;
 		    
 		    app.innerHTML = `
-		        <div class="p-4 space-y-6 pb-20 fade-in">
+		        <div class="p-4 pb-20 fade-in">
 		            <p class="text-[10px] text-emerald-800 font-bold uppercase tracking-widest mb-1">
 		                ${new Date(spot.timestamp).toLocaleDateString()}
 		            </p>
@@ -2088,11 +2087,11 @@
 		            ${(lat && lng) ? radarButton : ''}
 		            ${editLocationButton}
 		
-					<div class="mt-8">
+					<div class="mt-8 p-3 rounded-xl border border-stone-300">
 						<h2 class="text-sm font-bold text-stone-600 uppercase tracking-wider">Billeder</h2>
 						<details class="group">
 							<summary class="list-none cursor-pointer flex items-center gap-1.5 text-emerald-700/60 hover:text-emerald-700 transition-colors">
-								<span class="text-[10px] font-black uppercase tracking-widest sans">Se fotoguide</span>
+								<span class="text-[10px] font-black tracking-wide">Se fotoguide</span>
 								<span class="text-[8px] group-open:rotate-180 transition-transform opacity-50">▼</span>
 							</summary>
 							 ${getPhotoGuideHtml(plantInfo.type)}
