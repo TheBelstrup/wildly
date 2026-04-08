@@ -597,6 +597,7 @@
 
 		async function handleLangChange(langCode, shouldRender = true) {
 		    userSettings.lang = langCode;
+			document.documentElement.lang = langCode;
 		    const langData = appConfig.languages[langCode];
 			await loadInterfaceTranslations(langCode);
 			
