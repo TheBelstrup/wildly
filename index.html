@@ -207,9 +207,8 @@
 		    font-weight: 900;
 		    font-size: 13px;
 		    font-family: 'Inter', sans-serif;
-		    /* Sikrer at tallet er centreret præcis i den runde del */
-		    margin-bottom: 2px;
-		    margin-right: 2px;
+		    margin-bottom: 0px;
+		    margin-right: 1px;
 		}
 		
 		/* Tilføj en lille skygge under spidsen for ekstra dybde (valgfrit) */
@@ -987,13 +986,13 @@
                         </div>
                         <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
                     </div>
-					<button class="w-full mt-4 bg-emerald-50 border border-emerald-100 rounded-2xl p-3 flex items-center justify-between active:scale-[0.98] transition-transform">
+					<button onclick="navigate('prepare_trip'); window.history.pushState({pageId: 'prepare_trip'}, '', '');" class="w-full mt-4 bg-emerald-50 border border-emerald-100 rounded-2xl p-3 flex items-center justify-between active:scale-[0.98] transition-transform">
 					    <div class="flex items-center gap-3">
 					        <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-emerald-600">
 					            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
 					        </div>
 					        <div class="text-left">
-					            <p class="text-sm font-bold text-stone-800">>${ui.offline_map_prepare}</p>
+					            <p class="text-sm font-bold text-stone-800">${ui.offline_map_prepare}</p>
 					            <p class="text-sm text-stone-700 font-medium">${ui.offline_map_prepare_text}</p>
 					        </div>
 					    </div>
