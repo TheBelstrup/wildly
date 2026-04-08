@@ -177,6 +177,55 @@
 		#prepare-map, #radar-map {
 		    z-index: 1; /* Laveste niveau */
 		}
+
+		/* Oversigt-kort: Fjern Leaflets standard hvide baggrund på divIcons */
+		.custom-div-icon {
+		    background: none !important;
+		    border: none !important;
+		}
+		
+		.custom-pin {
+		    width: 32px;
+		    height: 32px;
+		    background: #059669; /* emerald-600 */
+		    /* Dette skaber dråbeformen ved at gøre 3 hjørner runde og ét spidst */
+		    border-radius: 50% 50% 50% 0;
+		    position: relative;
+		    /* Roterer markeringsnålen så spidsen vender nedad */
+		    transform: rotate(-45deg);
+		    display: flex;
+		    align-items: center;
+		    justify-content: center;
+		    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+		    border: 2px solid white;
+		}
+		
+		.pin-number {
+		    /* Roterer tallet tilbage, så det står vandret */
+		    transform: rotate(45deg); 
+		    color: white;
+		    font-weight: 900;
+		    font-size: 13px;
+		    font-family: 'Inter', sans-serif;
+		    /* Sikrer at tallet er centreret præcis i den runde del */
+		    margin-bottom: 2px;
+		    margin-right: 2px;
+		}
+		
+		/* Tilføj en lille skygge under spidsen for ekstra dybde (valgfrit) */
+		.custom-pin::after {
+		    content: "";
+		    width: 10px;
+		    height: 10px;
+		    background: rgba(0,0,0,0.2);
+		    position: absolute;
+		    bottom: -8px;
+		    left: -8px;
+		    border-radius: 50%;
+		    filter: blur(2px);
+		    transform: rotate(45deg);
+		    z-index: -1;
+		}
 		
 		/* Radar */
 		
@@ -1196,13 +1245,26 @@
 		        activeMarkers = {}; 
 		        const markerArray = [];
 		
-		        spots.forEach(spot => {
+		        spots.forEach((spot, index) => {
 		            const lat = spot.lat || (spot.location ? spot.location.lat : null);
 		            const lng = spot.lng || (spot.location ? spot.location.lng : null);
 		
 		            if (!lat || !lng) return;
-		
-		            const marker = L.marker([lat, lng]).addTo(overviewMap);
+					
+					const markerHtml = `
+				        <div class="custom-pin">
+				            <span class="pin-number">${index + 1}</span>
+				        </div>
+				    `;
+				
+				    const customIcon = L.divIcon({
+				        html: markerHtml,
+				        className: 'custom-div-icon', // Leaflet kræver en klasse, men vi fjerner standard-styling i CSS
+				        iconSize: [32, 32],
+				        iconAnchor: [16, 32]
+				    });
+					
+		            const marker = L.marker([lat, lng], { icon: customIcon }).addTo(overviewMap);
 		            const plant = spot.info; 
 		
 		            const monthsHtml = spot.info.months.map(m => `
@@ -1804,7 +1866,7 @@
 		            </div>
 		
 		            <div class="space-y-3 px-4">
-		                ${processedSpots.map((spot) => `
+		                ${processedSpots.map((spot, index) => `
 							<div class="card p-4 border-stone-100 relative overflow-hidden bg-white shadow-sm mb-3">    
 						        <div class="flex items-center gap-2 mb-1.5">
 						            <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500">
@@ -1835,9 +1897,7 @@
 									<button onclick="focusSpotOnMap('${spot.originalIndex}')" 
 						                    class="w-10 h-10 rounded-xl bg-stone-50 border-2 border-stone-200 flex items-center justify-center active:scale-90 transition-transform shadow-sm"
 						                    aria-label="Find on map">
-						                <img src="lib/leaflet/images/marker-icon-2x.png" 
-						                     class="h-6 w-auto object-contain" 
-						                     alt="Map Pin">
+							        	${index + 1}
 						            </button>
 						            <button onclick="navigate('view_spot', { spotId: '${spot.uid}' })" 
 						                    class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-950 border-2 border-emerald-600/30 flex items-center justify-center active:scale-90 transition-transform shadow-sm">
