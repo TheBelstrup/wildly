@@ -382,6 +382,18 @@
 		</div>
 	</div>
 	
+	<div id="quick-log-overlay" class="fixed inset-0 bg-stone-900/40 z-[9998] transition-opacity duration-300 opacity-0 pointer-events-none backdrop-blur-sm" onclick="closeQuickLog()"></div>
+	<div id="quick-log-sheet" class="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-[9999] transform translate-y-full transition-transform duration-300 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] p-5 pb-10">
+	    <div class="w-12 h-1.5 bg-stone-200 rounded-full mx-auto mb-6"></div>
+	    <div class="flex justify-between items-center mb-6">
+	        <h3 class="text-xl font-black uppercase tracking-tight text-stone-800">Log besøg</h3>
+	        <button onclick="closeQuickLog()" class="w-8 h-8 flex items-center justify-center bg-stone-100 rounded-full text-stone-500 font-bold active:scale-90 transition-transform">✕</button>
+	    </div>
+	
+	    <div id="quick-log-content">
+	    </div>
+	</div>
+	
     <script>
 		//GLOBALS
 		let ui = {};
@@ -3430,6 +3442,22 @@
             `;
         }
 
+		function openQuicklogOverlay() {
+		    const overlay = document.getElementById('quick-log-overlay');
+		    const sheet = document.getElementById('quick-log-sheet');
+		    overlay.classList.remove('pointer-events-none');
+		    overlay.classList.remove('opacity-0');
+		    sheet.classList.remove('translate-y-full');
+		}
+
+		function closeQuicklogOverlay() {
+		    const overlay = document.getElementById('quick-log-overlay');
+		    const sheet = document.getElementById('quick-log-sheet');
+		    sheet.classList.add('translate-y-full');
+		    overlay.classList.add('opacity-0');
+		    overlay.classList.add('pointer-events-none');
+		}
+		
         function renderSafety() {
             document.getElementById('app-content').innerHTML = `
                 <div class="fade-in space-y-6">
