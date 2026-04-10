@@ -412,6 +412,9 @@
 		let appConfig = {};
 		let geoData = {};
 		let database = {};
+		let logState = {
+		    status: null // Bliver sat til 'early', 'ready', 'late', eller 'none'
+		};
 		let locationEditorWatchId = null; 
 		let isRadarRunning = false;
 		let radarWatchId = null;
@@ -3444,12 +3447,16 @@
 
 		function openQuicklogOverlay() {
 		    const overlay = document.getElementById('quick-log-overlay');
-		    const sheet = document.getElementById('quick-log-sheet');
+			const sheet = document.getElementById('quick-log-sheet');
+
+			document.getElementById('quick-log-content').innerHTML = renderQuickLogButtonSection(true);
+			resetUI();
+			
 		    overlay.classList.remove('pointer-events-none');
 		    overlay.classList.remove('opacity-0');
 		    sheet.classList.remove('translate-y-full');
 		}
-
+			
 		function closeQuicklogOverlay() {
 		    const overlay = document.getElementById('quick-log-overlay');
 		    const sheet = document.getElementById('quick-log-sheet');
@@ -3457,8 +3464,109 @@
 		    overlay.classList.add('opacity-0');
 		    overlay.classList.add('pointer-events-none');
 		}
+
+		function renderQuickLogButtonSection(existingSpot = false) {
+			logState.status = null;
+			
+			return `
+				<div class="flex flex-col w-full gap-3 p-2 bg-stone-100 rounded-[2rem] font-sans">
+				    <div id="status-button-group" class="flex w-full gap-2">
+				        <button onclick="setStatus('early')" id="btn-early" 
+				                class="status-btn flex-1 flex flex-col items-center gap-2 py-4 rounded-2xl bg-white shadow-sm border-2 border-transparent active:scale-95 transition-all duration-200">
+				            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none">
+				                <path class="icon-path" d="M12 6V12L15.5 15.5" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+				                <circle class="icon-circle" cx="12" cy="12" r="9" stroke="#F59E0B" stroke-width="2" stroke-dasharray="2 2" opacity="0.3"></circle>
+				            </svg>
+				            <span class="text-[13px] font-medium text-amber-600 transition-colors">For tidligt</span>
+				        </button>
+				        <button onclick="setStatus('ready')" id="btn-ready" 
+				                class="status-btn flex-1 flex flex-col items-center gap-2 py-4 rounded-2xl bg-white shadow-sm border-2 border-transparent active:scale-95 transition-all duration-200">
+				            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none">
+				                <circle class="icon-circle" cx="12" cy="12" r="10" stroke="#059669" stroke-width="2.5" opacity="0.3"></circle>
+				                <path class="icon-path" d="M16.5 9L11 14.5L8.5 12" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+				            </svg>
+				            <span class="text-[13px] font-medium text-emerald-600 transition-colors">Høstklar</span>
+				        </button>
+				        <button onclick="setStatus('late')" id="btn-late" 
+				                class="status-btn flex-1 flex flex-col items-center gap-2 py-4 rounded-2xl bg-white shadow-sm border-2 border-transparent active:scale-95 transition-all duration-200">
+				            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none">
+				                <path class="icon-path" d="M12 7V13M12 17H12.01" stroke="#E11D48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+				            </svg>
+				            <span class="text-[13px] font-medium text-rose-600 transition-colors">For sent</span>
+				        </button>
+
+				        <button onclick="setStatus('none')" id="btn-none" 
+				                class="status-btn ${existingSpot ? `hidden` : ''} flex-1 flex flex-col items-center gap-2 py-4 rounded-2xl bg-white shadow-sm border-2 border-transparent active:scale-95 transition-all duration-200">
+				            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none">
+				                <line class="icon-path" x1="8" y1="12" x2="16" y2="12" stroke="#78716C" stroke-width="3" stroke-linecap="round"></line>
+				            </svg>
+				            <span class="text-[13px] font-medium text-stone-500 transition-colors">Intet</span>
+				        </button>
+				    </div>
+				    <div id="info-box" class="flex items-center justify-center py-3 rounded-xl border transition-all duration-300 opacity-0 transform translate-y-2">
+				        <p id="info-text" class="text-sm font-medium"></p>
+				    </div>
+				</div>
+			`
+		}
 		
-        function renderSafety() {
+		function resetUI() {
+		    const infoBox = document.getElementById('info-box');
+		    infoBox.className = "flex items-center justify-center py-3 rounded-xl border transition-all duration-300 opacity-0 transform translate-y-2 pointer-events-none";
+		
+		    document.querySelectorAll('.status-btn').forEach(btn => {
+		        btn.classList.remove('bg-amber-500', 'bg-emerald-600', 'bg-rose-600', 'bg-stone-600', 'shadow-md', 'border-amber-400', 'border-emerald-500', 'border-rose-500', 'border-stone-500');
+		        btn.classList.add('bg-white', 'border-transparent', 'shadow-sm');
+		        
+		        const label = btn.querySelector('span');
+		        label.classList.remove('text-white', 'font-black', 'uppercase');
+		        label.classList.add('font-medium'); // Sørg for at den ikke er black længere
+		        
+		        if (btn.id === 'btn-early') label.classList.replace('text-white', 'text-amber-600') || label.classList.add('text-amber-600');
+		        if (btn.id === 'btn-ready') label.classList.replace('text-white', 'text-emerald-600') || label.classList.add('text-emerald-600');
+		        if (btn.id === 'btn-late') label.classList.replace('text-white', 'text-rose-600') || label.classList.add('text-rose-600');
+		        if (btn.id === 'btn-none') label.classList.replace('text-white', 'text-stone-500') || label.classList.add('text-stone-500');
+		
+		        const paths = btn.querySelectorAll('.icon-path, .icon-circle');
+		        paths.forEach(p => {
+		            const originalColor = btn.id === 'btn-early' ? '#F59E0B' : 
+		                                 btn.id === 'btn-ready' ? '#059669' : 
+		                                 btn.id === 'btn-late' ? '#E11D48' : '#78716C';
+		            p.setAttribute('stroke', originalColor);
+		        });
+		    });
+		}
+
+		function setStatus(status) {
+			const config = {
+			    early: { bgClass: 'bg-amber-500', borderClass: 'border-amber-400', infoBg: 'bg-amber-50', infoBorder: 'border-amber-200/50', infoText: 'text-amber-800', msg: 'Kun en spire. Vent et par uger.' },
+			    ready: { bgClass: 'bg-emerald-600', borderClass: 'border-emerald-500', infoBg: 'bg-emerald-50', infoBorder: 'border-emerald-200/50', infoText: 'text-emerald-800', msg: 'Perfekt timing! Hvor meget er der?' },
+			    late:  { bgClass: 'bg-rose-600', borderClass: 'border-rose-500', infoBg: 'bg-rose-50', infoBorder: 'border-rose-200/50', infoText: 'text-rose-800', msg: 'Overmodne eller gået i frø.' },
+			    none:  { bgClass: 'bg-stone-600', borderClass: 'border-stone-500', infoBg: 'bg-stone-200', infoBorder: 'border-stone-300/50', infoText: 'text-stone-700', msg: 'Tomt spot. Prøv igen senere.' }
+			};
+
+			logState.status = status;
+		    resetUI();
+
+		    const s = config[status];
+		    const activeBtn = document.getElementById(`btn-${status}`);
+		    
+		    activeBtn.classList.remove('bg-white', 'border-transparent', 'shadow-sm');
+		    activeBtn.classList.add(s.bgClass, s.borderClass, 'shadow-md');
+		    
+		    const label = activeBtn.querySelector('span');
+		    label.className = 'text-[13px] font-black uppercase text-white transition-colors duration-200';
+		    activeBtn.querySelectorAll('.icon-path, .icon-circle').forEach(p => p.setAttribute('stroke', 'white'));
+		
+		    const infoBox = document.getElementById('info-box');
+		    const infoText = document.getElementById('info-text');
+		
+		    infoBox.className = `flex items-center justify-center py-3 rounded-xl border transition-all duration-300 opacity-100 transform translate-y-0 ${s.infoBg} ${s.infoBorder}`;
+		    infoText.className = `text-sm font-medium ${s.infoText}`;
+		    infoText.innerText = s.msg;
+		}
+		
+		function renderSafety() {
             document.getElementById('app-content').innerHTML = `
                 <div class="fade-in space-y-6">
                     <h2 class="text-3xl font-black text-red-700 italic uppercase tracking-tighter sans leading-none">${ui.safety}</h2>
