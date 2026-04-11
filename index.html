@@ -392,6 +392,30 @@
 	
 	    <div id="quick-log-content">
 	    </div>
+
+		<div class="flex items-center gap-3 mt-2 px-1">
+		    
+		    <label class="flex shrink-0 items-center justify-center w-12 h-12 bg-stone-200 text-stone-600 rounded-2xl cursor-pointer active:scale-95 transition-transform">
+		        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+		            <path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+		            <path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+		        </svg>
+		        <input type="file" accept="image/*" capture="environment" class="hidden" onchange="previewLogPhoto(this)">
+		    </label>
+		
+		    <div id="log-photo-preview-container" class="flex-1 flex items-center gap-3 bg-white p-2 rounded-2xl border border-stone-200 shadow-sm hidden">
+		        <div class="relative w-10 h-10 shrink-0">
+		            <img id="log-photo-preview-img" src="" class="w-full h-full object-cover rounded-xl border border-stone-100">
+		            <button type="button" onclick="removeLogPhotoPreview()" class="absolute -top-1.5 -right-1.5 bg-rose-500 text-white rounded-full w-5 h-5 flex items-center justify-center font-bold text-[10px] shadow-sm">✕</button>
+		        </div>
+		        <p class="text-xs font-medium text-stone-600 leading-tight">Billede klar til at blive gemt med loggen.</p>
+		    </div>
+		
+		    <div id="log-photo-prompt" class="flex-1 text-xs font-medium text-stone-500 leading-tight">
+		        Dokumentér stadiet med et hurtigt billede (valgfrit).
+		    </div>
+		</div>
+		
 	    <button onclick="saveQuickLog()" class="w-full bg-stone-900 text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
 	        Gem observation
 	    </button>
@@ -416,8 +440,13 @@
 		let geoData = {};
 		let database = {};
 		let logState = {
-		    status: null, // Bliver sat til 'early', 'ready', 'late', eller 'none'
-			quantity: null
+			uid: null,
+			spotUid: null,
+		    date: null,
+			status: null, // Bliver sat til 'early', 'ready', 'late', eller 'none'
+			quantity: null,
+			note: "",
+			photoID: null
 		};
 		let locationEditorWatchId = null; 
 		let isRadarRunning = false;
@@ -486,7 +515,7 @@
 		            const tx = db.transaction(this.storeName, "readwrite");
 		            const store = tx.objectStore(this.storeName);
 		            const request = store.add({ spotUid, data: base64Data, date: Date.now() });
-		            request.onsuccess = () => resolve();
+		            request.onsuccess = (e) => resolve(e.target.result);
 		            request.onerror = () => reject();
 		        });
 		    },
@@ -502,8 +531,18 @@
 		            request.onsuccess = () => resolve(request.result);
 		        });
 		    },
-		
-		    // Slet et specifikt billede
+
+			async get(photoId) {
+		        const db = await getDB();
+		        return new Promise((resolve, reject) => {
+		            const tx = db.transaction(this.storeName, "readonly");
+		            const store = tx.objectStore(this.storeName);
+		            const request = store.get(photoId);
+		            request.onsuccess = () => resolve(request.result);
+		            request.onerror = () => reject();
+		        });
+		    },
+			
 		    async delete(photoId) {
 				const db = await getDB();
 		        const tx = db.transaction(this.storeName, "readwrite");
@@ -3470,8 +3509,12 @@
 		}
 
 		function renderQuickLogButtonSection(existingSpot = false) {
+			logState.spotUid = null,
 			logState.status = null;
 			logState.quantity = null;
+			logState.date = Date.now();
+			logState.note = "";
+			logState.photoId = null;
 			
 			return `
 				<div class="flex flex-col w-full gap-3 p-2 bg-stone-100 rounded-[1rem] font-sans">
@@ -3615,6 +3658,63 @@
 		    activeQ.classList.replace('bg-white', 'bg-emerald-600');
 		    activeQ.classList.replace('text-stone-500', 'text-white');
 		    activeQ.classList.replace('border-transparent', 'border-emerald-500');
+		}
+				
+		function previewLogPhoto(input) {
+		    if (input.files && input.files[0]) {
+		        const reader = new FileReader();
+		        
+		        reader.onload = function(e) {
+		            const base64Data = e.target.result;
+		            
+		            logState._tempPhotoData = base64Data;
+		            
+		            document.getElementById('log-photo-preview-img').src = base64Data;
+		            document.getElementById('log-photo-preview-container').classList.remove('hidden');
+		            document.getElementById('log-photo-prompt').classList.add('hidden');
+		        };
+		        
+		        reader.readAsDataURL(input.files[0]);
+		        input.value = "";
+		    }
+		}
+		
+		async function saveLog() {
+		    if (!logState.status) {
+				//Skal være et statustext???
+		        alert("Vælg venligst en status (f.eks. Høstklar) først.");
+		        return;
+		    }
+		
+		    logState.date = logState.date || new Date().toISOString();
+		    logState.uid = crypto.randomUUID();
+		
+		    if (logState._tempPhotoData) {
+		        try {
+		            const newPhotoId = await photoStorage.add(logState.spotUid, logState._tempPhotoData);
+		            
+		            // Knyt ID'et til loggen
+		            logState.photoID = newPhotoId; 
+		        } catch (error) {
+		            alert("Der opstod en fejl ved gemning af billedet.");
+		            return;
+		        }
+		    }
+		
+		    // 3. Klargør log-objektet til databasen (fjern temp-data så vi ikke gemmer tung Base64 i log-tabellen)
+		    const finalLogEntry = { ...logState };
+		    delete finalLogEntry._tempPhotoData;
+		
+		    // 4. Gem finalLogEntry i din backend/database...
+		    // await saveLogToDB(finalLogEntry);
+		
+		    // 5. Nulstil Bottom Sheet og luk det
+		    closeAndResetBottomSheet();
+		}
+
+		async saveLogToDB(logEntry) {
+			//SOMETHING HERE
+			
 		}
 
 		function renderSafety() {
