@@ -409,7 +409,7 @@
 		    </div>
 		</div>
 		
-	    <button onclick="saveQuicklog()" class="w-full bg-stone-900 text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+	    <button onclick="saveQuicklog()" class="w-full bg-stone-900 text-white font-bold mt-2 py-4 rounded-xl shadow-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
 	        Gem observation
 	    </button>
 	</div>
@@ -3648,9 +3648,6 @@
 		    }
 			
 		    if (status === 'none') {
-				extraSection.classList.remove('max-h-0', 'opacity-0');
-			    extraSection.classList.add('max-h-40', 'opacity-100', 'py-4', 'border-t', 'mt-2');
-		    } else {
 				const extraSection = document.getElementById('extra-section');
 			    extraSection.classList.add('max-h-0', 'opacity-0');
 			    extraSection.classList.remove('max-h-40', 'opacity-100', 'py-4', 'border-t', 'mt-2');
@@ -3661,8 +3658,10 @@
 			    document.getElementById('note-textarea').value = "";
 				logState.photoId = null;
 				logState.note = "";
+		    } else {
+				extraSection.classList.remove('max-h-0', 'opacity-0');
+			    extraSection.classList.add('max-h-40', 'opacity-100', 'py-4', 'border-t', 'mt-2');
 			}
-			
 		}
 
 		function setQuantity(amount) {
@@ -3734,13 +3733,13 @@
 		    delete finalLogEntry._tempPhotoData;
 		
 		    // 4. Gem finalLogEntry i din backend/database...
-		    // await saveQuicklog(finalLogEntry);
+		    // await saveLogToDB(finalLogEntry);
 		
 		    // 5. Nulstil Bottom Sheet og luk det
 		    closeAndResetBottomSheet();
 		}
 
-		async function saveQuicklog(logEntry) {
+		async function saveLogToDB(logEntry) {
 			//SOMETHING HERE
 		}
 
