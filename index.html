@@ -393,8 +393,7 @@
 	    <div id="quick-log-content">
 	    </div>
 
-		<div class="flex items-center gap-3 mt-2 px-1">
-		    
+		<div class="flex items-center gap-3 my-3 px-1">
 		    <label class="flex shrink-0 items-center justify-center w-12 h-12 bg-stone-200 text-stone-600 rounded-2xl cursor-pointer active:scale-95 transition-transform">
 		        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
 		            <path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
@@ -408,7 +407,7 @@
 		            <img id="log-photo-preview-img" src="" class="w-full h-full object-cover rounded-xl border border-stone-100">
 		            <button type="button" onclick="removeLogPhotoPreview()" class="absolute -top-1.5 -right-1.5 bg-rose-500 text-white rounded-full w-5 h-5 flex items-center justify-center font-bold text-[10px] shadow-sm">✕</button>
 		        </div>
-		        <p class="text-xs font-medium text-stone-600 leading-tight">Billede klar til at blive gemt med loggen.</p>
+		        <p class="text-xs font-medium text-stone-600 leading-tight">Billedet er klar til at blive gemt med loggen.</p>
 		    </div>
 		
 		    <div id="log-photo-prompt" class="flex-1 text-xs font-medium text-stone-500 leading-tight">
@@ -3679,7 +3678,7 @@
 		    }
 		}
 		
-		async function saveLog() {
+		async function saveQuickLog() {
 		    if (!logState.status) {
 				//Skal være et statustext???
 		        alert("Vælg venligst en status (f.eks. Høstklar) først.");
