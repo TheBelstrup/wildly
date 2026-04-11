@@ -392,6 +392,9 @@
 	
 	    <div id="quick-log-content">
 	    </div>
+	    <button onclick="saveQuickLog()" class="w-full bg-stone-900 text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+	        Gem observation
+	    </button>
 	</div>
 	
     <script>
@@ -413,7 +416,8 @@
 		let geoData = {};
 		let database = {};
 		let logState = {
-		    status: null // Bliver sat til 'early', 'ready', 'late', eller 'none'
+		    status: null, // Bliver sat til 'early', 'ready', 'late', eller 'none'
+			quantity: null
 		};
 		let locationEditorWatchId = null; 
 		let isRadarRunning = false;
@@ -3467,9 +3471,10 @@
 
 		function renderQuickLogButtonSection(existingSpot = false) {
 			logState.status = null;
+			logState.quantity = null;
 			
 			return `
-				<div class="flex flex-col w-full gap-3 p-2 bg-stone-100 rounded-[2rem] font-sans">
+				<div class="flex flex-col w-full gap-3 p-2 bg-stone-100 rounded-[1rem] font-sans">
 				    <div id="status-button-group" class="flex w-full gap-2">
 				        <button onclick="setStatus('early')" id="btn-early" 
 				                class="status-btn flex-1 flex flex-col items-center gap-2 py-4 rounded-2xl bg-white shadow-sm border-2 border-transparent active:scale-95 transition-all duration-200">
@@ -3494,17 +3499,30 @@
 				            </svg>
 				            <span class="text-[13px] font-medium text-rose-600 transition-colors">For sent</span>
 				        </button>
-
 				        <button onclick="setStatus('none')" id="btn-none" 
 				                class="status-btn ${existingSpot ? '' : 'hidden'} flex-1 flex flex-col items-center gap-2 py-4 rounded-2xl bg-white shadow-sm border-2 border-transparent active:scale-95 transition-all duration-200">
 				            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none">
 				                <line class="icon-path" x1="8" y1="12" x2="16" y2="12" stroke="#78716C" stroke-width="3" stroke-linecap="round"></line>
 				            </svg>
-				            <span class="text-[13px] font-medium text-stone-500 transition-colors">Intet</span>
+				            <span class="text-[13px] font-medium text-stone-500 transition-colors">Tomt</span>
 				        </button>
 				    </div>
-				    <div id="info-box" class="flex items-center justify-center py-3 rounded-xl border transition-all duration-300 opacity-0 transform translate-y-2">
+					<div id="info-box" class="flex items-center justify-center h-[52px] rounded-xl border border-transparent transition-all duration-300 opacity-0 transform translate-y-2 pointer-events-none">
 				        <p id="info-text" class="text-sm font-medium"></p>
+				    </div>
+					<div id="quantity-section" class="flex flex-col gap-2 overflow-hidden max-h-0 transition-all duration-500 ease-in-out opacity-0">
+				        <p class="text-[11px] font-black uppercase text-stone-400 px-2 tracking-widest">Hvor meget var der?</p>
+				        <div class="flex w-full gap-2">
+				            <button onclick="setQuantity('small')" id="q-small" class="q-btn flex-1 py-3 rounded-xl bg-white border-2 border-transparent text-xs font-bold text-stone-500 shadow-sm transition-all">
+				                En smule
+				            </button>
+				            <button onclick="setQuantity('medium')" id="q-medium" class="q-btn flex-1 py-3 rounded-xl bg-white border-2 border-transparent text-xs font-bold text-stone-500 shadow-sm transition-all">
+				                En del
+				            </button>
+				            <button onclick="setQuantity('large')" id="q-large" class="q-btn flex-1 py-3 rounded-xl bg-white border-2 border-transparent text-xs font-bold text-stone-500 shadow-sm transition-all">
+				                Masser
+				            </button>
+				        </div>
 				    </div>
 				</div>
 			`
@@ -3555,7 +3573,7 @@
 		    activeBtn.classList.add(s.bgClass, s.borderClass, 'shadow-md');
 		    
 		    const label = activeBtn.querySelector('span');
-		    label.className = 'text-[13px] font-black uppercase text-white transition-colors duration-200';
+		    label.className = 'text-[13px] font-black text-white transition-colors duration-200';
 		    activeBtn.querySelectorAll('.icon-path, .icon-circle').forEach(p => p.setAttribute('stroke', 'white'));
 		
 		    const infoBox = document.getElementById('info-box');
@@ -3564,8 +3582,41 @@
 		    infoBox.className = `flex items-center justify-center py-3 rounded-xl border transition-all duration-300 opacity-100 transform translate-y-0 ${s.infoBg} ${s.infoBorder}`;
 		    infoText.className = `text-sm font-medium ${s.infoText}`;
 		    infoText.innerText = s.msg;
+
+			const qSection = document.getElementById('quantity-section');
+    
+		    // Vi viser kun mængde ved 'ready' (Høstklar) eller 'late' (For sent)
+		    if (status === 'ready' || status === 'late') {
+		        qSection.classList.remove('max-h-0', 'opacity-0');
+		        qSection.classList.add('max-h-[100px]', 'opacity-100', 'mb-2');
+		        
+		        // Nulstil mængde-knapper visuelt så de er klar til nyt valg
+		        document.querySelectorAll('.q-btn').forEach(btn => {
+		            btn.classList.replace('bg-emerald-600', 'bg-white');
+		            btn.classList.replace('text-white', 'text-stone-500');
+		        });
+		    } else {
+		        // Skjul sektionen hvis status er 'early' eller 'none'
+		        qSection.classList.add('max-h-0', 'opacity-0');
+		        qSection.classList.remove('max-h-[100px]', 'mb-2');
+		    }
 		}
+
+		function setQuantity(amount) {
+		    logState.quantity = amount;
+		    
+		    document.querySelectorAll('.q-btn').forEach(btn => {
+		        btn.classList.replace('bg-emerald-600', 'bg-white');
+		        btn.classList.replace('text-white', 'text-stone-500');
+		        btn.classList.replace('border-emerald-500', 'border-transparent');
+		    });
 		
+		    const activeQ = document.getElementById(`q-${amount}`);
+		    activeQ.classList.replace('bg-white', 'bg-emerald-600');
+		    activeQ.classList.replace('text-stone-500', 'text-white');
+		    activeQ.classList.replace('border-transparent', 'border-emerald-500');
+		}
+
 		function renderSafety() {
             document.getElementById('app-content').innerHTML = `
                 <div class="fade-in space-y-6">
