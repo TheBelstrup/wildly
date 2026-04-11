@@ -393,7 +393,7 @@
 	    <div id="quick-log-content">
 	    </div>
 		
-		<div class="flex items-center gap-4 border-t border-stone-100 pt-4">
+		<div class="flex items-center gap-4 border-t border-stone-100 py-4">
 	        <label class="flex items-center justify-center w-12 h-12 bg-stone-100 rounded-full text-stone-500 active:scale-95 transition-all">
 	            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><circle cx="12" cy="13" r="3"></circle></svg>
 				<img id="log-photo-thumbnail" src="" class="hidden w-full h-full object-cover">
@@ -410,7 +410,7 @@
 	        </div>
 	    </div>
 		
-	    <button onclick="saveQuickLog()" class="w-full bg-stone-900 text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+	    <button onclick="saveQuicklog()" class="w-full bg-stone-900 text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
 	        Gem observation
 	    </button>
 	</div>
@@ -3559,7 +3559,6 @@
 				        <p id="info-text" class="text-sm font-medium"></p>
 				    </div>
 					<div id="quantity-section" class="flex flex-col gap-2 overflow-hidden max-h-0 transition-all duration-500 ease-in-out opacity-0">
-				        <p class="text-[11px] font-black uppercase text-stone-400 px-2 tracking-widest">Hvor meget er der?</p>
 				        <div class="flex w-full gap-2">
 				            <button onclick="setQuantity('small')" id="q-small" class="q-btn flex-1 py-3 rounded-xl bg-white border-2 border-transparent text-xs font-bold text-stone-500 shadow-sm transition-all">
 				                En smule
@@ -3607,7 +3606,7 @@
 			const config = {
 			    early: { bgClass: 'bg-amber-500', borderClass: 'border-amber-400', infoBg: 'bg-amber-50', infoBorder: 'border-amber-200/50', infoText: 'text-amber-800', msg: 'Kun en spire. Vent et par uger.' },
 			    ready: { bgClass: 'bg-emerald-600', borderClass: 'border-emerald-500', infoBg: 'bg-emerald-50', infoBorder: 'border-emerald-200/50', infoText: 'text-emerald-800', msg: 'Perfekt timing! Hvor meget er der?' },
-			    late:  { bgClass: 'bg-rose-600', borderClass: 'border-rose-500', infoBg: 'bg-rose-50', infoBorder: 'border-rose-200/50', infoText: 'text-rose-800', msg: 'Overmodne eller gået i frø.' },
+			    late:  { bgClass: 'bg-rose-600', borderClass: 'border-rose-500', infoBg: 'bg-rose-50', infoBorder: 'border-rose-200/50', infoText: 'text-rose-800', msg: 'Overmodne eller gået i frø. Hvor meget er der?' },
 			    none:  { bgClass: 'bg-stone-600', borderClass: 'border-stone-500', infoBg: 'bg-stone-200', infoBorder: 'border-stone-300/50', infoText: 'text-stone-700', msg: 'Tomt spot. Prøv igen senere.' }
 			};
 
@@ -3719,13 +3718,13 @@
 		    delete finalLogEntry._tempPhotoData;
 		
 		    // 4. Gem finalLogEntry i din backend/database...
-		    // await saveLogToDB(finalLogEntry);
+		    // await saveQuicklog(finalLogEntry);
 		
 		    // 5. Nulstil Bottom Sheet og luk det
 		    closeAndResetBottomSheet();
 		}
 
-		async function saveLogToDB(logEntry) {
+		async function saveQuicklog(logEntry) {
 			//SOMETHING HERE
 		}
 
