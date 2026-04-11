@@ -3482,6 +3482,17 @@
             `;
         }
 
+		function initQuicklog() {
+			const tx = document.getElementById('note-textarea');
+		    
+		    if (tx) {
+		        tx.addEventListener("input", function() {
+		            this.style.height = "auto";
+		            this.style.height = (this.scrollHeight) + "px";
+		        }, false);
+		    }
+		}
+				
 		function openQuicklogOverlay() {
 		    const overlay = document.getElementById('quick-log-overlay');
 			const sheet = document.getElementById('quick-log-sheet');
@@ -3933,7 +3944,7 @@
 		        render('start');
 		    }
 		};
-
+		
 		document.addEventListener('DOMContentLoaded', () => {
 			// Registrer Service Worker til offline brug
 		    if ('serviceWorker' in navigator) {
@@ -3948,7 +3959,8 @@
 		        });
 		    }
 			initApp();
-			syncMissingMaps();
+			initQuicklog();
+			syncMissingMaps;
 		});
     </script>
 </body>
