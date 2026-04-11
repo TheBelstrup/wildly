@@ -3647,7 +3647,15 @@
 		        qSection.classList.remove('max-h-[100px]', 'mb-2');
 		    }
 			
-		    if (status === 'none') {
+		    if (status === 'ready' || status === 'late' || status === 'none') {
+				showPhotoUI(false);
+		    } else {
+				showPhotoUI(true);
+			}
+		}
+
+		function showPhotoUI(show) {
+		    if (!show) {
 				const extraSection = document.getElementById('extra-section');
 			    extraSection.classList.add('max-h-0', 'opacity-0');
 			    extraSection.classList.remove('max-h-40', 'opacity-100', 'py-4', 'border-t', 'mt-2');
@@ -3662,7 +3670,7 @@
 				extraSection.classList.remove('max-h-0', 'opacity-0');
 			    extraSection.classList.add('max-h-40', 'opacity-100', 'py-4', 'border-t', 'mt-2');
 			}
-		}
+		]
 
 		function setQuantity(amount) {
 		    logState.quantity = amount;
@@ -3677,6 +3685,8 @@
 		    activeQ.classList.replace('bg-white', 'bg-emerald-600');
 		    activeQ.classList.replace('text-stone-500', 'text-white');
 		    activeQ.classList.replace('border-transparent', 'border-emerald-500');
+
+			showPhotoUI(true);
 		}
 				
 		function previewLogPhoto(input) {
