@@ -3558,18 +3558,31 @@
 						<p id="info-text" class="text-sm font-medium"></p> 
 					</div>
 					<div id="quantity-section" class="flex flex-col gap-2 overflow-hidden max-h-0 transition-all duration-500 ease-in-out opacity-0">
-				        <div class="flex w-full gap-2">
-				            <button onclick="setQuantity('small')" id="q-small" class="q-btn flex-1 py-3 rounded-xl bg-white border-2 border-transparent text-xs font-bold text-stone-500 shadow-sm transition-all">
-				                En smule
-				            </button>
-				            <button onclick="setQuantity('medium')" id="q-medium" class="q-btn flex-1 py-3 rounded-xl bg-white border-2 border-transparent text-xs font-bold text-stone-500 shadow-sm transition-all">
-				                En del
-				            </button>
-				            <button onclick="setQuantity('large')" id="q-large" class="q-btn flex-1 py-3 rounded-xl bg-white border-2 border-transparent text-xs font-bold text-stone-500 shadow-sm transition-all">
-				                Masser
-				            </button>
-				        </div>
-				    </div>
+					    <button onclick="setQuantity('small')" id="q-small" class="q-btn flex-1 flex flex-col items-center gap-2 py-3 rounded-2xl bg-white border-2 border-stone-200 text-[11px] font-black uppercase tracking-wider text-stone-500 shadow-sm active:scale-95 transition-all">
+					        <div class="flex gap-1">
+					            <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+					            <div class="w-2 h-2 rounded-full bg-stone-200"></div>
+					            <div class="w-2 h-2 rounded-full bg-stone-200"></div>
+					        </div>
+					        En smule
+					    </button>
+					    <button onclick="setQuantity('medium')" id="q-medium" class="q-btn flex-1 flex flex-col items-center gap-2 py-3 rounded-2xl bg-white border-2 border-stone-200 text-[11px] font-black uppercase tracking-wider text-stone-500 shadow-sm active:scale-95 transition-all">
+					        <div class="flex gap-1">
+					            <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+					            <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+					            <div class="w-2 h-2 rounded-full bg-stone-200"></div>
+					        </div>
+					        En del
+					    </button>
+					    <button onclick="setQuantity('large')" id="q-large" class="q-btn flex-1 flex flex-col items-center gap-2 py-3 rounded-2xl bg-white border-2 border-stone-200 text-[11px] font-black uppercase tracking-wider text-stone-500 shadow-sm active:scale-95 transition-all">
+					        <div class="flex gap-1">
+					            <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+					            <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+					            <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+					        </div>
+					        Masser
+					    </button>
+					</div>
 				</div>
 			`
 		}
@@ -3614,7 +3627,17 @@
 		    
 		    activeBtn.classList.remove('bg-white', 'border-transparent', 'shadow-sm');
 		    activeBtn.classList.add(s.bgClass, s.borderClass, 'shadow-md');
-		    
+			document.querySelectorAll('.q-btn').forEach(btn => {
+				btn.classList.replace('bg-emerald-600', 'bg-white');
+				btn.classList.replace('text-white', 'text-stone-500');
+				btn.classList.replace('border-emerald-500', 'border-stone-200');
+				
+				btn.querySelectorAll('.rounded-full').forEach(dot => {
+					if (dot.classList.contains('bg-white')) dot.classList.replace('bg-white', 'bg-emerald-500');
+					if (dot.classList.contains('bg-emerald-700')) dot.classList.replace('bg-emerald-700', 'bg-stone-200');
+				});
+			});
+			
 		    const label = activeBtn.querySelector('span');
 		    label.className = 'text-[13px] font-black text-white transition-colors duration-200';
 		    activeBtn.querySelectorAll('.icon-path, .icon-circle').forEach(p => p.setAttribute('stroke', 'white'));
@@ -3632,18 +3655,12 @@
 		    if (status === 'ready' || status === 'late') {
 		        qSection.classList.remove('max-h-0', 'opacity-0');
 		        qSection.classList.add('max-h-[100px]', 'opacity-100', 'mb-2');
-		        
-		        // Nulstil mængde-knapper visuelt så de er klar til nyt valg
-		        document.querySelectorAll('.q-btn').forEach(btn => {
-		            btn.classList.replace('bg-emerald-600', 'bg-white');
-		            btn.classList.replace('text-white', 'text-stone-500');
-		        });
 		    } else {
 		        // Skjul sektionen hvis status er 'early' eller 'none'
 		        qSection.classList.add('max-h-0', 'opacity-0');
 		        qSection.classList.remove('max-h-[100px]', 'mb-2');
 		    }
-			
+						
 		    if (status === 'ready' || status === 'late' || status === 'none') {
 				showPhotoUI(false);
 		    } else {
@@ -3684,6 +3701,7 @@
 		}
 		
 		function setQuantity(amount) {
+			const buttons = document.querySelectorAll('.q-btn');
 		    logState.quantity = amount;
 		    
 		    document.querySelectorAll('.q-btn').forEach(btn => {
@@ -3696,7 +3714,35 @@
 		    activeQ.classList.replace('bg-white', 'bg-emerald-600');
 		    activeQ.classList.replace('text-stone-500', 'text-white');
 		    activeQ.classList.replace('border-transparent', 'border-emerald-500');
-
+		    
+		    buttons.forEach(btn => {
+		        const dots = btn.querySelectorAll('.rounded-full');
+		        
+		        if (btn.id === `q-${amount}`) {
+		            btn.classList.remove('bg-white', 'text-stone-500', 'border-stone-200');
+		            btn.classList.add('bg-emerald-600', 'text-white', 'border-emerald-500', 'shadow-md');
+		
+		            dots.forEach(dot => {
+		                if (dot.classList.contains('bg-emerald-500')) {
+		                    dot.classList.replace('bg-emerald-500', 'bg-white');
+		                } else if (dot.classList.contains('bg-stone-200')) {
+		                    dot.classList.replace('bg-stone-200', 'bg-emerald-700'); // Eller 'opacity-40'
+		                }
+		            });
+		        } else {
+		            btn.classList.remove('bg-emerald-600', 'text-white', 'border-emerald-500', 'shadow-md');
+		            btn.classList.add('bg-white', 'text-stone-500', 'border-stone-200');
+		
+		            dots.forEach(dot => {
+		                if (dot.classList.contains('bg-white')) {
+		                    dot.classList.replace('bg-white', 'bg-emerald-500');
+		                } else if (dot.classList.contains('bg-emerald-700')) {
+		                    dot.classList.replace('bg-emerald-700', 'bg-stone-200');
+		                }
+		            });
+		        }
+		    });
+			
 			showPhotoUI(true);
 		}
 				
