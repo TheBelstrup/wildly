@@ -3659,7 +3659,6 @@
 			    extraSection.classList.add('max-h-0', 'opacity-0');
 			    extraSection.classList.remove('max-h-40', 'opacity-100', 'py-4', 'border-t', 'mt-2');
 			
-			    // Nulstil også note-felterne så triggeren kommer tilbage
 			    document.getElementById('note-trigger').classList.remove('hidden');
 			    document.getElementById('note-input').classList.add('hidden');
 			    document.getElementById('note-textarea').value = "";
@@ -3671,6 +3670,19 @@
 			}
 		}
 
+		function showNoteInput() {
+		    const trigger = document.getElementById('note-trigger');
+		    const inputContainer = document.getElementById('note-input');
+		    const textarea = document.getElementById('note-textarea');
+		
+		    trigger.classList.add('hidden');
+		    inputContainer.classList.remove('hidden');
+		    textarea.focus();
+		    
+		    textarea.style.height = "auto";
+		    textarea.style.height = (textarea.scrollHeight) + "px";
+		}
+		
 		function setQuantity(amount) {
 		    logState.quantity = amount;
 		    
