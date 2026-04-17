@@ -2172,7 +2172,7 @@
 		    } else {
 		        window.currentSpotPhotos = photos.map(p => p.data);
 		        photoGridHtml = photos.slice().reverse().map((photo, index) => `
-					<div class="flex-none shrink-0 w-[calc((100vw-4rem)/2.2)] sm:w-28 h-28 relative snap-start">
+					<div class="flex-none shrink-0 w-28 sm:w-28 h-28 relative snap-start">
 					    <button onclick="event.stopPropagation(); deleteSinglePhoto('${spotUid}', ${photo.id})" 
 					            class="absolute -top-1.5 -right-1.5 bg-white text-red-600 rounded-full w-7 h-7 shadow-lg flex items-center justify-center text-xl font-medium z-20 active:scale-90 transition-transform border border-stone-100">
 					        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
@@ -2240,7 +2240,7 @@
 									<input type="file" accept="image/*" class="hidden" onchange="addPhotoToSpot('${spotUid}', this)">
 					            </label>
 					        </div>
-							<div class="flex-1 flex gap-3 overflow-x-auto snap-x pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+							<div class="flex gap-3 overflow-x-auto snap-x pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 								${photoGridHtml}
 							</div>
 						</div>
