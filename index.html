@@ -2106,7 +2106,7 @@
 		    }, 300);
 		}
 		
-		function renderSpotLogs(logs) {
+		async function renderSpotLogs(logs) {
 			if (!logs || logs.length === 0) return { latest: '', history: '', button: '' };
 			
 		    const sortedLogs = [...logs].sort((a, b) => b.timestamp  - a.timestamp );
