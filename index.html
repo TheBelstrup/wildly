@@ -2167,7 +2167,7 @@
 		    };
 		}
 		
-		function renderLogPhoto(photoId) {
+		async function renderLogPhoto(photoId) {
 			if (!photoId) return '';
 		    const photo = await photoStorage.get(photoId);
 		    		    
