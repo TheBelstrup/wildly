@@ -2192,7 +2192,7 @@
 		    const lat = spot.lat || (spot.location ? spot.location.lat : null);
 		    const lng = spot.lng || (spot.location ? spot.location.lng : null);
 		    const photos = await photoStorage.getAll(spotUid);
-			const logData = renderSpotLogs(appData.logs.filter(l => l.spotUid === spot.uid))
+			const logData = await renderSpotLogs(appData.logs.filter(l => l.spotUid === spot.uid))
 			
 		    let staticMapBase64 = null;
 		    if (userSettings.isPremium) {
