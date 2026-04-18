@@ -1323,7 +1323,7 @@
 		
 		            marker.bindPopup(`
 		                <div class="p-2">
-		                    <span style="font-size: 10px;" class="text-xs text-gray-500 font-sans">${new Date(spot.timestamp).toLocaleDateString()}</span>
+		                    <span style="font-size: 10px;" class="text-xs text-gray-500 font-sans">${new Date(spot.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}</span>
 		                    <h3 class="font-bold">${plant.name}</h3>
 		                    <div style="display: flex; flex-wrap: wrap; gap: 2px; margin-bottom: 10px;">
 		                        ${monthsHtml}
@@ -1906,7 +1906,7 @@
 							<div class="card p-4 border-stone-100 relative overflow-hidden bg-white shadow-sm">    
 								<div class="flex items-center gap-2 mb-1.5">
 									<span class="text-[10px] font-bold uppercase tracking-wider text-stone-500">
-										${new Date(spot.timestamp).toLocaleDateString('da-DK')}
+										${new Date(spot.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
 									</span>
 									${spot.dist !== null ? `
 										<span class="bg-amber-50 text-amber-900 border border-amber-200/50 text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase">
@@ -2109,7 +2109,7 @@
 		function renderSpotLogs(logs) {
 			if (!logs || logs.length === 0) return { latest: '', history: '', button: '' };
 			
-		    const sortedLogs = [...logs].sort((a, b) => b.date - a.date);
+		    const sortedLogs = [...logs].sort((a, b) => b.timestamp  - a.timestamp );
 		    const latestLog = sortedLogs[0];
 		    const olderLogs = sortedLogs.slice(1);
 		
@@ -2264,7 +2264,7 @@
 		        <div class="p-4 pb-8 fade-in flex flex-col gap-5">
 					<div class="px-2">
 				        <p class="text-[10px] text-emerald-800 font-bold uppercase tracking-widest mb-1">
-			                ${new Date(spot.timestamp).toLocaleDateString()}
+			                ${new Date(spot.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
 				        </p>
 				        <h1 class="text-3xl font-black text-stone-900 uppercase italic tracking-tighter">${plantInfo.name}</h1>
 				        <button onclick="navigate('${spot.resId}')" class="flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-800 active:scale-95 transition-all mt-1">
@@ -3634,7 +3634,7 @@
 			logState.spotUid = null,
 			logState.status = null;
 			logState.quantity = null;
-			logState.date = Date.now();
+			logState.timestamp = Date.now();
 			logState.note = "";
 			logState.photoId = null;
 			
@@ -3900,7 +3900,7 @@
 		}
 				
 		async function saveQuickLog() {
-		    logState.date = logState.date || new Date().toISOString();
+		    logState.timestamp  = logState.timestamp  || new Date().toISOString();
 		    logState.uid = crypto.randomUUID();
 		
 		    if (logState._tempPhotoData) {
