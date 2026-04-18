@@ -1891,67 +1891,67 @@
 			    : `${ui.my_spots} ${pinImg}`;
 			
 			container.innerHTML = `
-		        <div class="fade-in space-y-6 pb-6">
-		            <div class="text-center px-4">
-		                <h2 class="text-3xl font-black text-stone-900 uppercase italic tracking-tighter">${title}</h2>
+				<div class="fade-in space-y-6 pb-6">
+					<div class="text-center px-4 pt-4">
+						<h2 class="text-3xl font-black text-stone-900 uppercase italic tracking-tighter">${title}</h2>
 						${filterId ? `<button onclick="renderMySpots()" class="text-[9px] font-bold text-emerald-600 uppercase">← ${ui.spot_all_species}</button>` : ''}
-		            </div>
-		
-		            <div class="card overflow-hidden shadow-xl border-stone-100 mx-4">
-		                <div id="overview-map" style="width: 100%; height: 350px;"></div>
-		            </div>
-		
-		            <div class="space-y-3 px-4">
-		                ${processedSpots.map((spot, index) => `
-							<div class="card p-4 border-stone-100 relative overflow-hidden bg-white shadow-sm mb-3">    
-						        <div class="flex items-center gap-2 mb-1.5">
-						            <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500">
-						                ${new Date(spot.timestamp).toLocaleDateString('da-DK')}
-						            </span>
-						            ${spot.dist !== null ? `
-						                <span class="bg-amber-50 text-amber-900 border border-amber-200/50 text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase">
-						                    ${spot.dist < 1 ? Math.round(spot.dist * 1000) + ' m' : spot.dist.toFixed(1) + ' km'}
-						                </span>
-						            ` : ''}
-						        </div>
-						
-						        <div class="pr-24"> 
-						            <h4 class="text-sm font-black uppercase italic tracking-tight text-stone-900 leading-tight">
-						                ${spot.info.name}
-						            </h4>
-						        </div>
-						
-						        <div class="flex flex-wrap gap-1 mt-2.5 pr-24">
-						            ${spot.info.months.map(m => `
-						                <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${m === activeSeason ? 'bg-emerald-800 text-white' : 'bg-stone-50 text-stone-500 border border-stone-100'}">
-						                    ${m}
-						                </span>
-						            `).join('')}
-						        </div>
-						
-						        <div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-2">
+					</div>
+			
+					<div class="card overflow-hidden shadow-xl border-stone-100 mx-4">
+						<div id="overview-map" style="width: 100%; height: 350px;"></div>
+					</div>
+			
+					<div class="space-y-3 px-4">
+						${processedSpots.map((spot, index) => `
+							<div class="card p-4 border-stone-100 relative overflow-hidden bg-white shadow-sm">    
+								<div class="flex items-center gap-2 mb-1.5">
+									<span class="text-[10px] font-bold uppercase tracking-wider text-stone-500">
+										${new Date(spot.timestamp).toLocaleDateString('da-DK')}
+									</span>
+									${spot.dist !== null ? `
+										<span class="bg-amber-50 text-amber-900 border border-amber-200/50 text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase">
+											${spot.dist < 1 ? Math.round(spot.dist * 1000) + ' m' : spot.dist.toFixed(1) + ' km'}
+										</span>
+									` : ''}
+								</div>
+			
+								<div class="pr-24"> 
+									<h4 class="text-sm font-black uppercase italic tracking-tight text-stone-900 leading-tight">
+										${spot.info.name}
+									</h4>
+								</div>
+			
+								<div class="flex flex-wrap gap-1 mt-2.5 pr-24">
+									${spot.info.months.map(m => `
+										<span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${m === activeSeason ? 'bg-emerald-800 text-white' : 'bg-stone-50 text-stone-500 border border-stone-100'}">
+											${m}
+										</span>
+									`).join('')}
+								</div>
+			
+								<div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-2">
 									<button onclick="focusSpotOnMap('${spot.originalIndex}')" 
-											class="group relative w-10 h-10 flex items-center justify-center active:scale-90 transition-transform"
-											aria-label="Find on map">
-										
+											class="group relative w-10 h-10 flex items-center justify-center active:scale-90 transition-transform">
 										<div class="custom-pin w-7 h-7 shadow-none border-2 border-emerald-500/20 group-hover:bg-emerald-700 transition-colors transform rotate-[-45deg] -translate-y-[2px]">
 											<span class="pin-number text-[11px] inline-block">${index + 1}</span>
 										</div>
 									</button>
-						            <button onclick="navigate('view_spot', { spotId: '${spot.uid}' })" 
-						                    class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-950 border-2 border-emerald-600/30 flex items-center justify-center active:scale-90 transition-transform shadow-sm">
-						                <span class="text-sm font-bold">❯</span>
-						            </button>
-						        </div>
-						    </div>
-		                `).join('')}
-		            </div>
-					</div> <div class="px-4 pt-4 pb-4 text-center">
-			            <button onclick="clearAllSpots()" class="text-[10px] font-bold text-stone-600 uppercase tracking-widest border border-stone-200 px-6 py-3 rounded-full hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all">
-			                ${ui.spot_delete_all}
-			            </button>
-			        </div>
-					${statusHtml}
+									<button onclick="navigate('view_spot', { spotId: '${spot.uid}' })" 
+											class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-950 border-2 border-emerald-600/30 flex items-center justify-center active:scale-90 transition-transform shadow-sm">
+										<span class="text-sm font-bold">❯</span>
+									</button>
+								</div>
+							</div>
+						`).join('')}
+					</div>
+			
+					<div class="px-4 pt-4 pb-4 text-center">
+						<button onclick="clearAllSpots()" class="text-[10px] font-bold text-stone-600 uppercase tracking-widest border border-stone-200 px-6 py-3 rounded-full hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all">
+							${ui.spot_delete_all}
+						</button>
+					</div>
+					
+					${statusHtml || ''}
 				</div>
 		    `;
 		
