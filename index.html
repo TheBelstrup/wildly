@@ -2112,6 +2112,7 @@
 		    const sortedLogs = [...logs].sort((a, b) => b.timestamp  - a.timestamp );
 		    const latestLog = sortedLogs[0];
 		    const olderLogs = sortedLogs.slice(1);
+			const photoHtml = await renderLogPhoto(latestLog.photoId);
 		
 		    const latestLogHtml = `
 				<div class="relative">
@@ -2120,7 +2121,7 @@
 			            ${new Date(latestLog.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
 			        </p>
 			        <div class="bg-stone-50 border border-stone-200 rounded-[20px] p-3 shadow-sm flex gap-4 items-start">
-			            ${renderLogPhoto(latestLog.photoId)}
+			            ${photoHtml}
 			            <div class="flex-1">
 			                <p class="text-sm text-stone-600 font-medium italic leading-relaxed">"${latestLog.note}"</p>
 			            </div>
@@ -2128,14 +2129,16 @@
 			    </div>
 		    `;
 			
-			const olderLogsHtml = olderLogs.map(log => `
+			const olderLogsHtml = olderLogs.map(log => 
+				const photoHtml = await renderLogPhoto(log.photoId);
+				
 			    <div class="relative">
 			        <div class="absolute -left-[21px] top-1.5 w-3 h-3 bg-stone-300 rounded-full border-2 border-white"></div>
 			        <p class="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">
 			            ${new Date(log.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
 			        </p>
 			        <div class="flex gap-4 items-start">
-			            ${renderLogPhoto(log.photoId)}
+			            ${photoHtml}
 			            <div class="flex-1">
 			                <p class="text-sm text-stone-600 italic leading-relaxed">"${log.note}"</p>
 			            </div>
