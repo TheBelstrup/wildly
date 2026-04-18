@@ -409,7 +409,7 @@
 		    </div>
 		</div>
 		
-	    <button onclick="saveQuicklog()" class="w-full bg-stone-900 text-white font-bold mt-2 py-4 rounded-xl shadow-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+	    <button id="save-log-button" onclick="saveQuickLog()" class="hidden w-full bg-stone-900 text-white font-bold mt-2 py-4 rounded-xl shadow-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
 	        Gem observation
 	    </button>
 	</div>
@@ -2218,8 +2218,8 @@
 		    }
 		
 		    const radarButton = canUseRadar() ? `
-				<button onclick="navigate('radar', { spotId: '${spot.uid}' })" class="flex-1 bg-stone-100 text-stone-700 py-3 rounded-2xl font-bold text-xs shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2">
-	                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+				<button onclick="navigate('radar', { spotId: '${spot.uid}' })" class="flex-1 bg-stone-100 text-stone-700 py-3 px-4 rounded-2xl font-bold text-xs shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2">
+	                <svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 	                    <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
 	                </svg>
 		            ${ui.spot_get_directions}
@@ -2288,12 +2288,17 @@
 					
 					<section class="bg-white rounded-[24px] p-4 shadow-sm border border-stone-200/60">
 						<div class="flex items-center justify-between mb-3">
-							<details class="w-full group items-center justify-between">
-								<h2 class="text-[11px] font-black text-stone-800 uppercase tracking-[0.15em]">${ui.spot_images}</h2>
-								<summary class="list-none cursor-pointer flex items-center gap-1.5 text-emerald-700/60 hover:text-emerald-700 transition-colors">
-									<span class="text-[10px] font-black tracking-wide">${ui.spot_photo_guide}</span>
-									<span class="text-[8px] group-open:rotate-180 transition-transform opacity-50">▼</span>
-								</summary>
+							<details class="w-full group">
+								<summary class="list-none cursor-pointer">
+						            <div class="flex items-center justify-between">
+						                <h2 class="text-[11px] font-black text-stone-800 uppercase tracking-[0.15em]">${ui.spot_images}</h2>
+						                <div class="flex items-center gap-1.5 text-emerald-700/60 px-2.5 py-1">
+						                    <span class="text-[10px] font-black tracking-wide uppercase">${ui.spot_photo_guide</span>
+						                    <span class="text-[8px] group-open:rotate-180 transition-transform opacity-50">▼</span>
+						                </div>
+						            </div>
+						        </summary>
+								
 								 ${getPhotoGuideHtml(plantInfo.type)}
 							</details>
 						</div>
@@ -3742,6 +3747,7 @@
 
 		    const s = config[status];
 		    const activeBtn = document.getElementById(`btn-${status}`);
+			document.getElementById('save-log-button').classList.remove('hidden');
 		    
 		    activeBtn.classList.remove('bg-white', 'border-transparent', 'shadow-sm');
 		    activeBtn.classList.add(s.bgClass, s.borderClass, 'shadow-md');
@@ -3892,12 +3898,6 @@
 		}
 				
 		async function saveQuickLog() {
-		    if (!logState.status) {
-				//Skal være et statustext???
-		        alert("Vælg venligst en status (f.eks. Høstklar) først.");
-		        return;
-		    }
-		
 		    logState.date = logState.date || new Date().toISOString();
 		    logState.uid = crypto.randomUUID();
 		
