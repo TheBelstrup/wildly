@@ -2261,19 +2261,21 @@
 		    }
 				    
 		    app.innerHTML = `
-		        <div class="p-4 pb-3 fade-in">
-		            <p class="text-[10px] text-emerald-800 font-bold uppercase tracking-widest mb-1">
-		                ${new Date(spot.timestamp).toLocaleDateString()}
-		            </p>
-		            <h1 class="text-3xl font-black text-stone-900 uppercase italic tracking-tighter">${plantInfo.name}</h1>
-					<button onclick="navigate('${spot.resId}')" class="flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-800 active:scale-95 transition-all mb-4">
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-						</svg>
-						${ui.spot_species_details}
-					</button>
-
-					<section class="flex flex-col gap-3">
+		        <div class="p-4 pb-8 fade-in flex flex-col gap-5">
+					<div class="px-2">
+				        <p class="text-[10px] text-emerald-800 font-bold uppercase tracking-widest mb-1">
+			                ${new Date(spot.timestamp).toLocaleDateString()}
+				        </p>
+				        <h1 class="text-3xl font-black text-stone-900 uppercase italic tracking-tighter">${plantInfo.name}</h1>
+				        <button onclick="navigate('${spot.resId}')" class="flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-800 active:scale-95 transition-all mt-1">
+				            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+				            </svg>
+							${ui.spot_species_details}
+				        </button>
+				    </div>
+	
+					<section class="bg-white rounded-[24px] p-4 shadow-sm border border-stone-200/60">
 			            <div id="spot-map" class="w-full h-48 rounded-2xl border border-stone-200 shadow-inner mb-3 overflow-hidden bg-stone-100">
 			                ${mapContainerHtml}
 			            </div>
@@ -2284,44 +2286,41 @@
 					    </div>
 					</section>
 					
-					<section class="mt-8">
-						<h2 class="text-[11px] font-black text-stone-800 uppercase tracking-[0.15em]">${ui.spot_images}</h2>
-						<details class="group">
-							<summary class="list-none cursor-pointer flex items-center gap-1.5 text-emerald-700/60 hover:text-emerald-700 transition-colors">
-								<span class="text-[10px] font-black tracking-wide">${ui.spot_photo_guide}</span>
-								<span class="text-[8px] group-open:rotate-180 transition-transform opacity-50">▼</span>
-							</summary>
-							 ${getPhotoGuideHtml(plantInfo.type)}
-						</details>
-						<div class="flex gap-3 mt-2">
-					        <div class="flex-none w-14 h-28 flex flex-col gap-1.5">
-					            <label class="flex-1 flex items-center justify-center bg-green-800 text-white rounded-[18px] cursor-pointer active:scale-95 transition-transform shadow-sm">
-					                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-					                    <path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-					                    <circle cx="12" cy="13" r="3"></circle>
-					                </svg>
+					<section class="bg-white rounded-[24px] p-4 shadow-sm border border-stone-200/60">
+						<div class="flex items-center justify-between mb-3">
+							<h2 class="text-[11px] font-black text-stone-800 uppercase tracking-[0.15em]">${ui.spot_images}</h2>
+							<details class="group">
+								<summary class="list-none cursor-pointer flex items-center gap-1.5 text-emerald-700/60 hover:text-emerald-700 transition-colors">
+									<span class="text-[10px] font-black tracking-wide">${ui.spot_photo_guide}</span>
+									<span class="text-[8px] group-open:rotate-180 transition-transform opacity-50">▼</span>
+								</summary>
+								 ${getPhotoGuideHtml(plantInfo.type)}
+							</details>
+						</div>
+					
+						<div class="flex gap-3">
+							<div class="flex-none w-14 h-28 flex flex-col gap-1.5">
+								<label class="flex-1 flex items-center justify-center bg-green-800 text-white rounded-[18px] cursor-pointer active:scale-95 transition-transform shadow-sm">
+									<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+										<path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+										<circle cx="12" cy="13" r="3"></circle>
+									</svg>
 									<input type="file" accept="image/*" capture="environment" class="hidden" onchange="addPhotoToSpot('${spotUid}', this)">
-					            </label>
-					            <label class="flex-1 flex items-center justify-center bg-stone-100 text-stone-500 rounded-[18px] cursor-pointer active:scale-95 transition-transform border border-stone-200">
-					                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-					                    <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-					                </svg>
+								</label>
+								<label class="flex-1 flex items-center justify-center bg-stone-100 text-stone-500 rounded-[18px] cursor-pointer active:scale-95 transition-transform border border-stone-200">
+									<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+										<path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+									</svg>
 									<input type="file" accept="image/*" class="hidden" onchange="addPhotoToSpot('${spotUid}', this)">
-					            </label>
-					        </div>
+								</label>
+							</div>
 							<div class="flex gap-3 overflow-x-auto snap-x pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 								${photoGridHtml}
 							</div>
 						</div>
 					</section>
 		
-		            <div class="pt-6 space-y-3">
-		                <button onclick="deleteFullSpot('${spotUid}')" class="w-full text-red-400 py-3 text-xs font-bold uppercase tracking-widest hover:text-red-600">
-		                    ${ui.spot_delete}
-		                </button>
-		            </div>
-
-					<section class="mt-8">
+					<section class="bg-white rounded-[24px] p-4 shadow-sm border border-stone-200/60">
 					    <h2 class="text-[11px] font-black text-stone-800 uppercase tracking-[0.15em] mb-4">Besøgslog</h2>
 					    <div class="relative pl-4 border-l-2 border-stone-200 space-y-6">
 					        
@@ -2352,6 +2351,13 @@
 					        ${logData.button}
 					    </div>
 					</section>
+
+					<div class="pt-6 space-y-3">
+		                <button onclick="deleteFullSpot('${spotUid}')" class="w-full text-red-400 py-3 text-xs font-bold uppercase tracking-widest hover:text-red-600">
+		                    ${ui.spot_delete}
+		                </button>
+		            </div>
+					
 		            ${statusHtml}
 		        </div>
 		    `;
