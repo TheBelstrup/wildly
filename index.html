@@ -2128,27 +2128,28 @@
 			        </div>
 			    </div>
 		    `;
+
+			const olderLogsPromises = olderLogs.map(async (log) => {
+			    const photoHtml = await renderLogPhoto(log.photoId);
 			
-			const olderLogsHtml = olderLogs.map(log => 
-				const photoHtml = await renderLogPhoto(log.photoId);
-				
-			    <div class="relative">
-			        <div class="absolute -left-[21px] top-1.5 w-3 h-3 bg-stone-300 rounded-full border-2 border-white"></div>
-			        <p class="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">
-			            ${new Date(log.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
-			        </p>
-			        <div class="flex gap-4 items-start">
-			            ${photoHtml}
-			            <div class="flex-1">
-			                <p class="text-sm text-stone-600 italic leading-relaxed">"${log.note}"</p>
+			    return `
+			        <div class="relative">
+			            <div class="absolute -left-[21px] top-1.5 w-3 h-3 bg-stone-300 rounded-full border-2 border-white"></div>
+			            <p class="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">
+			                ${new Date(log.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
+			            </p>
+			            <div class="flex gap-4 items-start">
+			                ${photoHtml}
+			                <div class="flex-1">
+			                    <p class="text-sm text-stone-600 italic leading-relaxed">"${log.note}"</p>
+			                </div>
 			            </div>
 			        </div>
-			    </div>
-			`).join('');
+			    `;
+			});
 
+			const olderLogsHtml = (await Promise.all(olderLogsPromises)).join('');
 		
-		    // --- Opdatering af knappen ---
-		    // Hvis der ikke er nogen ældre logs, skjuler vi knappen
 		    const toggleButtonHtml = olderLogs.length > 0 ? `
 				<div id="history-button-section" class="relative">
 				    <div class="absolute -left-[21px] top-1/2 -translate-y-1/2 w-3 h-3 bg-stone-200 rounded-full border-2 border-white"></div>
