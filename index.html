@@ -3747,7 +3747,6 @@
 
 		    const s = config[status];
 		    const activeBtn = document.getElementById(`btn-${status}`);
-			document.getElementById('save-log-button').classList.remove('hidden');
 		    
 		    activeBtn.classList.remove('bg-white', 'border-transparent', 'shadow-sm');
 		    activeBtn.classList.add(s.bgClass, s.borderClass, 'shadow-md');
@@ -3779,10 +3778,12 @@
 		    if (status === 'ready' || status === 'late') {
 		        qSection.classList.remove('max-h-0', 'opacity-0');
 		        qSection.classList.add('max-h-[100px]', 'opacity-100', 'mb-2');
+				document.getElementById('save-log-button').classList.add('hidden');
 		    } else {
 		        // Skjul sektionen hvis status er 'early' eller 'none'
 		        qSection.classList.add('max-h-0', 'opacity-0');
 		        qSection.classList.remove('max-h-[100px]', 'mb-2');
+				document.getElementById('save-log-button').classList.remove('hidden');
 		    }
 						
 		    if (status === 'ready' || status === 'late' || status === 'none') {
@@ -3827,6 +3828,7 @@
 		function setQuantity(amount) {
 			const buttons = document.querySelectorAll('.q-btn');
 		    logState.quantity = amount;
+			document.getElementById('save-log-button').classList.remove('hidden');
 		    
 		    document.querySelectorAll('.q-btn').forEach(btn => {
 		        btn.classList.replace('bg-emerald-600', 'bg-white');
