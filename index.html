@@ -2096,7 +2096,8 @@
 		    const wrapper = document.getElementById('older-logs-wrapper');
 		    const buttonSection = document.getElementById('history-button-section');
 		    
-		    wrapper.classList.replace('grid-rows-[0fr]', 'grid-rows-[1fr]');
+		    document.getElementById('older-logs-wrapper').classList.replace('grid-rows-[0fr]', 'grid-rows-[1fr]');
+			document.getElementById('older-logs-content').classList.remove('overflow-hidden')
 		    
 		    buttonSection.style.opacity = '0';
 		    buttonSection.style.transition = 'opacity 0.3s ease';
@@ -2123,7 +2124,7 @@
 			        <div class="bg-stone-50 border border-stone-200 rounded-[20px] p-3 shadow-sm flex gap-4 items-start">
 			            ${photoHtml}
 			            <div class="flex-1">
-			                <p class="text-sm text-stone-600 font-medium italic leading-relaxed">"${latestLog.note}"</p>
+			                <p class="text-sm text-stone-600 font-medium italic leading-relaxed">${latestLog.note}</p>
 			            </div>
 			        </div>
 			    </div>
@@ -2141,7 +2142,7 @@
 			            <div class="flex gap-4 items-start">
 			                ${photoHtml}
 			                <div class="flex-1">
-			                    <p class="text-sm text-stone-600 italic leading-relaxed">"${log.note}"</p>
+			                    <p class="text-sm text-stone-600 italic leading-relaxed">${log.note}</p>
 			                </div>
 			            </div>
 			        </div>
@@ -2350,7 +2351,7 @@
 					        ${logData.latest}
 					
 					        <div id="older-logs-wrapper" class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-in-out">
-					            <div class="overflow-hidden">
+					            <div id="older-logs-content" class="overflow-hidden">
 					                <div class="space-y-6 pb-6 pt-2">
 					                    ${logData.history}
 					                </div>
