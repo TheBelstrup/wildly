@@ -2188,17 +2188,14 @@
 					<div class="absolute -left-[17px] -top-1 z-10 bg-white rounded-full drop-shadow-sm">
 			            ${getStatusIcon(latestLog.status)}
 			        </div>
-					<div class="flex items-center flex-wrap gap-2 mb-2">
-						<p class="text-[10px] font-black text-stone-400 uppercase tracking-widest">
-							${new Date(latestLog.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
-						</p>
-						<span class="text-stone-300 text-[10px]">•</span>
-						<p class="text-[10px] font-black uppercase tracking-wider">
-							${getStatusText(latestLog.status)}
-						</p>
+					<p class="text-[10px] font-black text-stone-400 uppercase tracking-widest">
+						${new Date(latestLog.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
+					</p>
+					<div class="flex items-center gap-2 mb-3">
+						<p class="text-[11px] font-black uppercase tracking-wider leading-none">${getStatusText(latestLog.status)}</p>
 						${getQuantityPill(latestLog.quantity)}
 					</div>
-			
+
 			        <div class="flex gap-4 items-start">
 			            ${photoHtml}
 			            <div class="flex-1">
@@ -2214,18 +2211,16 @@
 			    return `
 			        <div class="relative pl-6 mb-4">
 						<div class="absolute -left-[17px] -top-1 z-10 bg-white rounded-full drop-shadow-sm">
-			                ${getStatusIcon(log.status)}
-			            </div>
-						<div class="flex items-center flex-wrap gap-2 mb-2">
-							<p class="text-[10px] font-black text-stone-400 uppercase tracking-widest">
-								${new Date(log.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
-							</p>
-							<span class="text-stone-300 text-[10px]">•</span>
-							<p class="text-[10px] font-black uppercase tracking-wider">
-								${getStatusText(log.status)}
-							</p>
+				            ${getStatusIcon(log.status)}
+				        </div>
+						<p class="text-[10px] font-black text-stone-400 uppercase tracking-widest">
+							${new Date(log.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
+						</p>
+						<div class="flex items-center gap-2 mb-3">
+							<p class="text-[11px] font-black uppercase tracking-wider leading-none">${getStatusText(log.status)}</p>
 							${getQuantityPill(log.quantity)}
 						</div>
+					
 			            <div class="flex gap-4 items-start">
 			                ${photoHtml}
 			                <div class="flex-1">
@@ -2419,7 +2414,7 @@
 		
 					<section class="bg-white rounded-[24px] p-4 shadow-sm border border-stone-200/60">
 					    <h2 class="text-[11px] font-black text-stone-800 uppercase tracking-[0.15em] mb-4">Besøgslog</h2>
-					    <div class="border-l-2 border-stone-300 ml-4">
+					    <div class="border-l-2 border-dashed border-stone-300 ml-4">
 					        
 							<div class="relative pl-6 mb-6">
 					            <div class="absolute -left-[17px] top-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full border-2 border-dashed border-green-600 z-10"></div>
