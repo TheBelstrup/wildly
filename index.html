@@ -1749,6 +1749,7 @@
 		// Håndterer "Gem"-knappen
 		async function handleSaveLocation(id, btn) {
 			if (btn.disabled) return;
+
 			const originalContent = btn.innerHTML;
     		const originalWidth = btn.offsetWidth;
 			const spinnerSvg = `
@@ -1767,6 +1768,7 @@
 		        
 		        // Åbner editoren og sender ID med
 		        showLocationEditor(id, location);
+				openQuicklogOverlay();
 			} catch (error) {
 		        console.error(error);
 		        alert((ui.spot_gps_error) + " " + error.message);
