@@ -1629,6 +1629,7 @@
 		async function saveFinalLocation(resId) {
 		    let spotUid;
 		    let finalLat, finalLng;
+			let newSpot = false;
 		    
 		    if (map) {
 		        // KORTET KØRER (Enten online eller i offline-cache)
@@ -1672,7 +1673,7 @@
 		            photos: []              
 		        };
 		        appData.mySpots.push(newDiscovery);
-				openQuicklogOverlay();
+				newSpot = true;
 		    }
 		    
 		    localStorage.setItem('mySpots', JSON.stringify(appData.mySpots));
@@ -1690,6 +1691,7 @@
 		        setTimeout(() => {
 		            overlay.classList.add('hidden');
 		            navigate('view_spot', { spotId: spotUid });
+					if (newSpot) openQuicklogOverlay();
 		        }, 500);
 		        
 		    } catch (err) {
