@@ -3680,11 +3680,10 @@
 		}
 				
 		function openQuicklogOverlay(spotUid) {
-			
 		    const overlay = document.getElementById('quick-log-overlay');
 			const sheet = document.getElementById('quick-log-sheet');
 
-			document.getElementById('quick-log-content').innerHTML = renderQuickLogSection(true);
+			document.getElementById('quick-log-content').innerHTML = renderQuickLogSection(!!spotUid);
 			logState.spotUid = spotUid;
 			resetUI();
 			
@@ -3701,7 +3700,7 @@
 		    overlay.classList.add('pointer-events-none');
 		}
 
-		function renderQuickLogSection(existingSpot = false) {
+		function renderQuickLogSection(existingSpot) {
 			logState.spotUid = null,
 			logState.status = null;
 			logState.quantity = null;
@@ -3969,7 +3968,6 @@
 		            
 					const img = document.getElementById('log-photo-thumbnail');
 					const icon = document.getElementById('camera-icon');
-					const label = document.getElementById('photo-label');
 		
 					img.src = base64Data;
 					img.classList.remove('hidden');
