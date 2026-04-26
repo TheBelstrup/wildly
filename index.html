@@ -1672,6 +1672,7 @@
 		            photos: []              
 		        };
 		        appData.mySpots.push(newDiscovery);
+				openQuicklogOverlay();
 		    }
 		    
 		    localStorage.setItem('mySpots', JSON.stringify(appData.mySpots));
@@ -1768,7 +1769,6 @@
 		        
 		        // Åbner editoren og sender ID med
 		        showLocationEditor(id, location);
-				openQuicklogOverlay();
 			} catch (error) {
 		        console.error(error);
 		        alert((ui.spot_gps_error) + " " + error.message);
