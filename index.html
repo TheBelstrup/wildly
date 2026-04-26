@@ -563,7 +563,6 @@
 			    const tx = db.transaction(this.storeName, "readwrite");
 			    const store = tx.objectStore(this.storeName);
 			
-			    // Slet begge billedtyper tilknyttet dette spot
 			    store.delete(`overview_${spotUid}`);
 			    store.delete(`detail_${spotUid}`);
 			    store.delete(`offline17_${spotUid}`);
@@ -2657,10 +2656,7 @@
 		        }
 
 		        // 3. Slet alle kort i IndexedDB til dette spot
-		        const maps = await mapStorage.getAll(spotUid);
-		        for (let m of maps) {
-		            await mapStorage.delete(m.id);
-		        }
+				await mapStorage.delete(spotUid);
 				
 		        navigate('start');
 		    }
