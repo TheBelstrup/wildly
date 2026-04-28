@@ -3732,7 +3732,7 @@
 				            </svg>
 				            <span class="text-[13px] font-medium text-rose-600 transition-colors">${ui.quicklog_state_late}</span>
 				        </button>
-				        <button onclick="setStatus('empty')" id="btn-none" 
+				        <button onclick="setStatus('empty')" id="btn-empty" 
 				                class="status-btn ${newSpot ? 'hidden' : ''} flex-1 flex flex-col items-center gap-2 py-4 rounded-2xl bg-white shadow-sm border-2 border-transparent active:scale-95 transition-all duration-200">
 				            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none">
 				                <line class="icon-path" x1="8" y1="12" x2="16" y2="12" stroke="#78716C" stroke-width="3" stroke-linecap="round"></line>
@@ -3800,12 +3800,12 @@
 		        
 		        const label = btn.querySelector('span');
 		        label.classList.remove('text-white', 'font-black', 'uppercase');
-		        label.classList.add('font-medium'); // Sørg for at den ikke er black længere
+		        label.classList.add('font-medium'); 
 		        
 		        if (btn.id === 'btn-early') label.classList.replace('text-white', 'text-amber-600') || label.classList.add('text-amber-600');
 		        if (btn.id === 'btn-ready') label.classList.replace('text-white', 'text-emerald-600') || label.classList.add('text-emerald-600');
 		        if (btn.id === 'btn-late') label.classList.replace('text-white', 'text-rose-600') || label.classList.add('text-rose-600');
-		        if (btn.id === 'btn-none') label.classList.replace('text-white', 'text-stone-500') || label.classList.add('text-stone-500');
+		        if (btn.id === 'btn-empty') label.classList.replace('text-white', 'text-stone-500') || label.classList.add('text-stone-500');
 		
 		        const paths = btn.querySelectorAll('.icon-path, .icon-circle');
 		        paths.forEach(p => {
@@ -3819,10 +3819,10 @@
 
 		function setStatus(status) {
 			const config = {
-			    early: { bgClass: 'bg-amber-500', borderClass: 'border-amber-400', infoBg: 'bg-amber-50', infoBorder: 'border-amber-200/50', infoText: 'text-amber-800', msg: 'Kun en spire. Vent et par uger.' },
-			    ready: { bgClass: 'bg-emerald-600', borderClass: 'border-emerald-500', infoBg: 'bg-emerald-50', infoBorder: 'border-emerald-200/50', infoText: 'text-emerald-800', msg: 'Perfekt timing! Hvor meget er der?' },
-			    late:  { bgClass: 'bg-rose-600', borderClass: 'border-rose-500', infoBg: 'bg-rose-50', infoBorder: 'border-rose-200/50', infoText: 'text-rose-800', msg: 'Overmodne eller gået i frø. Hvor meget er der?' },
-			    none:  { bgClass: 'bg-stone-600', borderClass: 'border-stone-500', infoBg: 'bg-stone-200', infoBorder: 'border-stone-300/50', infoText: 'text-stone-700', msg: 'Tomt spot. Prøv igen senere.' }
+			    early: { bgClass: 'bg-amber-500', borderClass: 'border-amber-400', infoBg: 'bg-amber-50', infoBorder: 'border-amber-200/50', infoText: 'text-amber-800', msg: ui.quicklog_msg_early },
+			    ready: { bgClass: 'bg-emerald-600', borderClass: 'border-emerald-500', infoBg: 'bg-emerald-50', infoBorder: 'border-emerald-200/50', infoText: 'text-emerald-800', msg: ui.quicklog_msg_ready },
+			    late:  { bgClass: 'bg-rose-600', borderClass: 'border-rose-500', infoBg: 'bg-rose-50', infoBorder: 'border-rose-200/50', infoText: 'text-rose-800', msg: ui.quicklog_msg_late },
+			    empty:  { bgClass: 'bg-stone-600', borderClass: 'border-stone-500', infoBg: 'bg-stone-200', infoBorder: 'border-stone-300/50', infoText: 'text-stone-700', msg: ui.quicklog_msg_empty }
 			};
 
 			logState.status = status;
@@ -3857,7 +3857,6 @@
 
 			const qSection = document.getElementById('quantity-section');
     
-		    // Vi viser kun mængde ved 'ready' (Høstklar) eller 'late' (For sent)
 		    if (status === 'ready' || status === 'late') {
 		        qSection.classList.remove('max-h-0', 'opacity-0');
 		        qSection.classList.add('max-h-[100px]', 'opacity-100', 'mb-2');
@@ -3992,7 +3991,7 @@
 		            // Knyt ID'et til loggen
 		            logState.photoId = newPhotoId; 
 		        } catch (error) {
-		            alert("Der opstod en fejl ved gemning af billedet.");
+		            alert("Error saving image.");
 		            return;
 		        }
 		    }
