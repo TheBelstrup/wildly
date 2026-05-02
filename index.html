@@ -1814,99 +1814,15 @@
 			return '';
 		}
 
-		function getSpotStatus(spot) {
+		function getSpotDate(spot) {
 			logs = appData.logs.filter(l => l.spotUid === spot.uid);
 			
 			if (!logs || logs.length === 0) {
-				return { 
-					text: `
-						<span class="bg-stone-50 text-stone-500 border-stone-100 border text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-tight">
-							${new Date(spot.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })},
-						</span>
-					`,
-					logdetails: ''
-				}
+				return `${new Date(spot.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}`;
 			}
 
-			const now = new Date();
-			const oneDay = 24 * 60 * 60 * 1000;
-		
-			// 1. PRIORITET: Set for nyligt (indenfor de sidste 21 dage i år)
-			const recentLog = logs
-				.filter(log => {
-					const logDate = new Date(log.timestamp);
-					return logDate.getFullYear() === now.getFullYear() && (now - logDate) < (21 * oneDay);
-				})
-				.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
-		
-			if (recentLog) {
-				return {
-					text: `
-						<span class="bg-stone-50 text-stone-500 border-stone-100 border text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-tight">
-							${new Date(recentLog.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
-						</span>
-					`, 
-					logdetails: `
-						<div class="flex items-center gap-2 mb-3">
-							<p class="text-[11px] font-black uppercase tracking-wider leading-none">${getStatusText(recentLog.status)}</p>
-							${getQuantityPill(recentLog.quantity)}
-						</div>
-					`
-				};
-			}
-		
-			// 2. PRIORITET: Tætteste "moden" dato (uanset år)
-			let bestMatch = null;
-			let minDiff = Infinity;
-		
-			logs.forEach(log => {
-				if (log.status === 'ready') {
-					const logDate = new Date(log.timestamp);
-					const comparisonDate = new Date(now.getFullYear(), logDate.getMonth(), logDate.getDate());
-					
-					const diff = Math.abs(now - comparisonDate);
-					
-					if (diff < minDiff) {
-						minDiff = diff;
-						bestMatch = log;
-					}
-				}
-			});
-		
-			if (bestMatch) {
-				return { 
-					text: 
-					`
-						<span class="bg-stone-50 text-stone-500 border-stone-100 border text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-tight">
-							${ui.spots_last_ready}: ${new Date(bestMatch.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}, 
-						</span>
-					`,
-					logdetails: `
-						<div class="flex items-center gap-2 mb-3">
-							<p class="text-[11px] font-black uppercase tracking-wider leading-none">${getStatusText(bestMatch.status)}</p>
-							${getQuantityPill(bestMatch.quantity)}
-						</div>
-					`
-				};
-			}
-		
 			const lastLog = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
-		
-			return { 
-				text:  
-					`
-						<span class="bg-stone-50 text-stone-500 border-stone-100 border text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-tight">
-							${ui.spots_last_visited}: ${new Date(lastLog.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
-						</span>
-					`,
-				type: 'default',
-					logdetails: `
-						<div class="flex items-center gap-2 mb-3">
-							<p class="text-[11px] font-black uppercase tracking-wider leading-none">${getStatusText(lastLog.status)}</p>
-							${getQuantityPill(lastLog.quantity)}
-						</div>
-					`
-			};
+			return `${ui.spots_last_visited}: ${new Date(lastLog.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}`;	`
 		}
 
 		async function renderMySpots(filterId = null) {
@@ -1985,19 +1901,19 @@
 			
 					<div class="space-y-3 px-4">
 						${processedSpots.map((spot, index) => {
-							const statusInfo = getSpotStatus(spot);
-							
 							return `
 							<div class="card p-4 border-stone-100 relative overflow-hidden bg-white shadow-sm">    
 								<div class="flex items-center gap-2 mb-1.5">
-									${statusInfo.text}
+									<span class="bg-stone-50 text-stone-500 border-stone-100 border text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-tight">
+										${getSpotDate(spot)},
+									</span>
+									
 									${spot.dist !== null ? `
 										<span class="bg-amber-50 text-amber-900 border border-amber-200/50 text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase">
 											${spot.dist < 1 ? Math.round(spot.dist * 1000) + ' m' : spot.dist.toFixed(1) + ' km'}
 										</span>
 									` : ''}
 								</div>
-								${statusInfo.logdetails}
 								<div class="pr-24"> 
 									<h4 class="text-sm font-black uppercase italic tracking-tight text-stone-900 leading-tight">
 										${spot.info.name}
