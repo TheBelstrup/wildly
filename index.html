@@ -1814,85 +1814,87 @@
 			return '';
 		}
 
-function renderSpotCard(spot) {
-    const statusInfo = getSpotStatus(spot);
-    
-    const theme = {
-        recent: "bg-blue-50 text-blue-700 border-blue-100",
-        match: "bg-emerald-50 text-emerald-700 border-emerald-200 animate-pulse-slow",
-        default: "bg-stone-50 text-stone-500 border-stone-100"
-    };
-	
-	return `
-		<span class="${theme[statusInfo.type]} border text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-tight">
-			${statusInfo.text}
-		</span>
-	`;
-}
-		
-function getSpotStatus(spot) {
-	if (!spot.logs || spot.logs.length === 0) {
-		return { 
-			text: new Date(spot.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' }),
-			type: 'default'
+		function renderSpotCard(spot) {
+		    const statusInfo = getSpotStatus(spot);
+		    
+		    const theme = {
+		        recent: "bg-blue-50 text-blue-700 border-blue-100",
+		        match: "bg-emerald-50 text-emerald-700 border-emerald-200 animate-pulse-slow",
+		        default: "bg-stone-50 text-stone-500 border-stone-100"
+		    };
+			
+			return `
+				<span class="${theme[statusInfo.type]} border text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-tight">
+					${statusInfo.text}
+				</span>
+			`;
 		}
-	}
-	
-	const now = new Date();
-	const oneDay = 24 * 60 * 60 * 1000;
-
-	// 1. PRIORITET: Set for nyligt (indenfor de sidste 21 dage i år)
-	const recentLog = spot.logs
-		.filter(log => {
-			const logDate = new Date(log.date);
-			return logDate.getFullYear() === now.getFullYear() && (now - logDate) < (21 * oneDay);
-		})
-		.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-
-	if (recentLog) {
-		const daysAgo = Math.round((now - new Date(recentLog.date)) / oneDay);
-		const timeText = daysAgo === 0 ? ui.spots_today : daysAgo === 1 ? ui.spots_yesterday : `${daysAgo} ${ui.spots_days_ago}`;
-		return {
-			text: `${timeText}: "${recentLog.status} - ${recentLog.quantity}"`, 
-			type: 'recent' 
-		};
-	}
-
-	// 2. PRIORITET: Tætteste "moden" dato (uanset år)
-	// Vi finder den log, hvor dag/måned er tættest på i dag
-	let bestMatch = null;
-	let minDiff = Infinity;
-
-	spot.logs.forEach(log => {
-		if (log.status === 'ready') {
-			const logDate = new Date(log.date);
-			const comparisonDate = new Date(now.getFullYear(), logDate.getMonth(), logDate.getDate());
+				
+		function getSpotStatus(spot) {
+			logs = appData.logs.filter(l => l.spotUid === spot.uid
 			
-			const diff = Math.abs(now - comparisonDate);
-			
-			if (diff < minDiff) {
-				minDiff = diff;
-				bestMatch = log;
+			if (!logs || logs.length === 0) {
+				return { 
+					text: new Date(spot.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' }),
+					type: 'default'
+				}
 			}
+			
+			const now = new Date();
+			const oneDay = 24 * 60 * 60 * 1000;
+		
+			// 1. PRIORITET: Set for nyligt (indenfor de sidste 21 dage i år)
+			const recentLog = logs
+				.filter(log => {
+					const logDate = new Date(log.date);
+					return logDate.getFullYear() === now.getFullYear() && (now - logDate) < (21 * oneDay);
+				})
+				.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+		
+			if (recentLog) {
+				const daysAgo = Math.round((now - new Date(recentLog.date)) / oneDay);
+				const timeText = daysAgo === 0 ? ui.spots_today : daysAgo === 1 ? ui.spots_yesterday : `${daysAgo} ${ui.spots_days_ago}`;
+				return {
+					text: `${timeText}: "${recentLog.status} - ${recentLog.quantity}"`, 
+					type: 'recent' 
+				};
+			}
+		
+			// 2. PRIORITET: Tætteste "moden" dato (uanset år)
+			// Vi finder den log, hvor dag/måned er tættest på i dag
+			let bestMatch = null;
+			let minDiff = Infinity;
+		
+			logs.forEach(log => {
+				if (log.status === 'ready') {
+					const logDate = new Date(log.date);
+					const comparisonDate = new Date(now.getFullYear(), logDate.getMonth(), logDate.getDate());
+					
+					const diff = Math.abs(now - comparisonDate);
+					
+					if (diff < minDiff) {
+						minDiff = diff;
+						bestMatch = log;
+					}
+				}
+			});
+		
+			if (bestMatch) {
+				const logDate = new Date(bestMatch.date);
+				const day = logDate.getDate();
+				return { 
+					text: `${ui.spots_last_ready}: ${day}. ${ui.monthOrder[logDate.getMonth()]}`, 
+					type: 'match' 
+				};
+			}
+		
+			const lastLog = logs.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+		
+			return { 
+				text: `${ui.spots_last_visited}: ${new Date(lastLog.date).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}`, 
+				type: 'default'
+			};
 		}
-	});
-
-	if (bestMatch) {
-		const logDate = new Date(bestMatch.date);
-		const day = logDate.getDate();
-		return { 
-			text: `${ui.spots_last_ready}: ${day}. ${ui.monthOrder[logDate.getMonth()]}`, 
-			type: 'match' 
-		};
-	}
-
-	const lastLog = spot.logs.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-
-	return { 
-		text: `${ui.spots_last_visited}: ${new Date(lastLog.date).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}`, 
-		type: 'default'
-	};
-}
 
 		async function renderMySpots(filterId = null) {
 			const container = document.getElementById('app-content');
@@ -2240,7 +2242,7 @@ function getSpotStatus(spot) {
 		    `;
 		}
 		
-		async function renderSpotLogs(logs) {
+		async function renderSpotLogs(logs) {			
 			if (!logs || logs.length === 0) return { latest: '', history: '', button: '' };
 			
 		    const sortedLogs = [...logs].sort((a, b) => b.timestamp  - a.timestamp );
@@ -2328,7 +2330,6 @@ function getSpotStatus(spot) {
 		        </div>
 		    `;
 		}
-
 
 		async function renderSpot(spotUid) {
 		    const statusHtml =  renderPremiumSpotUpgrade();
