@@ -1831,7 +1831,7 @@
 		}
 				
 		function getSpotStatus(spot) {
-			logs = appData.logs.filter(l => l.spotUid === spot.uid
+			logs = appData.logs.filter(l => l.spotUid === spot.uid);
 			
 			if (!logs || logs.length === 0) {
 				return { 
