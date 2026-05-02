@@ -1813,11 +1813,29 @@
 
 			return '';
 		}
+
+function renderSpotCard(spot) {
+    const statusInfo = getSpotStatus(spot);
+    
+    const theme = {
+        recent: "bg-blue-50 text-blue-700 border-blue-100",
+        match: "bg-emerald-50 text-emerald-700 border-emerald-200 animate-pulse-slow",
+        default: "bg-stone-50 text-stone-500 border-stone-100"
+    };
+	
+	return `
+		<span class="${theme[statusInfo.type]} border text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-tight">
+			${statusInfo.text}
+		</span>
+	`;
+}
 		
 function getSpotStatus(spot) {
-	//Returnér dato
 	if (!spot.logs || spot.logs.length === 0) {
-		return new Date(spot.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })
+		return { 
+			text: new Date(spot.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' }),
+			type: 'default'
+		}
 	}
 	
 	const now = new Date();
@@ -1834,8 +1852,8 @@ function getSpotStatus(spot) {
 	if (recentLog) {
 		const daysAgo = Math.round((now - new Date(recentLog.date)) / oneDay);
 		const timeText = daysAgo === 0 ? ui.spots_today : daysAgo === 1 ? ui.spots_yesterday : `${daysAgo} ${ui.spots_days_ago}`;
-		return { 
-			text: `${timeText}: "${recentLog.note || recentLog.status} ${recentLog.quantity}"`, 
+		return {
+			text: `${timeText}: "${recentLog.status} - ${recentLog.quantity}"`, 
 			type: 'recent' 
 		};
 	}
@@ -1858,20 +1876,22 @@ function getSpotStatus(spot) {
 			}
 		}
 	});
-Gør noget ved måned
+
 	if (bestMatch) {
 		const logDate = new Date(bestMatch.date);
 		const day = logDate.getDate();
-		const months = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
 		return { 
-			text: `Match: Moden ca. ${day}. ${months[logDate.getMonth()]}`, 
+			text: `${ui.spots_last_ready}: ${day}. ${ui.monthOrder[logDate.getMonth()]}`, 
 			type: 'match' 
 		};
 	}
 
-	// FALLBACK: Hvis intet andet findes, vis bare den sidste log
 	const lastLog = spot.logs.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-	return { text: `${ui.spots_last_visited}: ${new Date(lastLog.date).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}`, type: 'default' };
+
+	return { 
+		text: `${ui.spots_last_visited}: ${new Date(lastLog.date).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}`, 
+		type: 'default'
+	};
 }
 
 		async function renderMySpots(filterId = null) {
@@ -1952,10 +1972,7 @@ Gør noget ved måned
 						${processedSpots.map((spot, index) => `
 							<div class="card p-4 border-stone-100 relative overflow-hidden bg-white shadow-sm">    
 								<div class="flex items-center gap-2 mb-1.5">
-									<span class="text-[10px] font-bold uppercase tracking-wider text-stone-500">
-										SPOTLOGIC_HERE
-										${new Date(spot.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
-									</span>
+									${renderSpotCard(spot)}
 									${spot.dist !== null ? `
 										<span class="bg-amber-50 text-amber-900 border border-amber-200/50 text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase">
 											${spot.dist < 1 ? Math.round(spot.dist * 1000) + ' m' : spot.dist.toFixed(1) + ' km'}
