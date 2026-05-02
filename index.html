@@ -1814,34 +1814,20 @@
 			return '';
 		}
 
-		function renderSpotCard(spot) {
-		    const statusInfo = getSpotStatus(spot);
-		    
-		    const theme = {
-		        recent: "bg-blue-50 text-blue-700 border-blue-100",
-		        match: "bg-emerald-50 text-emerald-700 border-emerald-200 animate-pulse-slow",
-		        default: "bg-stone-50 text-stone-500 border-stone-100"
-		    };
-			
-			return `
-				<span class="${theme[statusInfo.type]} border text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-tight">
-					${statusInfo.text}
-				</span>
-				${statusInfo.logdetails}
-			`;
-		}
-				
 		function getSpotStatus(spot) {
 			logs = appData.logs.filter(l => l.spotUid === spot.uid);
 			
 			if (!logs || logs.length === 0) {
 				return { 
-					text: new Date(spot.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' }),
-					type: 'default',
+					text: `
+						<span class="bg-stone-50 text-stone-500 border-stone-100 border text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-tight">
+							${new Date(spot.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })},
+						</span>
+					`,
 					logdetails: ''
 				}
 			}
-			
+
 			const now = new Date();
 			const oneDay = 24 * 60 * 60 * 1000;
 		
@@ -1854,11 +1840,12 @@
 				.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
 		
 			if (recentLog) {
-				const daysAgo = Math.round((now - new Date(recentLog.timestamp)) / oneDay);
-				const timeText = daysAgo === 0 ? ui.spots_today : daysAgo === 1 ? ui.spots_yesterday : `${daysAgo} ${ui.spots_days_ago}`;
 				return {
-					text: `${timeText}: "${recentLog.status} - ${recentLog.quantity}"`, 
-					type: 'recent',
+					text: `
+						<span class="bg-stone-50 text-stone-500 border-stone-100 border text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-tight">
+							${new Date(recentLog.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
+						</span>
+					`, 
 					logdetails: `
 						<div class="flex items-center gap-2 mb-3">
 							<p class="text-[11px] font-black uppercase tracking-wider leading-none">${getStatusText(recentLog.status)}</p>
@@ -1887,11 +1874,13 @@
 			});
 		
 			if (bestMatch) {
-				const logDate = new Date(bestMatch.timestamp);
-				const day = logDate.getDate();
 				return { 
-					text: `${ui.spots_last_ready}: ${day}. ${ui.monthOrder[logDate.getMonth()]}`, 
-					type: 'match',
+					text: 
+					`
+						<span class="bg-stone-50 text-stone-500 border-stone-100 border text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-tight">
+							${ui.spots_last_ready}: ${new Date(bestMatch.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}, 
+						</span>
+					`,
 					logdetails: `
 						<div class="flex items-center gap-2 mb-3">
 							<p class="text-[11px] font-black uppercase tracking-wider leading-none">${getStatusText(bestMatch.status)}</p>
@@ -1904,7 +1893,12 @@
 			const lastLog = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
 		
 			return { 
-				text: `${ui.spots_last_visited}: ${new Date(lastLog.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}`, 
+				text:  
+					`
+						<span class="bg-stone-50 text-stone-500 border-stone-100 border text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-tight">
+							${ui.spots_last_visited}: ${new Date(lastLog.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
+						</span>
+					`,
 				type: 'default',
 					logdetails: `
 						<div class="flex items-center gap-2 mb-3">
@@ -1977,6 +1971,7 @@
 			const title = filterId && processedSpots.length > 0 
 			    ? `${ui.spot_finds_of} ${processedSpots[0].info.name} ${pinImg}` 
 			    : `${ui.my_spots} ${pinImg}`;
+		    const statusInfo = getSpotStatus(spot);
 			
 			container.innerHTML = `
 				<div class="fade-in space-y-6 pb-6">
@@ -1993,14 +1988,14 @@
 						${processedSpots.map((spot, index) => `
 							<div class="card p-4 border-stone-100 relative overflow-hidden bg-white shadow-sm">    
 								<div class="flex items-center gap-2 mb-1.5">
-									${renderSpotCard(spot)}
+									${statusInfo.text}
 									${spot.dist !== null ? `
 										<span class="bg-amber-50 text-amber-900 border border-amber-200/50 text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase">
 											${spot.dist < 1 ? Math.round(spot.dist * 1000) + ' m' : spot.dist.toFixed(1) + ' km'}
 										</span>
 									` : ''}
 								</div>
-			
+								${statusInfo.logdetails}
 								<div class="pr-24"> 
 									<h4 class="text-sm font-black uppercase italic tracking-tight text-stone-900 leading-tight">
 										${spot.info.name}
@@ -2236,7 +2231,7 @@
 		        case 'ready': 
 		            return `<span class="text-emerald-700">${ui.quicklog_state_ready}</span>`;
 		        case 'late': 
-		            return `<span class="text-rose-600">${ui.quicklog_state_late}For sent</span>`;
+		            return `<span class="text-rose-600">${ui.quicklog_state_late}</span>`;
 		        case 'empty': 
 		            return `<span class="text-stone-500">${ui.quicklog_state_empty}</span>`;
 		        case 'early':
