@@ -1827,6 +1827,7 @@
 				<span class="${theme[statusInfo.type]} border text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-tight">
 					${statusInfo.text}
 				</span>
+				${statusInfo.logdetails}
 			`;
 		}
 				
@@ -1836,7 +1837,8 @@
 			if (!logs || logs.length === 0) {
 				return { 
 					text: new Date(spot.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' }),
-					type: 'default'
+					type: 'default',
+					logdetails: ''
 				}
 			}
 			
@@ -1846,28 +1848,33 @@
 			// 1. PRIORITET: Set for nyligt (indenfor de sidste 21 dage i år)
 			const recentLog = logs
 				.filter(log => {
-					const logDate = new Date(log.date);
+					const logDate = new Date(log.timestamp);
 					return logDate.getFullYear() === now.getFullYear() && (now - logDate) < (21 * oneDay);
 				})
-				.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+				.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
 		
 			if (recentLog) {
-				const daysAgo = Math.round((now - new Date(recentLog.date)) / oneDay);
+				const daysAgo = Math.round((now - new Date(recentLog.timestamp)) / oneDay);
 				const timeText = daysAgo === 0 ? ui.spots_today : daysAgo === 1 ? ui.spots_yesterday : `${daysAgo} ${ui.spots_days_ago}`;
 				return {
 					text: `${timeText}: "${recentLog.status} - ${recentLog.quantity}"`, 
-					type: 'recent' 
+					type: 'recent',
+					logdetails: `
+						<div class="flex items-center gap-2 mb-3">
+							<p class="text-[11px] font-black uppercase tracking-wider leading-none">${getStatusText(recentLog.status)}</p>
+							${getQuantityPill(recentLog.quantity)}
+						</div>
+					`
 				};
 			}
 		
 			// 2. PRIORITET: Tætteste "moden" dato (uanset år)
-			// Vi finder den log, hvor dag/måned er tættest på i dag
 			let bestMatch = null;
 			let minDiff = Infinity;
 		
 			logs.forEach(log => {
 				if (log.status === 'ready') {
-					const logDate = new Date(log.date);
+					const logDate = new Date(log.timestamp);
 					const comparisonDate = new Date(now.getFullYear(), logDate.getMonth(), logDate.getDate());
 					
 					const diff = Math.abs(now - comparisonDate);
@@ -1880,19 +1887,31 @@
 			});
 		
 			if (bestMatch) {
-				const logDate = new Date(bestMatch.date);
+				const logDate = new Date(bestMatch.timestamp);
 				const day = logDate.getDate();
 				return { 
 					text: `${ui.spots_last_ready}: ${day}. ${ui.monthOrder[logDate.getMonth()]}`, 
-					type: 'match' 
+					type: 'match',
+					logdetails: `
+						<div class="flex items-center gap-2 mb-3">
+							<p class="text-[11px] font-black uppercase tracking-wider leading-none">${getStatusText(bestMatch.status)}</p>
+							${getQuantityPill(bestMatch.quantity)}
+						</div>
+					`
 				};
 			}
 		
-			const lastLog = logs.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+			const lastLog = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
 		
 			return { 
-				text: `${ui.spots_last_visited}: ${new Date(lastLog.date).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}`, 
-				type: 'default'
+				text: `${ui.spots_last_visited}: ${new Date(lastLog.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}`, 
+				type: 'default',
+					logdetails: `
+						<div class="flex items-center gap-2 mb-3">
+							<p class="text-[11px] font-black uppercase tracking-wider leading-none">${getStatusText(lastLog.status)}</p>
+							${getQuantityPill(lastLog.quantity)}
+						</div>
+					`
 			};
 		}
 
