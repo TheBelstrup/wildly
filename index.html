@@ -1815,14 +1815,14 @@
 		}
 
 		function getSpotDate(spot) {
-			logs = appData.logs.filter(l => l.spotUid === spot.uid);
+			const logs = appData.logs.filter(l => l.spotUid === spot.uid);
 			
 			if (!logs || logs.length === 0) {
 				return `${new Date(spot.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}`;
 			}
 
 			const lastLog = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
-			return `${ui.spots_last_visited}: ${new Date(lastLog.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}`;	`
+			return `${ui.spots_last_visited}: ${new Date(lastLog.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}`;
 		}
 
 		async function renderMySpots(filterId = null) {
