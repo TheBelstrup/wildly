@@ -1813,6 +1813,66 @@
 
 			return '';
 		}
+		
+function getSpotStatus(spot) {
+	//Returnér dato
+	if (!spot.logs || spot.logs.length === 0) {
+		return new Date(spot.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })
+	}
+	
+	const now = new Date();
+	const oneDay = 24 * 60 * 60 * 1000;
+
+	// 1. PRIORITET: Set for nyligt (indenfor de sidste 21 dage i år)
+	const recentLog = spot.logs
+		.filter(log => {
+			const logDate = new Date(log.date);
+			return logDate.getFullYear() === now.getFullYear() && (now - logDate) < (21 * oneDay);
+		})
+		.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+
+	if (recentLog) {
+		const daysAgo = Math.round((now - new Date(recentLog.date)) / oneDay);
+		const timeText = daysAgo === 0 ? ui.spots_today : daysAgo === 1 ? ui.spots_yesterday : `${daysAgo} ${ui.spots_days_ago}`;
+		return { 
+			text: `${timeText}: "${recentLog.note || recentLog.status} ${recentLog.quantity}"`, 
+			type: 'recent' 
+		};
+	}
+
+	// 2. PRIORITET: Tætteste "moden" dato (uanset år)
+	// Vi finder den log, hvor dag/måned er tættest på i dag
+	let bestMatch = null;
+	let minDiff = Infinity;
+
+	spot.logs.forEach(log => {
+		if (log.status === 'ready') {
+			const logDate = new Date(log.date);
+			const comparisonDate = new Date(now.getFullYear(), logDate.getMonth(), logDate.getDate());
+			
+			const diff = Math.abs(now - comparisonDate);
+			
+			if (diff < minDiff) {
+				minDiff = diff;
+				bestMatch = log;
+			}
+		}
+	});
+Gør noget ved måned
+	if (bestMatch) {
+		const logDate = new Date(bestMatch.date);
+		const day = logDate.getDate();
+		const months = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+		return { 
+			text: `Match: Moden ca. ${day}. ${months[logDate.getMonth()]}`, 
+			type: 'match' 
+		};
+	}
+
+	// FALLBACK: Hvis intet andet findes, vis bare den sidste log
+	const lastLog = spot.logs.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+	return { text: `${ui.spots_last_visited}: ${new Date(lastLog.date).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}`, type: 'default' };
+}
 
 		async function renderMySpots(filterId = null) {
 			const container = document.getElementById('app-content');
@@ -1893,6 +1953,7 @@
 							<div class="card p-4 border-stone-100 relative overflow-hidden bg-white shadow-sm">    
 								<div class="flex items-center gap-2 mb-1.5">
 									<span class="text-[10px] font-bold uppercase tracking-wider text-stone-500">
+										SPOTLOGIC_HERE
 										${new Date(spot.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
 									</span>
 									${spot.dist !== null ? `
@@ -2250,6 +2311,7 @@
 		        </div>
 		    `;
 		}
+
 
 		async function renderSpot(spotUid) {
 		    const statusHtml =  renderPremiumSpotUpgrade();
