@@ -1918,13 +1918,22 @@
 										${spot.info.name}
 									</h4>
 								</div>
-			
-								<div class="flex flex-wrap gap-1 mt-2.5 pr-24">
-									${spot.info.months.map(m => `
-										<span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${m === activeSeason ? 'bg-emerald-800 text-white' : 'bg-stone-50 text-stone-500 border border-stone-100'}">
-											${m}
-										</span>
-									`).join('')}
+
+								<div class="flex flex-wrap gap-1 mt-2.5 pr-10">
+								    ${ui.monthOrder.map((monthName, index) => {
+								        const isMatch = spot.info.months.includes(monthName);
+								        const firstLetter = monthName.charAt(0).toUpperCase();
+								
+								        return `
+								            <span class="text-[9px] font-black uppercase w-5 h-5 flex items-center justify-center rounded-sm transition-colors ${
+								                isMatch 
+								                ? 'bg-emerald-800 text-white shadow-sm' 
+								                : 'bg-stone-50 text-stone-500'
+								            }">
+								                ${firstLetter}
+								            </span>
+								        `;
+								    }).join('')}
 								</div>
 			
 								<div class="absolute right-3 top-1/2 -translate-y-1/2 flex gap-2">
