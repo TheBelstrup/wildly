@@ -2670,7 +2670,7 @@
 		        localStorage.setItem('mySpots', JSON.stringify(appData.mySpots));
 
 		        // Slet alle logs til dette spot
-				let existing = appData.logs || [];
+				existing = appData.logs || [];
 				existing = existing.filter(s => s.spotUid !== spotUid);
 				appData.logs = existing;
 				localStorage.setItem('spotLogs', JSON.stringify(appData.logs));
