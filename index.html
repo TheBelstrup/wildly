@@ -2663,18 +2663,25 @@
 
 		async function deleteFullSpot(spotUid) {
 		    if (confirm(ui.spot_delete_confirm)) {
+		        // Slet dette spot
 		        let existing = appData.mySpots || [];
 		        existing = existing.filter(s => s.uid !== spotUid);
 				appData.mySpots = existing;
 		        localStorage.setItem('mySpots', JSON.stringify(appData.mySpots));
-		
-		        // 2. Slet alle billeder i IndexedDB til dette spot
+
+		        // Slet alle logs til dette spot
+				let existing = appData.logs || [];
+				existing = existing.filter(s => s.spotUid !== spotUid);
+				appData.logs = existing;
+				localStorage.setItem('spotLogs', JSON.stringify(appData.logs));
+				
+				// Slet alle billeder i IndexedDB til dette spot
 		        const photos = await photoStorage.getAll(spotUid);
 		        for (let p of photos) {
 		            await photoStorage.delete(p.id);
 		        }
 
-		        // 3. Slet alle kort i IndexedDB til dette spot
+		        // Slet alle kort i IndexedDB til dette spot
 				await mapStorage.delete(spotUid);
 				
 		        navigate('start');
