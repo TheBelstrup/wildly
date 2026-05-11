@@ -429,7 +429,8 @@
 			note: "",
 			photoId: null
 		};
-		let locationEditorWatchId = null; 
+		let locationEditorWatchId = null;
+		let editingSpeciesForSpotUid = null;
 		let isRadarRunning = false;
 		let radarWatchId = null;
 		let radarMapDetail = null;
@@ -1103,100 +1104,100 @@
 			`;
 		}
 
-        function renderAll() {
-            const appContent = document.getElementById('app-content');
-            let list = Object.entries(database).sort((a, b) => a[1].name.localeCompare(b[1].name));
-
-            const renderList = (filterText = "") => {
-                const filtered = list.filter(([id, data]) => {
-					const translatedType = ui["type_" + data.type];
-                    const matchesSearch = data.name.toLowerCase().includes(filterText.toLowerCase()) || 
-                                        translatedType.toLowerCase().includes(filterText.toLowerCase());
-                    const matchesSeason = activeSeason === 'all' || (data.months && data.months.includes(activeSeason));
-                    return matchesSearch && matchesSeason;
-                });
-
-                const listHtml = filtered.map(([id, data]) => `
-                    <button onclick="navigate('${id}')" class="w-full card p-5 flex flex-col btn-active text-left mb-3">
-                        <div class="flex items-center justify-between w-full mb-2">
-                            <div>
-                                <div class="font-black text-stone-900 text-lg sans uppercase italic tracking-tighter leading-none">${data.name}</div>
-                                <div class="text-[10px] font-bold text-stone-600 uppercase sans mt-1">${data.habitats.map(h => ui[`hab_${h}`] || h).join('/')}</div>
-                            </div>
-                            <span class="type-badge badge-${data.type}">${ui["type_" + data.type]}</span>
-                        </div>
-                        <div class="text-xs font-medium text-stone-600 italic line-clamp-1">${data.traits}</div>
-                    </button>
-                `).join('');
-
-                document.getElementById('search-results').innerHTML = listHtml || `<p class="text-center py-10 text-stone-600 italic sans">${ui.no_search_results}</p>`;
-            };
-
-            appContent.innerHTML = `
-                <div class="fade-in space-y-4">
-                    <h2 class="text-3xl font-black text-stone-900 italic uppercase tracking-tighter sans mb-4">${ui.start_library}</h2>
-                    <div class="relative mb-6">
-                        <input type="text" id="search-input" placeholder="${ui.search_placeholder}" 
-                            class="w-full p-4 pl-12 rounded-2xl border-none bg-stone-100 sans font-bold text-stone-900 focus:ring-2 focus:ring-green-800 outline-none transition-all">
-                        <div class="absolute left-4 top-1/2 -translate-y-1/2 text-stone-600">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                        </div>
-                    </div>
-                    <div id="search-results"></div>
-                </div>
-            `;
-
-            const searchInput = document.getElementById('search-input');
-            if(searchInput) searchInput.addEventListener('input', (e) => renderList(e.target.value));
-            renderList();
-        }
-
-        function renderHabitat(habitatId) {
-			const title = ui[`hab_${habitatId}`] || habitatId;
-			const list = Object.entries(database)
-				.filter(([id, data]) => {
-		            const plantHabitats = data.habitats || [];
+		function renderSpeciesList(containerId, title, speciesArray, onSelect = (id) => navigate(id)) {
+		    const container = document.getElementById(containerId);
+			window.currentSpeciesCallback = onSelect;
+			
+		    if (!container) return;
 		
-		            // Speciel logik for blandingsskov (viser både løv og nål)
+		    let html = `
+				<div class="fade-in space-y-4">
+					<h2 class="text-3xl font-black text-stone-900 italic uppercase tracking-tighter sans mb-4">${title}</h2>
+		            <div class="relative mb-6">
+		                <input type="text" id="species-search-input" placeholder="${ui.search_placeholder}" 
+		                    class="w-full p-4 pl-12 rounded-2xl border-none bg-stone-100 sans font-bold text-stone-900 focus:ring-2 focus:ring-green-800 outline-none transition-all">
+		                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-stone-600">
+		                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+		                </div>
+		            </div>
+					<div id="species-list-content"></div>
+				</div>
+			`;
+		    
+		    container.innerHTML = html;
+		
+		    const contentDiv = document.getElementById('species-list-content');
+		    const searchInput = document.getElementById('species-search-input');
+		
+		    const updateList = (filterText = "") => {
+		        const filtered = speciesArray.filter(([id, data]) => {
+		            const translatedType = ui["type_" + data.type] || data.type;
+		            const textToMatch = filterText.toLowerCase();
+		            
+		            // Tjekker både navn og type (f.eks. "svamp")
+		            const matchesSearch = data.name.toLowerCase().includes(textToMatch) || 
+		                                  translatedType.toLowerCase().includes(textToMatch);
+		            
+		            // Sæson-tjekket trækker vi fra din globale activeSeason state
+		            const matchesSeason = activeSeason === 'all' || (data.months && data.months.includes(activeSeason));
+		            
+		            return matchesSearch && matchesSeason;
+		        });
+		
+		        // Håndter tom tilstand
+		        if (filtered.length === 0) {
+		            contentDiv.innerHTML = `<p class="text-center py-10 text-stone-600 italic sans">${ui.no_search_results}</p>`;
+		            return;
+		        }
+		
+		        // Byg kortene
+		        contentDiv.innerHTML = filtered.map(([id, data]) => `
+		            <button onclick="window.currentSpeciesCallback('${id}')" class="w-full card p-5 flex flex-col btn-active text-left mb-3">
+		                <div class="flex items-center justify-between w-full mb-2">
+		                    <div>
+		                        <div class="font-black text-stone-900 text-lg sans uppercase italic tracking-tighter leading-none">${data.name}</div>
+		                        <div class="text-[10px] font-bold text-stone-600 uppercase sans mt-1">
+		                            ${(data.habitats || []).map(h => ui[`hab_${h}`] || h).join('/')}
+		                        </div>
+		                    </div>
+		                    <span class="type-badge badge-${data.type}">${ui["type_" + data.type] || data.type}</span>
+		                </div>
+		                <div class="text-xs font-medium text-stone-600 italic line-clamp-1">${data.traits || ''}</div>
+		            </button>
+		        `).join('');
+		    };
+		
+		    // Lyt efter søgning hvis søgefeltet er aktiveret
+		    if (searchInput) {
+		        searchInput.addEventListener('input', (e) => updateList(e.target.value));
+		    }
+		
+		    // Kør første rendering
+		    updateList();
+		}
+		
+		function renderAll() {
+		    // Klargør data
+		    const list = Object.entries(database).sort((a, b) => a[1].name.localeCompare(b[1].name));
+
+			renderSpeciesList('app-content', ui.start_library, list)
+		}
+
+		function renderHabitat(habitatId) {
+		    const list = Object.entries(database)
+		        .filter(([id, data]) => {
+		            const plantHabitats = data.habitats || [];
 		            if (habitatId === 'forest') {
 		                return plantHabitats.includes('deciduous') || plantHabitats.includes('coniferous') || plantHabitats.includes('forest');
 		            }
-		
-		            // Standard tjek
 		            return plantHabitats.includes(habitatId);
 		        })
-		        .filter(d => activeSeason === 'all' || (d[1].months && d[1].months.includes(activeSeason)))
 		        .sort((a, b) => a[1].name.localeCompare(b[1].name));				
-
-            document.getElementById('app-content').innerHTML = `
-                <div class="fade-in space-y-4">
-                    <h2 class="text-3xl font-black text-stone-900 italic uppercase tracking-tighter sans mb-6">${title}</h2>
-                    <div class="space-y-4">
-		                ${list.length > 0 ? list.map(([id, data]) => renderCard(id, data)).join('') : renderEmptyState()}
-		            </div>
-                </div>
-            `;
-        }
-
-		function renderCard(id, data) {
-		    return `
-		    <button onclick="navigate('${id}')" class="w-full card p-6 flex flex-col btn-active text-left">
-		        <div class="flex items-center justify-between mb-2">
-		            <div class="font-black text-stone-900 text-l uppercase italic tracking-tighter sans leading-none">
-		                ${data.name}
-		            </div>
-		            <span class="type-badge badge-${data.type}">${ui["type_" + data.type]}</span>
-		        </div>
-		        <div class="text-sm font-medium text-stone-600 italic">
-		            ${data.traits}
-		        </div>
-		    </button>`;
-		}
-
-		function renderEmptyState() {
-		    return `<p class="text-center py-10 text-stone-600 italic sans">${ui.no_species_in_season}</p>`;
-		}
 		
+		    // Brug komponenten uden søgefelt
+		    renderSpeciesList('app-content', ui[`hab_${habitatId}`] || habitatId, list);
+		}
+
 		function showForestSubtypes() {
 			const options = document.getElementById('forest-options');
 			// Toggle visning af underkategorier
