@@ -2503,9 +2503,9 @@
 		function updateSpotSpecies(newResId) {
 			const spotUid = window.editingSpeciesForSpotUid;
 			window.editingSpeciesForSpotUid = null;
-			const spotIndex = appData.mySpots.findIndex(s => s.uid === spotUid);
+			const index = appData.mySpots.findIndex(s => s.uid === spotUid);
 		    
-		    if (spotIndex !== -1) {
+		    if (index !== -1) {
 		        appData.mySpots[index].resId = newResId;
 			    localStorage.setItem('mySpots', JSON.stringify(appData.mySpots));
 		        navigate('view_spot', { spotUid: spotUid });
