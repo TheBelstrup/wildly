@@ -1633,13 +1633,11 @@
 		    
 		    if (map) {
 		        // KORTET KØRER (Enten online eller i offline-cache)
-		        // Vi tillader at brugeren kan have rykket rundt på skærmen
 		        const center = map.getCenter();
 		        finalLat = center.lat;
 		        finalLng = center.lng;
 		    } else if (window.lastKnownLocation) {
 		        // INTET KORT (Offline og udenfor cache)
-		        // Vi stoler 100% på det rå GPS signal fra boblen
 		        finalLat = window.lastKnownLocation.lat;
 		        finalLng = window.lastKnownLocation.lng;
 		    } else {
@@ -1749,7 +1747,6 @@
 			});
 		};
 
-		// Håndterer "Gem"-knappen
 		async function handleSaveLocation(id, btn) {
 			if (btn.disabled) return;
 
@@ -2497,7 +2494,21 @@
 		    }
 		}
 
-		// Hjælpefunktion til at generere Naturbasen-linket
+		function openSpeciesSelectorForEdit(spotId) {
+		    const list = Object.entries(database).sort((a, b) => a[1].name.localeCompare(b[1].name));
+			renderSpeciesList('app-content', ui.spot_update_species, list, (newResId) => {updateSpotSpecies(spotId, newResId);})
+		}
+		
+		function updateSpotSpecies(spotId, newResId) {
+		    const spotIndex = appData.mySpots.findIndex(s => s.id === spotId);
+		    
+		    if (spotIndex !== -1) {
+		        appData.mySpots[index].resId = newResId;
+			    localStorage.setItem('mySpots', JSON.stringify(appData.mySpots));
+		        navigate('view_spot', { spotId: spotUid });
+		    }
+		}
+
 		function renderNaturbasenLink(url) {
 			if (!url) return ''; // Hvis der ikke er et link, returneres intet
 
