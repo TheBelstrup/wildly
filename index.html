@@ -972,13 +972,13 @@
 		    } else if (current === 'all') {
 		        renderAll();
 		    } else if (current === 'view_spot') {
-			    renderSpot(data.spotId);
+			    renderSpot(data.spotUid);
 			} else if (current === 'safety') {
 		        renderSafety();
 		    } else if (current === 'view_forest_type') {
 		        renderForestMenu();
 			} else if (current === 'radar') {
-				handleRadarNavigation(data.spotId);
+				handleRadarNavigation(data.spotUid);
 			} else if (current === 'prepare_trip') {
 				renderPrepareTrip();
 			} else if (typeof current === 'string' && current.startsWith('view_')) {
@@ -1297,7 +1297,7 @@
 		            `).join('');
 		
 		            const radarButton = canUseRadar() ? `
-		                <button onclick="navigate('radar', { spotId: '${spot.uid}' })" class="flex-1 bg-stone-100 text-stone-700 py-3 rounded-2xl font-bold text-xs shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2">
+		                <button onclick="navigate('radar', { spotUid: '${spot.uid}' })" class="flex-1 bg-stone-100 text-stone-700 py-3 rounded-2xl font-bold text-xs shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2">
 		                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 		                        <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
 		                    </svg>
@@ -1313,7 +1313,7 @@
 		                        ${monthsHtml}
 		                    </div>							
 		                    <div class="flex flex-col gap-2">
-		                        <button onclick="navigate('view_spot', { spotId: '${spot.uid}' })" class="bg-emerald-600 text-white px-3 py-2 rounded text-xs font-bold">
+		                        <button onclick="navigate('view_spot', { spotUid: '${spot.uid}' })" class="bg-emerald-600 text-white px-3 py-2 rounded text-xs font-bold">
 		                            ${ui.map_show_spot}
 		                        </button>
 		                        <button onclick="navigate('${spot.resId}')" class="border border-stone-300 bg-stone-50 text-stone-600 px-2 py-2 rounded text-[10px] font-bold uppercase tracking-wide flex items-center justify-center gap-1">
@@ -1688,13 +1688,13 @@
 		        
 		        setTimeout(() => {
 		            overlay.classList.add('hidden');
-		            navigate('view_spot', { spotId: spotUid });
+		            navigate('view_spot', { spotUid: spotUid });
 					if (newSpot) openQuicklogOverlay(spotUid, true);
 		        }, 500);
 		        
 		    } catch (err) {
 		        console.error("Error while retrieving map:", err);
-		        navigate('view_spot', { spotId: spotUid });
+		        navigate('view_spot', { spotUid: spotUid });
 		    }
 		}
 		
@@ -1942,7 +1942,7 @@
 											<span class="pin-number text-[11px] inline-block">${index + 1}</span>
 										</div>
 									</button>
-									<button onclick="navigate('view_spot', { spotId: '${spot.uid}' })" 
+									<button onclick="navigate('view_spot', { spotUid: '${spot.uid}' })" 
 											class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-950 border-2 border-emerald-600/30 flex items-center justify-center active:scale-90 transition-transform shadow-sm">
 										<span class="text-sm font-bold">❯</span>
 									</button>
@@ -2310,7 +2310,7 @@
 		    }
 		
 		    const radarButton = canUseRadar() ? `
-				<button onclick="navigate('radar', { spotId: '${spot.uid}' })" class="flex-1 bg-stone-100 text-stone-700 py-3 px-4 rounded-2xl font-bold text-xs shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2">
+				<button onclick="navigate('radar', { spotUid: '${spot.uid}' })" class="flex-1 bg-stone-100 text-stone-700 py-3 px-4 rounded-2xl font-bold text-xs shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2">
 	                <svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 	                    <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
 	                </svg>
@@ -2494,18 +2494,21 @@
 		    }
 		}
 
-		function openSpeciesSelectorForEdit(spotId) {
+		function openSpeciesSelectorForEdit(spotUid) {
+			window.editingSpeciesForSpotUid = spotUid;
 		    const list = Object.entries(database).sort((a, b) => a[1].name.localeCompare(b[1].name));
-			renderSpeciesList('app-content', ui.spot_update_species, list, (newResId) => {updateSpotSpecies(spotId, newResId);})
+			renderSpeciesList('app-content', ui.spot_update_species, list, (newResId) => {updateSpotSpecies(newResId);})
 		}
 		
-		function updateSpotSpecies(spotId, newResId) {
-		    const spotIndex = appData.mySpots.findIndex(s => s.id === spotId);
+		function updateSpotSpecies(newResId) {
+			const spotUid = window.editingSpeciesForSpotUid;
+			window.editingSpeciesForSpotUid = null;
+			const spotIndex = appData.mySpots.findIndex(s => s.id === spotUid);
 		    
 		    if (spotIndex !== -1) {
 		        appData.mySpots[index].resId = newResId;
 			    localStorage.setItem('mySpots', JSON.stringify(appData.mySpots));
-		        navigate('view_spot', { spotId: spotUid });
+		        navigate('view_spot', { spotUid: spotUid });
 		    }
 		}
 
