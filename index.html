@@ -2503,7 +2503,7 @@
 		function updateSpotSpecies(newResId) {
 			const spotUid = window.editingSpeciesForSpotUid;
 			window.editingSpeciesForSpotUid = null;
-			const spotIndex = appData.mySpots.findIndex(s => s.id === spotUid);
+			const spotIndex = appData.mySpots.findIndex(s => s.uid === spotUid);
 		    
 		    if (spotIndex !== -1) {
 		        appData.mySpots[index].resId = newResId;
