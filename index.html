@@ -4072,8 +4072,8 @@
 		    if (totalLogs === 0) {
 		        container.innerHTML = `
 		            <div class="p-4 pb-8 fade-in flex flex-col items-center justify-center text-center py-20 gap-3 sans">
-		                <h1 class="text-2xl font-black text-stone-900 uppercase italic tracking-tighter">Aktivitetsfeed</h1>
-		                <p class="text-sm text-stone-500 italic max-w-xs">Du har ikke logget nogen besøg endnu. Gå ud i naturen og registrer dine fund!</p>
+		                <h1 class="text-2xl font-black text-stone-900 uppercase italic tracking-tighter">${ui.activity_feed_header}</h1>
+		                <p class="text-sm text-stone-500 italic max-w-xs">${ui.activity_feed_empty}</p>
 		            </div>
 		        `;
 		        return;
@@ -4083,13 +4083,13 @@
 		        <div class="p-4 pb-8 fade-in flex flex-col gap-5 sans">
 		            <div class="px-2">
 		                <p class="text-[10px] text-emerald-800 font-bold uppercase tracking-widest mb-1">
-		                    Historik
+		                    ${ui.activity_feed_history}
 		                </p>
-		                <h1 class="text-3xl font-black text-stone-900 uppercase italic tracking-tighter">Aktivitetsfeed</h1>
+		                <h1 class="text-3xl font-black text-stone-900 uppercase italic tracking-tighter">${ui.activity_feed_header}</h1>
 		            </div>
 		
 		            <section class="bg-white rounded-[24px] p-5 shadow-sm border border-stone-200/60">
-		                <h2 class="text-[11px] font-black text-stone-800 uppercase tracking-[0.15em] mb-5">Seneste observationer</h2>
+		                <h2 class="text-[11px] font-black text-stone-800 uppercase tracking-[0.15em] mb-5">${ui.activity_feed_latest_observations}</h2>
 		                <div class="border-l-2 border-dashed border-stone-200 ml-4 space-y-6">
 		    `;
 		
@@ -4099,7 +4099,7 @@
 		        
 		        const spot = appData.mySpots.find(s => s.uid === log.spotUid);
 		        const species = spot ? database[spot.resId] : null;
-		        const speciesName = species ? species.name : "Ukendt art";
+		        const speciesName = species ? species.name : ui.activity_feed_unknown;
 		        const logDate = new Date(log.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' });
 		
 		        html += `
@@ -4147,7 +4147,7 @@
 		        html += `
 		            <div class="pt-2">
 		                <button onclick="loadMoreLogs()" class="w-full bg-stone-100 hover:bg-stone-200 text-stone-700 py-3.5 px-4 rounded-2xl font-bold text-xs shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2 border border-stone-200/50">
-		                    Vis flere aktiviteter (${stopIndex} tilbage)
+		                    ${ui.activity_feed_load_more} (${stopIndex} ${ui.activity_feed_load_remaining})
 		                </button>
 		            </div>
 		        `;
