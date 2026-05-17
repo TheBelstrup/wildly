@@ -275,13 +275,13 @@
 
 	<nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-stone-100 safe-area-bottom z-[1000]">
 	    <div class="grid grid-cols-4 h-16 px-2 gap-1 items-center">
-	        <button data-i18n="menu_plan" id="nav-plan" onclick="menuNavigate('plan')" class="nav-btn flex flex-col items-center justify-center gap-1 w-full h-14 rounded-2xl transition-all duration-200">
+	        <button id="nav-plan" onclick="menuNavigate('plan')" class="nav-btn flex flex-col items-center justify-center gap-1 w-full h-14 rounded-2xl transition-all duration-200">
 	            <svg width="22" height="22" viewBox="0 0 24 24" class="nav-icon fill-[#064D34] transition-colors">
 	                <path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/>
 	            </svg>
-	            <span class="nav-text text-[9px] font-black uppercase sans text-stone-600 transition-colors"></span>
+	            <span data-i18n="menu_plan" class="nav-text text-[9px] font-black uppercase sans text-stone-600 transition-colors"></span>
 	        </button>
-	        <button data-i18n="menu_gather" id="nav-gather" onclick="menuNavigate('gather')" class="nav-btn flex flex-col items-center justify-center gap-1 w-full h-14 rounded-2xl transition-all duration-200">
+	        <button id="nav-gather" onclick="menuNavigate('gather')" class="nav-btn flex flex-col items-center justify-center gap-1 w-full h-14 rounded-2xl transition-all duration-200">
 	            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<defs>
 						<mask id="hole-nav-main">
@@ -291,20 +291,19 @@
 					</defs>
 					<path d="M12 2C8.13 2 5 5.13 5 9.5C5 14.25 12 22 12 22C12 22 19 14.25 19 9.5C19 5.13 15.87 2 12 2Z" fill="#064D34" mask="url(#hole-nav-main)"></path>
 				</svg>
-	            <span class="nav-text text-[9px] font-black uppercase sans text-stone-600 transition-colors"></span>
+	            <span data-i18n="menu_gather" class="nav-text text-[9px] font-black uppercase sans text-stone-600 transition-colors"></span>
 	        </button>
-	        <button data-i18n="menu_logbook" id="nav-logbook" onclick="menuNavigate('logbook')" class="nav-btn flex flex-col items-center justify-center gap-1 w-full h-14 rounded-2xl transition-all duration-200">
+	        <button id="nav-logbook" onclick="menuNavigate('logbook')" class="nav-btn flex flex-col items-center justify-center gap-1 w-full h-14 rounded-2xl transition-all duration-200">
 	            <svg width="22" height="22" viewBox="0 0 24 24" class="nav-icon fill-[#064D34] transition-colors">
 	                <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zM21 18.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
 	            </svg>
-	            <span class="nav-text text-[9px] font-black uppercase sans text-stone-600 transition-colors"></span>
+	            <span data-i18n="menu_logbook" class="nav-text text-[9px] font-black uppercase sans text-stone-600 transition-colors"></span>
 	        </button>
-	
 	        <button data-i18n="menu_profile" id="nav-profile" onclick="menuNavigate('profile')" class="nav-btn flex flex-col items-center justify-center gap-1 w-full h-14 rounded-2xl transition-all duration-200">
 	            <svg width="22" height="22" viewBox="0 0 24 24" class="nav-icon fill-[#064D34] transition-colors">
 	                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
 	            </svg>
-	            <span class="nav-text text-[9px] font-black uppercase sans text-stone-600 transition-colors"></span>
+	            <span data-i18n="menu_profile" class="nav-text text-[9px] font-black uppercase sans text-stone-600 transition-colors"></span>
 	        </button>
 	    </div>
 	</nav>
