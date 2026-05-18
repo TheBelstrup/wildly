@@ -1059,18 +1059,6 @@
                         </div>
                         <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
                     </div>
-					<button onclick="navigate('prepare_trip'); window.history.pushState({pageId: 'prepare_trip'}, '', '');" class="w-full mt-4 bg-emerald-50 border border-emerald-100 rounded-2xl p-3 flex items-center justify-between active:scale-[0.98] transition-transform">
-					    <div class="flex items-center gap-3">
-					        <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-emerald-600">
-					            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
-					        </div>
-					        <div class="text-left">
-					            <p class="text-sm font-bold text-stone-800">${ui.offline_map_prepare}</p>
-					            <p class="text-sm text-stone-700 font-medium">${ui.offline_map_prepare_text}</p>
-					        </div>
-					    </div>
-					    <span class="text-emerald-600 text-lg pr-2">→</span>
-					</button>					
 					<div class="grid grid-cols-2 gap-4">
 						${activeHabitats.map(id => {
 							const label = ui[`hab_${id}`] || id;
@@ -1093,16 +1081,6 @@
 							`;
 		                }).join('')}
 					</div>
-
-                    <button onclick="navigate('all')" class="w-full p-6 card flex items-center justify-between btn-active">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center font-bold text-green-800 italic sans text-xl">${ui.start_letter_range || 'A-Å'}</div>
-                            <div class="text-left">
-                                <div class="font-black text-stone-900 uppercase italic sans text-lg">${ui.start_library}</div>
-                                <div class="text-[9px] font-bold text-stone-600 uppercase sans">${ui.start_library_all} ${Object.keys(database).length} ${ui.start_library_species}</div>
-                            </div>
-                        </div>
-                    </button>
 				</div>
 
 				<div id="menu-home" class="fixed bottom-20 left-4 right-4 bg-white/95 backdrop-blur-xl border border-stone-100 rounded-3xl shadow-xl p-3 z-[900] space-y-1">
@@ -1134,7 +1112,7 @@
 				            <span class="font-black text-base text-stone-800 sans tracking-tight mt-0.5">${ui.menu_your_spots_text}</span>
 				        </div>
 				    </button>
-				    <button onclick="navigate('feed')" class="w-full flex items-center gap-4 p-3.5 rounded-2xl transition-all active:bg-stone-50 text-left">
+				    <button onclick="navigate('activity_feed')" class="w-full flex items-center gap-4 p-3.5 rounded-2xl transition-all active:bg-stone-50 text-left">
 				        <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-800 shrink-0">
 				            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#064D34" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 				                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
