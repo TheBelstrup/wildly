@@ -303,7 +303,7 @@
 
 	<nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-stone-100 safe-area-bottom z-[1000]">
 	    <div class="grid grid-cols-3 h-16 px-2 gap-1 items-center">
-	        <button id="nav-home" onclick="menuNavigate('home')" class="nav-btn flex flex-col items-center justify-center gap-1 w-full h-14 transition-all duration-200">
+	        <button id="nav-home" onclick="menuNavigate('start')" class="nav-btn flex flex-col items-center justify-center gap-1 w-full h-14 transition-all duration-200">
 				<svg width="22" height="22" viewBox="0 0 24 24" class="nav-icon fill-[#064D34] transition-colors">
 	                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
 	            </svg>
@@ -381,7 +381,7 @@
 	<div id="quick-log-sheet" class="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-[9999] transform translate-y-full transition-transform duration-300 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] p-5 pb-10">
 	    <div class="w-12 h-1.5 bg-stone-200 rounded-full mx-auto mb-6"></div>
 	    <div class="flex justify-between items-center mb-6">
-	        <h3 class="text-xl font-black uppercase tracking-tight text-stone-800" data-i18n="quicklog_log_visit">Log besøg</h3>
+	        <h3 class="text-xl font-black uppercase tracking-tight text-stone-800" data-i18n="quicklog_log_visit"></h3>
 	        <button onclick="closeQuicklogOverlay()" class="w-8 h-8 flex items-center justify-center bg-stone-100 rounded-full text-stone-500 font-bold active:scale-90 transition-transform">✕</button>
 	    </div>
 
@@ -389,7 +389,6 @@
 	    </div>
 				
 	    <button id="save-log-button" onclick="saveQuickLog()" class="hidden w-full bg-stone-900 text-white font-bold mt-2 py-4 rounded-xl shadow-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-2" data-i18n="quicklog_save_visit">
-	        Gem Besøg
 	    </button>
 	</div>
 	
@@ -1100,10 +1099,66 @@
                             <div class="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center font-bold text-green-800 italic sans text-xl">${ui.start_letter_range || 'A-Å'}</div>
                             <div class="text-left">
                                 <div class="font-black text-stone-900 uppercase italic sans text-lg">${ui.start_library}</div>
-                                <div class="text-[9px] font-bold text-stone-600 uppercase sans">${ui.start_library_all} ${Object.keys(database).length} ${ui.start_library_species || 'arter'}</div>
+                                <div class="text-[9px] font-bold text-stone-600 uppercase sans">${ui.start_library_all} ${Object.keys(database).length} ${ui.start_library_species}</div>
                             </div>
                         </div>
                     </button>
+				</div>
+
+				<div id="menu-home" class="hidden fixed bottom-20 left-4 right-4 bg-white/95 backdrop-blur-xl border border-stone-100 rounded-3xl shadow-xl p-3 z-[900] space-y-1">
+				    <button onclick="navigate('all')" class="w-full flex items-center gap-4 p-3.5 rounded-2xl transition-all active:bg-stone-50 text-left">
+				        <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-800 shrink-0">
+				            <svg width="20" height="20" viewBox="0 0 24 24" fill="#064D34" xmlns="http://www.w3.org/2000/svg">
+				                <path d="M12 3C7.03 3 3 7.03 3 12C3 12.55 3.45 13 4 13H9V19C9 20.66 10.34 22 12 22C13.66 22 15 20.66 15 19V13H20C20.55 13 21 12.55 21 12C21 7.03 16.97 3 12 3Z"></path>
+				            </svg>
+				        </div>
+				        <div class="flex flex-col">
+				            <span class="text-[10px] font-black uppercase tracking-wider text-stone-400 sans">${ui.menu_library}</span>
+				            <span class="font-black text-base text-stone-800 sans tracking-tight mt-0.5">${ui.menu_library_text_start} ${Object.keys(database).length} ${ui.menu_library_text_end}</span>
+				        </div>
+				    </button>
+				    <button onclick="navigate('my-spots')" class="w-full flex items-center gap-4 p-3.5 rounded-2xl transition-all active:bg-stone-50 text-left">
+				        <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-800 shrink-0">
+				            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+				                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+				                <circle cx="12" cy="10" r="3"></circle>
+				            </svg>
+				        </div>
+				        <div class="flex flex-col">
+				            <span class="text-[10px] font-black uppercase tracking-wider text-stone-400 sans">${ui.menu_your_spots}</span>
+				            <span class="font-black text-base text-stone-800 sans tracking-tight mt-0.5">${ui.menu_your_spots_text}</span>
+				        </div>
+				    </button>
+				    <button onclick="navigate('feed')" class="w-full flex items-center gap-4 p-3.5 rounded-2xl transition-all active:bg-stone-50 text-left">
+				        <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-800 shrink-0">
+				            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+				                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+				                <line x1="16" y1="8" x2="16" y2="8"></line>
+				                <line x1="16" y1="12" x2="16" y2="12"></line>
+				                <line x1="16" y1="16" x2="16" y2="16"></line>
+				                <line x1="6" y1="8" x2="12" y2="8"></line>
+				                <line x1="6" y1="12" x2="12" y2="12"></line>
+				                <line x1="6" y1="16" x2="12" y2="16"></line>
+				            </svg>
+				        </div>
+				        <div class="flex flex-col">
+				            <span class="text-[10px] font-black uppercase tracking-wider text-stone-400 sans">${ui.menu_your_activity}</span>
+				            <span class="font-black text-base text-stone-800 sans tracking-tight mt-0.5"${ui.menu_your_activity_text}></span>
+				        </div>
+				    </button>
+				    <button onclick="navigate('prepare_trip')" class="w-full flex items-center gap-4 p-3.5 rounded-2xl transition-all active:bg-stone-50 text-left">
+				        <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-800 shrink-0">
+				            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+				                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+				                <polyline points="7 10 12 15 17 10"></polyline>
+				                <line x1="12" y1="15" x2="12" y2="3"></line>
+				            </svg>
+				        </div>
+				        <div class="flex flex-col">
+				            <span class="text-[10px] font-black uppercase tracking-wider text-stone-400 sans">${ui.menu_map_prepare}</span>
+				            <span class="font-black text-base text-stone-800 sans tracking-tight mt-0.5">${ui.menu_map_prepare_text}</span>
+						</div>
+				    </button>
 				</div>
             `;
         }
