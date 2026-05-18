@@ -300,14 +300,14 @@
 	        <p data-i18n="spinner_msg" id="loading-status-text" class="text-gray-600 text-sm mt-2">Gør kortet klar til offline brug...</p>
 	    </div>
 	</div>
-
+		        
 	<nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-stone-100 safe-area-bottom z-[1000]">
 	    <div class="grid grid-cols-3 h-16 px-2 gap-1 items-center">
-	        <button id="nav-home" onclick="menuNavigate('start')" class="nav-btn flex flex-col items-center justify-center gap-1 w-full h-14 transition-all duration-200">
-				<svg width="22" height="22" viewBox="0 0 24 24" class="nav-icon fill-[#064D34] transition-colors">
+	        <button id="nav-home" onclick="menuNavigate('start')" class="nav-btn bg-[#064D34] shadow-sm flex flex-col items-center justify-center gap-1 w-full h-14 transition-all duration-200">
+				<svg width="22" height="22" viewBox="0 0 24 24" class="nav-icon fill-white transition-colors">
 	                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
 	            </svg>
-				<span data-i18n="menu_home" class="nav-text text-[9px] font-black uppercase sans text-stone-600 transition-colors"></span>
+				<span data-i18n="menu_home" class="nav-text text-[9px] font-black uppercase sans text-white transition-colors"></span>
 	        </button>
 	        <button id="nav-outside" onclick="menuNavigate('outside')" class="nav-btn flex flex-col items-center justify-center gap-1 w-full h-14 transition-all duration-200">
 				<svg width="22" height="22" viewBox="0 -1 24 24" class="nav-icon fill-[#064D34] transition-colors" xmlns="http://www.w3.org/2000/svg">
@@ -1148,7 +1148,7 @@
 				        </div>
 				        <div class="flex flex-col">
 				            <span class="text-[10px] font-black uppercase tracking-wider text-stone-400 sans">${ui.menu_your_activity}</span>
-				            <span class="font-black text-base text-stone-800 sans tracking-tight mt-0.5"${ui.menu_your_activity_text}></span>
+				            <span class="font-black text-base text-stone-800 sans tracking-tight mt-0.5">${ui.menu_your_activity_text}</span>
 				        </div>
 				    </button>
 				    <button onclick="navigate('prepare_trip')" class="w-full flex items-center gap-4 p-3.5 rounded-2xl transition-all active:bg-stone-50 text-left">
