@@ -1051,12 +1051,13 @@
 			const activeHabitats = geoData[userSettings.country].regions[userSettings.region].activeHabitats;
 
 			document.getElementById('app-content').innerHTML = `
-				<div class="fade-in space-y-6">
-                    <div class="p-3 card bg-green-900 text-white border-0 shadow-xl overflow-hidden relative">
-                        <div class="flex justify-center relative z-10">
-                            <h2 class="text-sm text-green-200 font-bold uppercase tracking-[0.1em] sans">${ui.start_guide} ${appConfig.languages[userSettings.lang].countries[userSettings.country].label}</p>
-                        </div>
-                    </div>
+				<div class="fade-in space-y-3">
+					<div class="flex flex-col items-center justify-center">
+					    <h2 class="text-xs text-stone-400 font-black uppercase tracking-[0.2em] sans">
+					        ${ui.start_guide} ${appConfig.languages[userSettings.lang].countries[userSettings.country].label}
+					    </h2>
+					    <div class="w-12 h-[2px] bg-stone-200 mt-2 rounded-full"></div>
+					</div>
 					<div class="grid grid-cols-2 gap-4">
 						${activeHabitats.map(id => {
 							const label = ui[`hab_${id}`] || id;
