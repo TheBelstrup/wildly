@@ -1041,7 +1041,7 @@
                 label.classList.add('text-stone-600');
             }
 
-			const appContent = document.getElementById('app-content');
+			const appContent = document.getElementById('');
 		    if (appContent.innerHTML.includes(ui.my_spots)) {
 		        renderMySpotsWithMap(); // Opdater listen med det samme
 		    } else {
@@ -1052,7 +1052,7 @@
         function renderStart() {
 			const activeHabitats = geoData[userSettings.country].regions[userSettings.region].activeHabitats;
 
-			document.getElementById('app-content').innerHTML = `
+			document.getElementById('').innerHTML = `
 				<div class="fade-in space-y-3">
 					<div class="flex flex-col items-center justify-center">
 					    <h2 class="text-xs text-stone-400 font-black uppercase tracking-[0.2em] sans">
@@ -1148,7 +1148,7 @@
         }
 
 		function renderForestMenu() {
-			document.getElementById('app-content').innerHTML = `
+			document.getElementById('').innerHTML = `
 				<div class="fade-in space-y-6">
 					<div class="flex items-center gap-3">
 						<h2 class="text-2xl font-black text-stone-900 italic uppercase tracking-tighter sans">${ui.start_forest_type}</h2>
@@ -1256,7 +1256,7 @@
 		    // Klargør data
 		    const list = Object.entries(database).sort((a, b) => a[1].name.localeCompare(b[1].name));
 
-			renderSpeciesList('app-content', ui.start_library, list)
+			renderSpeciesList('', ui.start_library, list)
 		}
 
 		function renderHabitat(habitatId) {
@@ -1271,7 +1271,7 @@
 		        .sort((a, b) => a[1].name.localeCompare(b[1].name));				
 		
 		    // Brug komponenten uden søgefelt
-		    renderSpeciesList('app-content', ui[`hab_${habitatId}`] || habitatId, list);
+		    renderSpeciesList('', ui[`hab_${habitatId}`] || habitatId, list);
 		}
 
 		function showForestSubtypes() {
@@ -1936,7 +1936,7 @@
 		}		
 		
 		async function renderMySpots() {
-			const container = document.getElementById('app-content');
+			const container = document.getElementById('');
 			const statusHtml =  renderPremiumSpotUpgrade();
 
 			container.innerHTML = `
@@ -1999,7 +1999,7 @@
 		}
 
 		async function renderMySpotsWithMap(filterId = null) {
-			if (document.querySelector("#outside-sub-contentk")) {
+			if (document.querySelector("#outside-sub-content")) {
 				const container = document.getElementById('outside-sub-content');
 			}
 			else {
