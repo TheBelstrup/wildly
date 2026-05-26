@@ -1916,7 +1916,7 @@
 		        }
 		    });
 		
-		    const contentContainer = document.getElementById('paatur-sub-content');
+		    const contentContainer = document.getElementById('outside-sub-content');
 		    if (!contentContainer) return;
 		
 		    switch (activeTool) {
@@ -1940,7 +1940,7 @@
 			const statusHtml =  renderPremiumSpotUpgrade();
 
 			container.innerHTML = `
-			    <div id="paatur-sub-content" class="px-6 pt-4 space-y-4">
+			    <div id="outside-sub-content" class="px-6 pt-4 space-y-4">
 			        <div class="flex items-baseline justify-between">
 			            <h2 class="text-xs font-black uppercase tracking-widest text-stone-400 sans">Spots i nærheden</h2>
 			            <span class="text-xs text-stone-400 sans">Sorteret efter distance</span>
@@ -1960,7 +1960,7 @@
 			        </div>
 			    </div>
 			
-			    <div id="paatur-persistent-dock" class="fixed bottom-20 left-4 right-4 h-14 bg-[#064D34] text-white rounded-2xl shadow-xl grid grid-cols-4 divide-x divide-emerald-800/40 items-center justify-center z-[950] p-1">
+			    <div id="outside-persistent-dock" class="fixed bottom-20 left-4 right-4 h-14 bg-[#064D34] text-white rounded-2xl shadow-xl grid grid-cols-4 divide-x divide-emerald-800/40 items-center justify-center z-[950] p-1">
 			        <button onclick="switchFieldTool('spots')" id="tool-spots" class="flex flex-col items-center justify-center gap-0.5 h-full rounded-xl transition-all bg-emerald-900 text-white">
 			            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 			                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
@@ -1999,7 +1999,12 @@
 		}
 
 		async function renderMySpotsWithMap(filterId = null) {
-			const container = document.getElementById('app-content');
+			if (document.querySelector("#outside-sub-contentk")) {
+				const container = document.getElementById('outside-sub-content');
+			}
+			else {
+				const container = document.getElementById('app-content');
+			}
 			const statusHtml =  renderPremiumSpotUpgrade();
 
 			const potentialSpots = appData.mySpots.filter(s => {
