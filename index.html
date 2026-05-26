@@ -973,7 +973,6 @@
 		}
 	
 		function render(pageId, data) {
-		    // Hvis pageId ikke er defineret (f.eks. ved reload), brug 'start'
 		    const current = pageId || 'start';
 			currentPageId = pageId;
 
@@ -1936,7 +1935,7 @@
 			const statusHtml =  renderPremiumSpotUpgrade();
 
 			container.innerHTML = `
-			    <div id="outside-sub-content" class="px-6 pt-4 space-y-4">
+			    <div id="outside-sub-content">
 			        <div class="flex items-baseline justify-between">
 			            <h2 class="text-xs font-black uppercase tracking-widest text-stone-400 sans">Spots i nærheden</h2>
 			            <span class="text-xs text-stone-400 sans">Sorteret efter distance</span>
@@ -4342,23 +4341,14 @@
         }
 
 		window.handleWizardChoice = function(index) {
-		    // 1. Tjek at valget er gyldigt
 		    if (currentWizardNode && currentWizardNode.choices && currentWizardNode.choices[index]) {
-		        
-		        // 2. Find det næste trin i træet
 		        const nextNode = currentWizardNode.choices[index];
-		        
-		        // 3. Opdater den globale variabel
 		        currentWizardNode = nextNode;
-		        
-		        // 4. VIGTIGT: Brug navigate() i stedet for renderWizard()
-		        // Dette gemmer trinnet i historikken, så "Tilbage" virker
 		        navigate('wizard', nextNode);
 		    }
 		};
 		
         function renderWizard(node) {
-			// SIKRER AT GLOBALE VARIABLE ER SYNKRONISERET
 		    if (typeof node === 'object') {
 		        currentWizardNode = node;
 		    }
@@ -4370,7 +4360,7 @@
                     <h2 class="text-2xl font-black italic sans text-stone-900">${title}</h2>
                     <p class="text-stone-600 italic px-4 font-medium">${desc}</p>
                     <div class="grid grid-cols-1 gap-3">${options}</div>
-                    <button onclick="navigate('start')" class="mt-4 text-[10px] uppercase font-bold text-stone-600 tracking-widest">${ui.abort}</button>
+                    <button onclick="navigate('wizard')" class="mt-4 text-[10px] uppercase font-bold text-stone-600 tracking-widest">${ui.abort}</button>
                 </div>`;
 
 			//Template for Option
@@ -4386,7 +4376,7 @@
 					<div class="text-6xl">⚠️</div>
 					<h3 class="text-3xl font-black text-red-700 uppercase sans tracking-tighter">${ui.warning}</h3>
 					<p class="font-bold text-red-900 text-lg leading-relaxed">${text}</p>
-					<button onclick="navigate('start')" class="w-full p-5 bg-red-700 hover:bg-red-800 text-white rounded-2xl font-bold mt-4 sans uppercase tracking-widest transition-colors shadow-lg">${ui.close}</button>
+					<button onclick="navigate('wizard')" class="w-full p-5 bg-red-700 hover:bg-red-800 text-white rounded-2xl font-bold mt-4 sans uppercase tracking-widest transition-colors shadow-lg">${ui.close}</button>
 				</div>`;
 
 			// Template for Notices (Dead ends)
@@ -4395,7 +4385,7 @@
 					<div class="text-6xl">✋</div>
 					<h3 class="text-3xl font-black text-amber-700 uppercase sans tracking-tighter">${ui.notice}</h3>
 					<p class="font-bold text-amber-900 text-lg leading-relaxed">${text}</p>
-					<button onclick="navigate('start')" class="w-full p-5 bg-amber-700 hover:bg-amber-800 text-white rounded-2xl font-bold mt-4 sans uppercase tracking-widest transition-colors shadow-lg">${ui.understood}</button>
+					<button onclick="navigate('wizard')" class="w-full p-5 bg-amber-700 hover:bg-amber-800 text-white rounded-2xl font-bold mt-4 sans uppercase tracking-widest transition-colors shadow-lg">${ui.understood}</button>
 				</div>`;
 		
 			if (!node || node === 'START') {
@@ -4409,7 +4399,7 @@
 				return;
 			}
 			else if (node === 'STOP_POISON') {
-				content = `<div class="fade-in p-8 bg-red-50 border-4 border-red-700 rounded-[32px] text-center space-y-4"><h3 class="text-3xl font-black text-red-700 uppercase sans">${ui.wizard_stop}</h3><p class="font-bold text-red-900 italic">${ui.wizard_stop_description}</p><button onclick="navigate('start')" class="w-full p-4 bg-red-700 text-white rounded-2xl font-bold mt-4 sans uppercase">${ui.abort}</button></div>`; 
+				content = `<div class="fade-in p-8 bg-red-50 border-4 border-red-700 rounded-[32px] text-center space-y-4"><h3 class="text-3xl font-black text-red-700 uppercase sans">${ui.wizard_stop}</h3><p class="font-bold text-red-900 italic">${ui.wizard_stop_description}</p><button onclick="navigate('wizard')" class="w-full p-4 bg-red-700 text-white rounded-2xl font-bold mt-4 sans uppercase">${ui.abort}</button></div>`; 
 
 				document.getElementById('outside-sub-content').innerHTML = content;
 				window.scrollTo(0,0);
@@ -4448,7 +4438,7 @@
 			} 
 			else {
 				// Fallback
-				content = `<div class="text-center py-10"><p>${ui.wizard_error}</p><button onclick="navigate('start')">${ui.wizard_restart}</button></div>`;
+				content = `<div class="text-center py-10"><p>${ui.wizard_error}</p><button onclick="navigate('wizard')">${ui.wizard_restart}</button></div>`;
 			}
             document.getElementById('outside-sub-content').innerHTML = content;
             window.scrollTo(0,0);
