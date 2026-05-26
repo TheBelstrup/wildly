@@ -4413,14 +4413,14 @@
 					<button onclick="navigate('wizard', 'PROCEED')" class="p-5 card bg-green-700 text-white font-black sans uppercase btn-active">${ui.wizard_observe_no}</button>
 				`); 
 
-				document.getElementById('app-content').innerHTML = content;
+				document.getElementById('outside-sub-content').innerHTML = content;
 				window.scrollTo(0,0);
 				return;
 			}
 			else if (node === 'STOP_POISON') {
 				content = `<div class="fade-in p-8 bg-red-50 border-4 border-red-700 rounded-[32px] text-center space-y-4"><h3 class="text-3xl font-black text-red-700 uppercase sans">${ui.wizard_stop}</h3><p class="font-bold text-red-900 italic">${ui.wizard_stop_description}</p><button onclick="navigate('start')" class="w-full p-4 bg-red-700 text-white rounded-2xl font-bold mt-4 sans uppercase">${ui.abort}</button></div>`; 
 
-				document.getElementById('app-content').innerHTML = content;
+				document.getElementById('outside-sub-content').innerHTML = content;
 				window.scrollTo(0,0);
 				return;
 			}
@@ -4459,7 +4459,7 @@
 				// Fallback
 				content = `<div class="text-center py-10"><p>${ui.wizard_error}</p><button onclick="navigate('start')">${ui.wizard_restart}</button></div>`;
 			}
-            document.getElementById('app-content').innerHTML = content;
+            document.getElementById('outside-sub-content').innerHTML = content;
             window.scrollTo(0,0);
         }
 		
