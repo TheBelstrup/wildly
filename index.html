@@ -1180,8 +1180,8 @@
 			`;
 		}
 
-		function renderSpeciesList(containerId, title, speciesArray, onSelect = (id) => navigate(id)) {
-		    const container = document.getElementById(containerId);
+		function renderSpeciesList(title, speciesArray, onSelect = (id) => navigate(id)) {
+		    const container = document.querySelector("#outside-sub-content") ? document.getElementById('outside-sub-content') : document.getElementById('app-content');
 			window.currentSpeciesCallback = onSelect;
 			
 		    if (!container) return;
@@ -1256,7 +1256,7 @@
 		    // Klargør data
 		    const list = Object.entries(database).sort((a, b) => a[1].name.localeCompare(b[1].name));
 
-			renderSpeciesList('', ui.start_library, list)
+			renderSpeciesList(ui.start_library, list)
 		}
 
 		function renderHabitat(habitatId) {
@@ -1270,8 +1270,7 @@
 		        })
 		        .sort((a, b) => a[1].name.localeCompare(b[1].name));				
 		
-		    // Brug komponenten uden søgefelt
-		    renderSpeciesList('', ui[`hab_${habitatId}`] || habitatId, list);
+		    renderSpeciesList(ui[`hab_${habitatId}`] || habitatId, list);
 		}
 
 		function showForestSubtypes() {
@@ -1916,21 +1915,18 @@
 		        }
 		    });
 		
-		    const contentContainer = document.getElementById('outside-sub-content');
-		    if (!contentContainer) return;
-		
 		    switch (activeTool) {
 		        case 'spots':
-		            contentContainer.innerHTML = renderMySpots();
+		            renderMySpots();
 		            break;
 		        case 'map':
-		            contentContainer.innerHTML = renderMySpotsWithMap();
+		            renderMySpotsWithMap();
 		            break;
 		        case 'wizard':
-		            contentContainer.innerHTML = renderWizard('START');
+		            renderWizard('START');
 		            break;
 		        case 'species':
-		            contentContainer.innerHTML = renderAll();
+		            renderAll();
 		            break;
 		    }
 		}		
@@ -1983,7 +1979,7 @@
 			                <path d="M12 2a8 8 0 0 0-8 8c0 3.5 2.5 4.5 3.5 6h9c1-1.5 3.5-2.5 3.5-6a8 8 0 0 0-8-8z"></path>
 			                <path d="M9 16v3a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-3"></path>
 			            </svg>
-			            <span class="text-[9px] font-black uppercase tracking-tight sans text-amber-300">Wizard</span>
+			            <span class="text-[9px] font-black uppercase tracking-tight sans">Wizard</span>
 			        </button>
 			
 			        <button onclick="switchFieldTool('species')" id="tool-artslist" class="flex flex-col items-center justify-center gap-0.5 h-full rounded-xl transition-all text-emerald-200 hover:text-white active:bg-emerald-900">
@@ -1999,12 +1995,7 @@
 		}
 
 		async function renderMySpotsWithMap(filterId = null) {
-			if (document.querySelector("#outside-sub-content")) {
-				const container = document.getElementById('outside-sub-content');
-			}
-			else {
-				const container = document.getElementById('app-content');
-			}
+			const container = document.querySelector("#outside-sub-content") ? document.getElementById('outside-sub-content') : document.getElementById('app-content');
 			const statusHtml =  renderPremiumSpotUpgrade();
 
 			const potentialSpots = appData.mySpots.filter(s => {
@@ -2676,7 +2667,7 @@
 		function openSpeciesSelectorForEdit(spotUid) {
 			window.editingSpeciesForSpotUid = spotUid;
 		    const list = Object.entries(database).sort((a, b) => a[1].name.localeCompare(b[1].name));
-			renderSpeciesList('app-content', ui.spot_update_species, list, (newResId) => {updateSpotSpecies(newResId);})
+			renderSpeciesList(ui.spot_update_species, list, (newResId) => {updateSpotSpecies(newResId);})
 		}
 		
 		function updateSpotSpecies(newResId) {
