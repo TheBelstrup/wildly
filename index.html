@@ -998,7 +998,7 @@
 		        renderMySpots();
 			} else if (current === 'outside-tool') {
 		        const activeTool = (data && data.tool) ? data.tool : 'spots';
-		        renderPaaturWorkspace(activeTool);
+		        switchFieldToolActive(activeTool);
 			} else if (current === 'my-spots') {
 		        renderMySpotsWithMap();
 		    } else if (current === 'wizard') {
@@ -1904,7 +1904,7 @@
 			navigate('outside-tool', { tool: tool });
 		}
 
-		function switchFieldTool(activeTool) {
+		function switchFieldToolActive(activeTool) {
 		    const allTools = ['spots', 'map', 'wizard', 'species'];
 		
 		    allTools.forEach(tool => {
