@@ -995,11 +995,13 @@
 		    if (current === 'start') {
 		        renderStart();
 		    } else if (current === 'outside') {
-		        renderMySpots(); // Nu er kortet med i navigationen!
-		    } else if (current === 'my-spots') {
-		        renderMySpotsWithMap(); // Nu er kortet med i navigationen!
+		        renderMySpots();
+			} else if (current === 'outside-tool') {
+		        const activeTool = (data && data.tool) ? data.tool : 'spots';
+		        renderPaaturWorkspace(activeTool);
+			} else if (current === 'my-spots') {
+		        renderMySpotsWithMap();
 		    } else if (current === 'wizard') {
-		        // Vi sender data (noden) med til renderWizard
 		        renderWizard(data || 'START');
 		    } else if (current === 'all') {
 		        renderAll();
@@ -1020,7 +1022,7 @@
 				renderPrepareTrip();
 			} else if (typeof current === 'string' && current.startsWith('view_')) {
 		        renderHabitat(current.replace('view_', ''));
-		    } else if (database[current]) { // Tjekker om ID findes i databasen (res_...)
+		    } else if (database[current]) {
 		        renderResult(current);
 		    }
 		}
@@ -1896,6 +1898,10 @@
 			}
 
 			return `${new Date(spotDate).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}`;
+		}
+
+		function switchFieldTool(activeTool) {
+			navigate('outside-tool', { tool: tool });
 		}
 
 		function switchFieldTool(activeTool) {
