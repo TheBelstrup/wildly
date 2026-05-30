@@ -2533,6 +2533,12 @@
 					
 					    <div class="w-full h-full rounded-[24px] overflow-hidden border border-stone-100 shadow-sm">
 					        <img src="${photo.data}" class="w-full h-full object-cover" onclick='openFullImage(window.currentSpotPhotos, ${index})'>
+							<button onclick="downloadImage('${photo.data}')" class="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-[2100] bg-black/40 backdrop-blur-md text-white border border-white/20 px-4 py-2.5 rounded-xl hover:bg-black/60 active:scale-95 transition-all flex items-center gap-2 shadow-lg" title="Download billede">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                </svg>
+                                <span class="text-xs font-bold tracking-wide sans">Gem lokalt</span>
+                            </button>
 					    </div>
 					</div>
 		        `).join('');
@@ -2866,10 +2872,45 @@
 		
 		    document.body.appendChild(overlay);
 		
-		    // Scroll til det rigtige billede
 		    const gallery = document.getElementById('swipe-gallery');
 		    gallery.scrollLeft = startIndex * window.innerWidth;
 		}
+
+		async function downloadImage(imageUrl) {
+    try {
+		let blobUrl;
+        let filename = 'wildly-img.jpg';
+		
+        const response = await fetch(imageSrc);
+            const blob = await response.blob();
+            blobUrl = URL.createObjectURL(blob);
+
+            // Prøv at finde den rigtige filtype (png, jpeg, webp osv.) ud fra Base64-teksten
+            const match = imageSrc.match(/^data:image\/([a-zA-Z+]+);base64,/);
+            if (match && match[1]) {
+                const ext = match[1] === 'jpeg' ? 'jpg' : match[1];
+                filename = ``wildly-photo-${Date.now()}.${ext}`;
+			}
+        
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+        console.error('Download failed. Attempting fallback: ', error);
+        const a = document.createElement('a');
+        a.href = imageUrl;
+        a.target = '_blank';
+        a.download = 'wildly-img.jpg';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+}
 
 		async function deleteFullSpot(spotUid) {
 		    if (confirm(ui.spot_delete_confirm)) {
