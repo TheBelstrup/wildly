@@ -997,7 +997,7 @@
 		    } else if (current === 'outside') {
 		        renderMySpots();
 			} else if (current === 'outside-tool') {
-		        switchFieldTool(data.tool);
+				renderOutsideWorkspace(data.tool);
 			} else if (current === 'my-spots') {
 		        renderMySpotsWithMap();
 		    } else if (current === 'wizard') {
@@ -1899,61 +1899,14 @@
 			return `${new Date(spotDate).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}`;
 		}
 
-		function switchFieldTool(activeTool) {
-		    const allTools = ['spots', 'map', 'wizard', 'species'];
+		function renderOutsideWorkspace(activeTool) {
+			const appContent = document.getElementById('app-content');
+			let subContent = document.getElementById('outside-sub-content');
 		
-		    allTools.forEach(tool => {
-		        const button = document.getElementById(`tool-${tool}`);
-		        if (!button) return;
-		
-		        if (tool === activeTool) {
-		            button.classList.add('bg-emerald-900', 'text-white');
-		            button.classList.remove('text-emerald-200');
-		        } else {
-		            button.classList.remove('bg-emerald-900', 'text-white');
-		            button.classList.add('text-emerald-200');
-		        }
-		    });
-		
-		    switch (activeTool) {
-		        case 'spots':
-		            renderMySpots();
-		            break;
-		        case 'map':
-		            renderMySpotsWithMap();
-		            break;
-		        case 'wizard':
-		            renderWizard('START');
-		            break;
-		        case 'species':
-		            renderAll();
-		            break;
-		    }
-		}		
-		
-		async function renderMySpots() {
-			const container = document.getElementById('app-content');
-			const statusHtml =  renderPremiumSpotUpgrade();
-
-			container.innerHTML = `
+			// Hvis skallen (dock + sub-content) mangler (f.eks. vi kom tilbage fra en detaljeside)
+			if (!subContent) {
+				appContent.innerHTML = `
 			    <div id="outside-sub-content">
-			        <div class="flex items-baseline justify-between">
-			            <h2 class="text-xs font-black uppercase tracking-widest text-stone-400 sans">Spots i nærheden</h2>
-			            <span class="text-xs text-stone-400 sans">Sorteret efter distance</span>
-			        </div>
-			
-			        <div class="space-y-3">
-			            <div class="flex items-center justify-between p-4 bg-white border border-stone-100 rounded-2xl shadow-sm">
-			                <div class="flex items-center gap-3">
-			                    <div class="text-2xl">🍄</div>
-			                    <div>
-			                        <h4 class="font-bold text-stone-850 sans text-sm leading-tight">Kantarel-skråningen</h4>
-			                        <p class="text-xs text-stone-400 mt-0.5">Hareskoven · <span class="font-medium text-stone-600">Gamle bøgetræer</span></p>
-			                    </div>
-			                </div>
-			                <span class="font-black text-sm text-emerald-800 sans">150m</span>
-			            </div>
-			        </div>
 			    </div>
 			
 			    <div id="outside-persistent-dock" class="fixed bottom-20 left-4 right-4 h-14 bg-[#064D34] text-white rounded-2xl shadow-xl grid grid-cols-4 divide-x divide-emerald-800/40 items-center justify-center z-[950] p-1">
@@ -1993,6 +1946,67 @@
 			            <span class="text-[9px] font-black uppercase tracking-tight sans">Artsliste</span>
 			        </button>			
 			    </div>
+				`;
+			}
+
+			
+			switchFieldTool(activeTool);			
+		}
+		
+		function switchFieldTool(activeTool) {
+		    const allTools = ['spots', 'map', 'wizard', 'species'];
+		
+		    allTools.forEach(tool => {
+		        const button = document.getElementById(`tool-${tool}`);
+		        if (!button) return;
+		
+		        if (tool === activeTool) {
+		            button.classList.add('bg-emerald-900', 'text-white');
+		            button.classList.remove('text-emerald-200');
+		        } else {
+		            button.classList.remove('bg-emerald-900', 'text-white');
+		            button.classList.add('text-emerald-200');
+		        }
+		    });
+		
+		    switch (activeTool) {
+		        case 'spots':
+		            renderMySpots();
+		            break;
+		        case 'map':
+		            renderMySpotsWithMap();
+		            break;
+		        case 'wizard':
+		            renderWizard('START');
+		            break;
+		        case 'species':
+		            renderAll();
+		            break;
+		    }
+		}		
+		
+		async function renderMySpots() {
+			const container = document.getElementById('outside-sub-content');
+			const statusHtml =  renderPremiumSpotUpgrade();
+
+			container.innerHTML = `
+				<div class="flex items-baseline justify-between">
+					<h2 class="text-xs font-black uppercase tracking-widest text-stone-400 sans">Spots i nærheden</h2>
+					<span class="text-xs text-stone-400 sans">Sorteret efter distance</span>
+				</div>
+		
+				<div class="space-y-3">
+					<div class="flex items-center justify-between p-4 bg-white border border-stone-100 rounded-2xl shadow-sm">
+						<div class="flex items-center gap-3">
+							<div class="text-2xl">🍄</div>
+							<div>
+								<h4 class="font-bold text-stone-850 sans text-sm leading-tight">Kantarel-skråningen</h4>
+								<p class="text-xs text-stone-400 mt-0.5">Hareskoven · <span class="font-medium text-stone-600">Gamle bøgetræer</span></p>
+							</div>
+						</div>
+						<span class="font-black text-sm text-emerald-800 sans">150m</span>
+					</div>
+				</div>
 		    `;
 		}
 
