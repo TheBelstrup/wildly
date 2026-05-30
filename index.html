@@ -596,7 +596,7 @@
 		    });
 		}
 
-		function menuNavigate(navigateTo) {
+		function menuNavigate(navigateTo, data = null) {
 		    // 1. Fjern "aktiv" styling fra alle knapper
 		    document.querySelectorAll('.nav-btn').forEach(btn => {
 		        btn.classList.remove('bg-[#064D34]', 'shadow-sm');
@@ -629,7 +629,7 @@
 		        text.classList.add('text-white');
 		    }
 
-			navigate(navigateTo);
+			navigate(navigateTo, data);
 		}
 
 		function toggleMenu() {
