@@ -982,7 +982,7 @@
 			
 			// Styr tilbage-knappens synlighed
 		    const backBtn = document.getElementById('back-btn');
-		    if (current === 'start') {
+		    if (current === 'start' || current === 'outside-tool') {
 		        backBtn.classList.add('hidden');
 		    } else {
 		        backBtn.classList.remove('hidden');
