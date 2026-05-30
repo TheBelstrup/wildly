@@ -2801,21 +2801,22 @@
 		    overlay.innerHTML = `
 				<div class="flex h-full w-full overflow-x-auto snap-x snap-mandatory no-scrollbar" id="swipe-gallery">
 					${window.currentSpotPhotos.slice().reverse().map((src, index) => `
-						<div class="min-w-full h-full snap-center flex items-center justify-center p-4 relative select-none">
-							<img src="${src}" class="max-w-full max-h-full object-contain shadow-2xl">
-							
-							<button onclick="event.stopPropagation(); downloadImage(window.currentSpotPhotos.slice().reverse()[${index}])" 
-									class="absolute top-10 right-24 text-white bg-black/40 backdrop-blur-md w-12 h-12 rounded-full flex items-center justify-center z-[2001] active:scale-90 transition-all border border-white/5"
-									title="Download image">
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.3" stroke="currentColor" class="w-5 h-5">
-									<path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-								</svg>
-							</button>
+						<div class="min-w-full h-full snap-center flex items-center justify-center p-4 select-none">
+							<div class="relative max-w-full max-h-full">
+								<img src="${src}" class="max-w-full max-h-full object-contain shadow-2xl block rounded-xl">
+								<button onclick="event.stopPropagation(); downloadImage(window.currentSpotPhotos.slice().reverse()[${index}])" 
+										class="absolute top-3 right-3 text-white bg-black/50 backdrop-blur-md w-10 h-10 rounded-full flex items-center justify-center z-[2002] active:scale-90 transition-all border border-white/10 shadow-lg hover:bg-black/70"
+										title="Download dette billede">
+									<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+										<path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+									</svg>
+								</button>
+							</div>
 						</div>
 					`).join('')}
 				</div>
-			
-		        <button class="absolute top-10 right-6 text-white bg-black/40 backdrop-blur-md w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold z-[2001]">✕</button>
+
+				<button class="absolute top-10 right-6 text-white bg-black/40 backdrop-blur-md w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold z-[2001]">✕</button>
 		        
 		        <div class="absolute bottom-10 left-0 right-0 text-center text-white/50 text-[10px] font-black uppercase tracking-widest z-[2001] pointer-events-none">
 		            ${ui.gallery_swipe_or_click_to_close}
