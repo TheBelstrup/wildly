@@ -309,7 +309,7 @@
 	            </svg>
 				<span data-i18n="menu_home" class="nav-text text-[9px] font-black uppercase sans text-white transition-colors"></span>
 	        </button>
-	        <button id="nav-outside" onclick="menuNavigate('outside')" class="nav-btn flex flex-col items-center justify-center gap-1 w-full h-16 transition-all duration-200">
+	        <button id="nav-outside" onclick="menuNavigate('outside-tool', {tool: 'spots'}))" class="nav-btn flex flex-col items-center justify-center gap-1 w-full h-16 transition-all duration-200">
 				<svg width="22" height="22" viewBox="0 -1 24 24" class="nav-icon fill-[#064D34] transition-colors" xmlns="http://www.w3.org/2000/svg">
 	                <g transform="translate(1, 4) rotate(-14 4.5 9)">
 	                    <path d="M4.5 1C2.3 1 1.5 3.5 1.5 6.5c0 1.2.7 2.2 1.8 2.3l2.8.3c1.1 0 1.9-.9 1.9-2.1C8 3.5 7.2 1 5 1h-.5z"></path>
@@ -994,8 +994,6 @@
 		    // Vælg hvad der skal vises
 		    if (current === 'start') {
 		        renderStart();
-		    } else if (current === 'outside') {
-		        renderMySpots();
 			} else if (current === 'outside-tool') {
 				renderOutsideWorkspace(data.tool);
 			} else if (current === 'my-spots') {
@@ -1949,7 +1947,6 @@
 				`;
 			}
 
-			
 			switchFieldTool(activeTool);			
 		}
 		
