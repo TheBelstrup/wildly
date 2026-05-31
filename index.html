@@ -2324,7 +2324,7 @@
 		    `;
 		}
 
-		async function buildLogHtml(log, withHeader = false) {
+		async function gHtml(log, withHeader = false) {
 			const photoHtml = await renderLogPhoto(log.photoId);
 			return `
 				<div class="relative pl-6 mb-4 flex items-center justify-between gap-3">
@@ -4221,7 +4221,7 @@
 			renderSpot(logState.spotUid);
 		}
 
-		function renderActivityFeed() {
+		async function renderActivityFeed() {
 		    const container = document.getElementById('app-content');
 		    if (!container) return;
 		
