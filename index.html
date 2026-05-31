@@ -2324,7 +2324,7 @@
 		    `;
 		}
 
-		async function gHtml(log, withHeader = false) {
+		async function buildLogHtml(log, withHeader = false) {
 			const photoHtml = await renderLogPhoto(log.photoId);
 			return `
 				<div class="relative pl-6 mb-4 flex items-center justify-between gap-3">
