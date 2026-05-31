@@ -2323,76 +2323,59 @@
 		        </span>
 		    `;
 		}
+
+		async function buildLogHtml(log, withHeader = false) {
+			const photoHtml = await renderLogPhoto(log.photoId);
+			return `
+				<div class="relative pl-6 mb-4">
+					<div class="absolute -left-[17px] top-1/2 -translate-y-1/2 z-10 bg-white rounded-full drop-shadow-sm">
+						${getStatusIcon(log.status)}
+					</div>
+					
+					<p class="text-[10px] font-black text-stone-400 uppercase tracking-widest">
+						${new Date(log.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
+					</p>
+					
+					${withHeader ? `
+						<h3 class="font-black text-stone-900 uppercase italic tracking-tighter cursor-pointer" onclick="navigate('view_spot', '${log.spotUid}')">
+							${database[appData.mySpots.find(spot => spot.uid === log.spotUid).resId].name}
+						</h3>
+					` : ''}
+					
+					<div class="flex items-center gap-2">
+						<p class="text-[11px] font-black uppercase tracking-wider leading-none">${getStatusText(log.status)}</p>
+						${getQuantityPill(log.quantity)}
+					</div>
+				
+					<div class="flex gap-4 items-start">
+						${photoHtml}
+						<div class="flex-1">
+							<p class="text-sm text-stone-600 italic leading-relaxed">${log.note}</p>
+						</div>
+					</div>
+				</div>
+			`;
+		}
 		
 		async function renderSpotLogs(logs) {			
-			if (!logs || logs.length === 0) return { latest: '', history: '', button: '' };
-			
-		    const sortedLogs = [...logs].sort((a, b) => b.timestamp  - a.timestamp );
+		    if (!logs || logs.length === 0) return { latest: '', history: '', button: '' };
+		    
+		    const sortedLogs = [...logs].sort((a, b) => b.timestamp - a.timestamp);
 		    const latestLog = sortedLogs[0];
 		    const olderLogs = sortedLogs.slice(1);
-			const photoHtml = await renderLogPhoto(latestLog.photoId);
-		
-		    const latestLogHtml = `
-				<div class="relative pl-6 mb-4">
-					<div class="absolute -left-[17px] -top-1 z-10 bg-white rounded-full drop-shadow-sm">
-			            ${getStatusIcon(latestLog.status)}
-			        </div>
-					<p class="text-[10px] font-black text-stone-400 uppercase tracking-widest">
-						${new Date(latestLog.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
-					</p>
-					<div class="flex items-center gap-2 mb-3">
-						<p class="text-[11px] font-black uppercase tracking-wider leading-none">${getStatusText(latestLog.status)}</p>
-						${getQuantityPill(latestLog.quantity)}
-					</div>
-
-			        <div class="flex gap-4 items-start">
-			            ${photoHtml}
-			            <div class="flex-1">
-			                <p class="text-sm text-stone-600 font-medium italic leading-relaxed">${latestLog.note}</p>
-			            </div>
-			        </div>
-			    </div>
-		    `;
-
-			const olderLogsPromises = olderLogs.map(async (log) => {
-			    const photoHtml = await renderLogPhoto(log.photoId);
-			
-			    return `
-			        <div class="relative pl-6 mb-4">
-						<div class="absolute -left-[17px] -top-1 z-10 bg-white rounded-full drop-shadow-sm">
-				            ${getStatusIcon(log.status)}
-				        </div>
-						<p class="text-[10px] font-black text-stone-400 uppercase tracking-widest">
-							${new Date(log.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
-						</p>
-						<div class="flex items-center gap-2 mb-3">
-							<p class="text-[11px] font-black uppercase tracking-wider leading-none">${getStatusText(log.status)}</p>
-							${getQuantityPill(log.quantity)}
-						</div>
-					
-			            <div class="flex gap-4 items-start">
-			                ${photoHtml}
-			                <div class="flex-1">
-			                    <p class="text-sm text-stone-600 italic leading-relaxed">${log.note}</p>
-			                </div>
-			            </div>
-			        </div>
-			    `;
-			});
-
-			const olderLogsHtml = (await Promise.all(olderLogsPromises)).join('');
-		
+		    const latestLogHtml = await buildLogHtml(latestLog);
+		    const olderLogsPromises = olderLogs.map(log => buildLogHtml(log));
+		    const olderLogsHtml = (await Promise.all(olderLogsPromises)).join('');
 		    const toggleButtonHtml = olderLogs.length > 0 ? `
-				<div id="history-button-section" class="relative">
-				    <div class="absolute -left-[21px] top-1/2 -translate-y-1/2 w-3 h-3 bg-stone-200 rounded-full border-2 border-white"></div>
-				    
-				    <button onclick="revealHistory()" class="w-full py-3.5 bg-white border border-stone-200 text-stone-500 hover:text-stone-700 rounded-[20px] font-bold text-[10px] uppercase tracking-widest active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2">
-				        <span>${ui.quicklog_all_visits} (${olderLogs.length}) </span>
-				        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
-				        </svg>
-				    </button>
-				</div>
+		        <div id="history-button-section" class="relative">
+		            <div class="absolute -left-[21px] top-1/2 -translate-y-1/2 w-3 h-3 bg-stone-200 rounded-full border-2 border-white"></div>
+		            <button onclick="revealHistory()" class="w-full py-3.5 bg-white border border-stone-200 text-stone-500 hover:text-stone-700 rounded-[20px] font-bold text-[10px] uppercase tracking-widest active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2">
+		                <span>${ui.quicklog_all_visits} (${olderLogs.length}) </span>
+		                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+		                </svg>
+		            </button>
+		        </div>
 		    ` : '';
 		
 		    return {
