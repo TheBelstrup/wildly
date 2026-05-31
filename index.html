@@ -4254,7 +4254,7 @@
 		
 		    const stopIndex = Math.max(0, totalLogs - displayedLogsCount);
 		    for (let i = totalLogs - 1; i >= stopIndex; i--) {
-		        html += buildLogHtml(allLogs[i], withHeader: true);
+		        html += buildLogHtml(allLogs[i], true);
 		    }
 		
 		    html += "
