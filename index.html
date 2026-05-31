@@ -4228,7 +4228,6 @@
 		    const allLogs = appData.logs || [];
 		    const totalLogs = allLogs.length;
 		
-		    // Hvis der slet ikke er logget noget endnu
 		    if (totalLogs === 0) {
 		        container.innerHTML = `
 		            <div class="p-4 pb-8 fade-in flex flex-col items-center justify-center text-center py-20 gap-3 sans">
@@ -4255,53 +4254,13 @@
 		
 		    const stopIndex = Math.max(0, totalLogs - displayedLogsCount);
 		    for (let i = totalLogs - 1; i >= stopIndex; i--) {
-		        const log = allLogs[i];
-		        
-		        const spot = appData.mySpots.find(s => s.uid === log.spotUid);
-		        const species = spot ? database[spot.resId] : null;
-		        const speciesName = species ? species.name : ui.activity_feed_unknown;
-		        const logDate = new Date(log.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' });
-		
-		        html += `
-		            <div class="relative pl-6 group">
-		                <div class="absolute -left-[17px] -top-1 z-10 bg-white rounded-full drop-shadow-sm">
-		                    <svg class="w-8 h-8" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-		                        <circle cx="16" cy="16" r="15" fill="white"></circle>
-		                        <circle cx="16" cy="16" r="14" stroke="#059669" stroke-width="3"></circle>
-		                        <path d="M21 13L14.5 19.5L11 16" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
-		                    </svg>
-		                </div>
-		
-		                <p class="text-[10px] font-black text-stone-400 uppercase tracking-widest leading-none mb-1">
-		                    ${logDate}
-		                </p>
-		                
-		                <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-1">
-		                    <button onclick="navigate('view_spot', { spotUid: '${log.spotUid}' })" class="text-left font-black text-stone-900 uppercase italic tracking-tight hover:text-emerald-700 transition-colors text-sm">
-		                        ${speciesName}
-		                    </button>
-		                    
-		                    <div class="flex items-center gap-1.5">
-		                        <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">${log.status}</span>
-		                        <span class="bg-stone-100 text-stone-600 px-1.5 py-0.5 rounded-md text-[9px] uppercase tracking-wider font-bold border border-stone-200/40">
-		                            ${log.quantity}
-		                        </span>
-		                    </div>
-		                </div>
-		
-		                ${log.note ? `
-		                    <div class="mt-1 bg-stone-50/50 border border-stone-100 p-2.5 rounded-xl">
-		                        <p class="text-xs text-stone-600 font-medium italic leading-relaxed">${log.note}</p>
-		                    </div>
-		                ` : ''}
-		            </div>
-		        `;
+		        html += buildLogHtml(allLogs[i], withHeader: true);
 		    }
 		
-		    html += `
+		    html += "
 		                </div>
 		            </section>
-		    `;
+		    ";
 		
 		    if (stopIndex > 0) {
 		        html += `
