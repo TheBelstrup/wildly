@@ -2327,32 +2327,42 @@
 		async function buildLogHtml(log, withHeader = false) {
 			const photoHtml = await renderLogPhoto(log.photoId);
 			return `
-				<div class="relative pl-6 mb-4">
-					<div class="absolute -left-[17px] top-1/2 -translate-y-1/2 z-10 bg-white rounded-full drop-shadow-sm">
-						${getStatusIcon(log.status)}
-					</div>
+				<div class="relative pl-6 mb-4 flex items-center justify-between gap-3">
+					<div class="flex-1 min-w-0">
+						<div class="absolute -left-[17px] top-1/2 -translate-y-1/2 z-10 bg-white rounded-full drop-shadow-sm">
+							${getStatusIcon(log.status)}
+						</div>
+						
+						<p class="text-[10px] font-black text-stone-400 uppercase tracking-widest">
+							${new Date(log.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
+						</p>
+						
+						${withHeader ? `
+							<h3 class="font-black text-stone-900 uppercase italic tracking-tighter cursor-pointer">
+								${database[appData.mySpots.find(spot => spot.uid === log.spotUid).resId].name}
+							</h3>
+						` : ''}
+						
+						<div class="flex items-center gap-2">
+							<p class="text-[11px] font-black uppercase tracking-wider leading-none">${getStatusText(log.status)}</p>
+							${getQuantityPill(log.quantity)}
+						</div>
 					
-					<p class="text-[10px] font-black text-stone-400 uppercase tracking-widest">
-						${new Date(log.timestamp).toLocaleDateString(`${userSettings.lang}-${userSettings.country}`, { day: 'numeric', month: 'long', year: 'numeric' })}
-					</p>
-					
-					${withHeader ? `
-						<h3 class="font-black text-stone-900 uppercase italic tracking-tighter cursor-pointer" onclick="navigate('view_spot', '${log.spotUid}')">
-							${database[appData.mySpots.find(spot => spot.uid === log.spotUid).resId].name}
-						</h3>
-					` : ''}
-					
-					<div class="flex items-center gap-2">
-						<p class="text-[11px] font-black uppercase tracking-wider leading-none">${getStatusText(log.status)}</p>
-						${getQuantityPill(log.quantity)}
-					</div>
-				
-					<div class="flex gap-4 items-start">
-						${photoHtml}
-						<div class="flex-1">
-							<p class="text-sm text-stone-600 italic leading-relaxed">${log.note}</p>
+						<div class="flex gap-4 items-start">
+							${photoHtml}
+							<div class="flex-1">
+								<p class="text-sm text-stone-600 italic leading-relaxed">${log.note}</p>
+							</div>
 						</div>
 					</div>
+
+					${withHeader ? `
+		                <div class="flex-shrink-0">
+		                    <button onclick="navigate('view_spot', { spotUid: '${log.spotUid}' })" class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-950 border-2 border-emerald-600/30 flex items-center justify-center active:scale-90 transition-transform shadow-sm">
+		                        <span class="text-sm font-bold">❯</span>
+		                    </button>
+		                </div>
+		            ` : ''}
 				</div>
 			`;
 		}
